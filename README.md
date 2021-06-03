@@ -41,7 +41,7 @@ The command line program uses asyncio and runs 3 different tasks
 
 - Task 1 (runner) - this task connects to the cloud API and periodically polls it at a 10 second interval
 
-- Task 2 (poller) - this task runs on a 15 second interval and prints out information from Zone 1
+- Task 2 (poller) - this task runs on a 15 second interval and prints out information from all active Zones
 
 - Task 3 (prompt) - this task reads from the command line and executes commands on behalf of the user to enabling API testing.  Cmd List
 
