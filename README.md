@@ -3,7 +3,7 @@
 
 By Pete Sage ()  
 
-This module connects to the Lennox Cloud API to retrieve data from S30 / E30 thermostats.  This API does not work for older models that use a different API.  Those models are
+This asyncio module connects to the Lennox Cloud API to retrieve data from S30 / E30 thermostats.  This API does not work for older models that use a different API.  Those models are
 supported by this project:  https://github.com/thevoltagesource/myicomfort
 
 
@@ -20,6 +20,8 @@ Prerequistes:
 1. Python version 3.8.6 or later
 
 2. A Lennox sign-on (email address and password)
+
+3. You may need to install aiohttp https://docs.aiohttp.org/en/stable/
 
 Install Instructions:
 
