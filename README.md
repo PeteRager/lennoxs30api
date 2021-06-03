@@ -3,7 +3,7 @@
 
 By Pete Sage ()  
 
-This module connects to the Lennox Cloud API to retrieve data from S30 / E30 thermostats.  This API does not work for older models that use a completely different API.  Those models are
+This module connects to the Lennox Cloud API to retrieve data from S30 / E30 thermostats.  This API does not work for older models that use a different API.  Those models are
 supported by this project:  https://github.com/thevoltagesource/myicomfort
 
 
