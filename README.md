@@ -1,5 +1,5 @@
 # PyPI - lennoxs30api
-### API Wrapper for www.myicomfort.com
+### API Wrapper for www.lennoxicomfort.com
 
 By Pete Sage ()  
 
