@@ -11,9 +11,9 @@ This module is currently in test and prototype mode; as such it is not recommend
 
 This module provides a command line test program; that can be used to exercise the main functions and create diagnostic output files to futher enhance and fix issues with the API
 
-Current state - Tested with a single Zone S30 Air Coniditioning System
+Current state - Tested with a single Zone S30 Air Conditioning System
 
-Known Issues - None
+Known Issues - Passwords with & will not work.
 
 Prerequistes:
 
