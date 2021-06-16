@@ -169,7 +169,7 @@ class s30api_async(object):
 
     def getHome(self, homeId) -> lennox_home:
         for home in self._homeList:
-            if home.id == homeId:
+            if str(home.id) == str(homeId):
                 return home
         return None
 
@@ -177,10 +177,10 @@ class s30api_async(object):
         return self._homeList
 
     def getOrCreateHome(self, homeId):
-        home = self.getHome(id)
+        home = self.getHome(homeId)
         if home != None:
             return home
-        home = lennox_home(id)
+        home = lennox_home(homeId)
         self._homeList.append(home)
         return home
 
@@ -216,6 +216,16 @@ class s30api_async(object):
                 raise S30Exception(errmsg, EC_LOGIN,1)
             resp_json = await resp.json()
             _LOGGER.debug(json.dumps(resp_json, indent=4))
+            self.process_login_response(resp_json)
+        except S30Exception as e:
+            raise e
+        except Exception as e:
+            txt = str(e)
+            _LOGGER.error("Exception " + str(e))
+            raise S30Exception(str(e), EC_COMMS_ERROR,2)
+        _LOGGER.info(f"login Success homes [{len(self._homeList)}] systems [{len(self._systemList)}]")
+
+    def process_login_response(self, resp_json:json):
             # Grab the bearer token
             self.loginBearerToken = resp_json['ServerAssignedRoot']['serverAssigned']['security']['userToken']['encoded']
             # Split off the "bearer" part of the token, as we need to use just the token part later in the URL.  Format is "Bearer <token>"
@@ -231,13 +241,6 @@ class s30api_async(object):
                 for system in resp_json['readyHomes']['homes'][lhome.idx]['systems']:
                     lsystem = self.getOrCreateSystem(system['sysId'])
                     lsystem.update(self, lhome, system['id'])
-        except S30Exception as e:
-            raise e
-        except Exception as e:
-            txt = str(e)
-            _LOGGER.error("Exception " + str(e))
-            raise S30Exception(str(e), EC_COMMS_ERROR,2)
-        _LOGGER.info(f"login Success homes [{len(self._homeList)}] systems [{len(self._systemList)}]")
 
 
     async def negotiate(self) -> None:

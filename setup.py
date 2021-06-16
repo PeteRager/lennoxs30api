@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="lennoxS30api",
-    version="0.0.1",
+    version="0.0.3",
     author="Pete Sage",
     author_email="pete.saged@icloud.com",
     description="API Wrapper for Lennox 30 Cloud",
