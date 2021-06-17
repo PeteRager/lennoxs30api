@@ -385,7 +385,7 @@ class s30api_async(object):
             _LOGGER.error(err_msg)
             raise S30Exception(err_msg, EC_REQUEST_DATA_HELPER, 2)
 
-    def getSystems(self):
+    def getSystems(self) -> List['lennox_system']:
         return self._systemList
 
     def getSystem(self, sysId) -> 'lennox_system':
