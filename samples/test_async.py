@@ -97,10 +97,10 @@ async def command_reader_task(s30api):
             res = splits[0]
             print('Result [' + res + ']')
             # By default we'll use Zone_1 on the first S30 found
+            zone:lennox_zone = None
             if s30api.getSystems() != None and len(s30api.getSystems()) > 0:
                 system:lennox_system = s30api.getSystems()[0]
-                zone:lennox_zone = system.getZone(0)
-            if zone is None:
+                zone = system.getZone(0)
                 # Zone configuration usually arrives within 5-10 seconds.  In a real program you may wait for it to come in
                 # before really starting up.
                 print("zone configuration not received, command ignored")
