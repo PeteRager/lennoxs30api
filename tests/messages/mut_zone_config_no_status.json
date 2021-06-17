@@ -1,0 +1,23 @@
+{
+    "MessageId": "637594482650621245|926d7c9884b44dc4a245ad24f547d420",
+    "SenderId": "0000000-0000-0000-0000-000000000002",
+    "TargetID": "mapp079372367644467046827098_myemail@email.com",
+    "MessageType": "PropertyChange",
+    "Data": {
+        "zones": [
+            {
+                "publisher": {
+                    "publisherName": "lcc"
+                },
+                "config": {
+                    "humidificationOption": false,
+                    "humidificationNotAdjustable": false,
+                    "dehumidificationNotAdjustable": false,
+                    "dehumidificationOption": true
+                },
+                "id": 0
+            }
+        ]
+    },
+    "AdditionalParameters": null
+}

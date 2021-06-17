@@ -1,0 +1,27 @@
+{
+    "MessageId": "637594500319530582|32a72049283e490aabb02c79ed9cfb34",
+    "SenderId": "0000000-0000-0000-0000-000000000002",
+    "TargetID": "mapp079372367644467046827098_myemail@myemail.com",
+    "MessageType": "PropertyChange",
+    "Data": {
+        "schedules": [
+            {
+                "publisher": {
+                    "publisherName": "remote"
+                },
+                "schedule": {
+                    "periods": [
+                        {
+                            "id": 0,
+                            "period": {
+                                "systemMode": "cool"
+                            }
+                        }
+                    ]
+                },
+                "id": 16
+            }
+        ]
+    },
+    "AdditionalParameters": null
+}

@@ -315,13 +315,8 @@ class s30api_async(object):
                 resp_json = await resp.json()     
                 _LOGGER.debug(json.dumps(resp_json, indent=4))
                 for message in resp_json["messages"]:
-                    self.metrics.inc_message_count()
-                    sysId = message["SenderId"]
-                    system = self.getSystem(sysId)
-                    if (system == None):
-                        _LOGGER.error("messagePump unknown SenderId/SystemId [" + str(sysId) + "]")
-                        continue
-                    system.processMessage(message)
+                    # TODO if this throws an exception we will miss other messages!
+                    self.processMessage(message)
             else:
 #                txt = await resp.text()
                 err_msg = f'messagePump failed response http_code [{resp.status}]'
@@ -338,6 +333,16 @@ class s30api_async(object):
             err_msg = "messagePump Failed - Exception " + str(e)
             _LOGGER.error(err_msg)
             raise S30Exception(err_msg, EC_RETRIEVE, 2)
+
+    def processMessage(self, message):
+        self.metrics.inc_message_count()
+        sysId = message["SenderId"]
+        system = self.getSystem(sysId)
+        if (system != None):
+            system.processMessage(message)
+        else:
+            _LOGGER.error("messagePump unknown SenderId/SystemId [" + str(sysId) + "]")
+
 
     # Messages seem to use unique GUIDS, here we create one
     def getNewMessageID(self):
@@ -671,23 +676,21 @@ class lennox_system(object):
         cspC = period.cspC
         await self.setpointHelper(zoneId, scheduleId, hsp,hspC,csp,cspC)
 
+    def getOrCreateZone(self, id):
+        zone = self.getZone(id)
+        if zone != None:
+            return zone
+        zone = lennox_zone(self, id)
+        self._zoneList.append(zone)
+        return zone
+
+
     def processZonesMessage(self, message):
         try:
             for zone in message:
                 id = zone['id']
-                lzone = self.getZone(id)
-                if (lzone == None):
-                    if 'config' in zone:
-                        name = zone['config']['name']
-                    else:
-                        name = "Zone " + str(id+1)
-                    if 'status' in zone:
-                        lzone = lennox_zone(self, id, name)
-                        self._zoneList.append(lzone)
-                    else:
-                        _LOGGER.error("processZoneMessage skipping unconfigured zone id [" + str(id) + "] name [" + name +"]")
-                if (lzone != None):
-                    lzone.processMessage(zone)
+                lzone = self.getOrCreateZone(id)
+                lzone.processMessage(zone)
         except Exception as e:
             err_msg = "processZonesMessage - Exception " + str(e)
             _LOGGER.error(err_msg)
@@ -695,7 +698,7 @@ class lennox_system(object):
 
 class lennox_zone(object):
 
-    def __init__(self, system, id, name):
+    def __init__(self, system, id):
         self._callbacks = []
 
         self.temperature = None
@@ -740,10 +743,10 @@ class lennox_zone(object):
         self.overrideActive = None
 
         self.id:int  = id
-        self.name:str = name
+        self.name:str = None
         self._system:lennox_system = system
 
-        _LOGGER.info("Creating lennox_zone id [" + str(self.id) + "] name [" + str(self.name) + "]") 
+        _LOGGER.info(f"Creating lennox_zone id [{self.id}]") 
 
 
     def registerOnUpdateCallback(self, callbackfunc):
@@ -758,9 +761,11 @@ class lennox_zone(object):
                 _LOGGER.error("executeOnUpdateCallback - failed " + str(e))
 
     def processMessage(self, zoneMessage):
-        _LOGGER.info("processMessage lennox_zone id [" + str(self.id) + "] name [" + str(self.name) + "]") 
+        _LOGGER.info(f"processMessage lennox_zone id [{self.id}]") 
         if 'config' in zoneMessage:
             config = zoneMessage['config']
+            if ('name') in config:
+                self.name = config['name']
             if ('heatingOption' in config):
                 self.heatingOption = config['heatingOption']
             if ('maxHsp' in config):

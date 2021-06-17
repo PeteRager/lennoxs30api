@@ -96,8 +96,8 @@ Dynamic Attributes
             },
             "MessageId": "637576290738517589|5fe01439cc69416b9c26f268dee1df0c",
             "MessageType": "PropertyChange",
-            "SenderId": "e98d044e-970b-444b-86db-532a09dcc46f",
-            "TargetID": "mapp079372367644467046827006_pete.sage@icloud.com"
+            "SenderId": ""0000000-0000-0000-0000-000000000002"",
+            "TargetID": "mapp079372367644467046827006_myemail@email.com"
 
     system configuration from dynamic
                "system": {

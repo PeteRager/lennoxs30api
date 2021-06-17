@@ -1,4 +1,4 @@
-from lennoxs30api.s30api_async import s30api_async, lennox_system
+from lennoxs30api.s30api_async import lennox_zone, s30api_async, lennox_system
 from lennoxs30api.lennox_home import lennox_home
 
 import json
@@ -6,7 +6,7 @@ import os
 
 
 def test_process_login_message():
-    script_dir = os.path.dirname(__file__)
+    script_dir = os.path.dirname(__file__)  + '/messages/'
     file_path = os.path.join(script_dir, 'login_response.json')        
     with open(file_path) as f:
         data = json.load(f)
@@ -33,3 +33,4 @@ def test_process_login_message():
 
     assert api.loginBearerToken == 'bearer myveryshortversionofthebearertokenfortesting'
     assert api.loginToken == 'myveryshortversionofthebearertokenfortesting'
+
