@@ -9,14 +9,6 @@ This asyncio module connects to the Lennox Cloud API to retrieve data from S30 /
 supported by this project:  https://github.com/thevoltagesource/myicomfort
 
 
-This module is currently in test and prototype mode; as such it is not recommended at this time to build an application on-top of the API, as the API may change.
-
-This module provides a command line test program; that can be used to exercise the main functions and create diagnostic output files to futher enhance and fix issues with the API
-
-Current state - Tested with a single Zone S30 Air Conditioning System
-
-Known Issues - Passwords with & will not work.
-
 Prerequistes:
 
 1. Python version 3.8.6 or later
