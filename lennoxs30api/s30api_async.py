@@ -725,10 +725,20 @@ class lennox_zone(object):
         self.temperature = None
         self.humidity = None
         self.systemMode = None
-        self.fanMode = None
+        self.tempOperation = None
+
+        self.fanMode = None          # The requested fanMode - on, auto, circulate
+        self.fan = None              # The current state of fan,  False = not running, True = running
+        self.allergenDefender = None # Allergen defender on or off
+
         self.humidityMode = None
+        self.humOperation = None
         self.csp = None
         self.hsp = None
+
+        self.damper = None          # Damper position 0 - 100
+
+        self.demand = None          # Amount of demand from this zone
 
         self.heatingOption =  None
         self.maxHsp = None
@@ -744,8 +754,6 @@ class lennox_zone(object):
         self.maxDehumSp = None
         self.minHspC = None
 
-        self.tempOperation = None
-        self.humOperation = None
         self.scheduleId = None
 
         # PERIOD
@@ -838,6 +846,14 @@ class lennox_zone(object):
                 self.tempOperation = status['tempOperation']
             if 'humOperation' in status:
                 self.humOperation = status['humOperation']
+            if 'allergenDefender' in status:
+                self.allergenDefender = status['allergenDefender']
+            if 'damper' in status:
+                self.damper = status['damper']
+            if 'fan' in status:
+                self.fan = status['fan']
+            if 'demand' in status:
+                self.demand = status['demand']
 
             if 'period' in status:
                 period = status['period']
