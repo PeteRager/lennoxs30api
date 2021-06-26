@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="lennoxs30api",
-    version="0.0.4",
+    version="0.0.5",
     description="API Wrapper for Lennox S30 Cloud API",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -18,9 +18,6 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    packages=['lennoxs30api'],
-    install_requires=[
-        'aiohttp'
-    ]
+    packages=["lennoxs30api"],
+    install_requires=["aiohttp"],
 )
-
