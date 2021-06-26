@@ -8,8 +8,6 @@ By Pete Rager
 
 This asyncio module connects to the Lennox Cloud API to retrieve data from S30 / E30 thermostats.  This API does not work for older models that use a different API.  Those models are supported by this project:  https://github.com/thevoltagesource/myicomfort
 
-There is an example program in the samples directory to show how to use it.  There is an Home Assistant Integration developed using this component at: https://github.com/PeteRager/lennoxs30
-
 Prerequistes:
 
 1. Python version 3.8.6 or later
