@@ -1,21 +1,14 @@
 # PyPI - lennoxs30api
-### API Wrapper for www.lennoxicomfort.com
 
-By Pete Sage ()  
+pip install lennoxs30api
 
-Note:  I'm working on a major refactor of this module and a push to PyPI.
+## API Wrapper for www.lennoxicomfort.com
 
-This asyncio module connects to the Lennox Cloud API to retrieve data from S30 / E30 thermostats.  This API does not work for older models that use a different API.  Those models are
-supported by this project:  https://github.com/thevoltagesource/myicomfort
+By Pete Rager  
 
+This asyncio module connects to the Lennox Cloud API to retrieve data from S30 / E30 thermostats.  This API does not work for older models that use a different API.  Those models are supported by this project:  https://github.com/thevoltagesource/myicomfort
 
-This module is currently in test and prototype mode; as such it is not recommended at this time to build an application on-top of the API, as the API may change.
-
-This module provides a command line test program; that can be used to exercise the main functions and create diagnostic output files to futher enhance and fix issues with the API
-
-Current state - Tested with a single Zone S30 Air Conditioning System
-
-Known Issues - Passwords with & will not work.
+There is an example program in the samples directory to show how to use it.  There is an Home Assistant Integration developed using this component at: https://github.com/PeteRager/lennoxs30
 
 Prerequistes:
 
@@ -25,7 +18,7 @@ Prerequistes:
 
 3. You may need to install aiohttp https://docs.aiohttp.org/en/stable/
 
-Install Instructions:
+Sample program Instructions:
 
 1. Grab the repo
 
@@ -56,5 +49,13 @@ The command line program uses asyncio and runs 3 different tasks
         hsp <TempF> - sets the heat setpoint in F.  example hsp 65
 
 To exit the program hit crtl-c
+
+## Reporting Bugs
+
+Please enabled debug logging when reporting bugs and provide sample code.  Do not publicly post the debug logs as they contain Personally Identifiable Information that is part of the communication protocol.  Your password IS NOT in the logs, but other information such as email, home address, etc., that is part of the lennox communications is.
+
+## Enhancements
+
+Submit enhancement requests as issues or better yet send a pull request.
 
 
