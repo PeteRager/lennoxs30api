@@ -261,12 +261,12 @@ class s30api_async(object):
         try:
             body: str = (
                 "username="
-                + self._username
+                + str(self._username)
                 + "&password="
-                + self._password
+                + str(self._password)
                 + "&grant_type=password"
                 + "&applicationid="
-                + self._applicationid
+                + str(self._applicationid)
             )
             headers = {
                 "Authorization": self.authBearerToken,
@@ -594,6 +594,14 @@ class lennox_system(object):
         self._callbacks = []
         self.outdoorTemperature = None
         self.name: str = None
+        self.allergenDefender = None
+        self.ventilationMode = None
+        self.diagPoweredHours = None
+        self.diagRuntime = None
+        self.diagVentilationRuntime = None
+        self.ventilationRemainingTime = None
+        self.ventilatingUntilTime = None
+        self.feelsLikeMode = None
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
 
     def update(self, api: s30api_async, home: lennox_home, idx: int):
@@ -683,6 +691,10 @@ class lennox_system(object):
                     self.dehumidificationMode = config["dehumidificationMode"]
                 if "name" in config:
                     self.name = config["name"]
+                if "allergenDefender" in config:
+                    self.allergenDefender = config["allergenDefender"]
+                if "ventilationMode" in config:
+                    self.ventilationMode = config["ventilationMode"]
                 if "options" in config:
                     options = config["options"]
                     self.indoorUnitType = options["indoorUnitType"]
@@ -690,6 +702,13 @@ class lennox_system(object):
                     self.outdoorUnitType = options["outdoorUnitType"]
                     self.humifidierType = options["humidifierType"]
                     self.dehumidifierType = options["dehumidifierType"]
+                    if "ventilation" in options:
+                        ventilation = options["ventilation"]
+                        if "unitType" in ventilation:
+                            self.ventilationUnitType = ventilation["unitType"]
+                        if "controlMode" in ventilation:
+                            self.ventilationControlMode = ventilation["controlMode"]
+
             if "status" in message:
                 status = message["status"]
                 if "outdoorTemperature" in status:
@@ -702,6 +721,15 @@ class lennox_system(object):
                     self.diagPoweredHours = status["diagPoweredHours"]
                 if "numberOfZones" in status:
                     self.numberOfZones = status["numberOfZones"]
+                if "diagVentilationRuntime" in status:
+                    self.diagVentilationRuntime = status["diagVentilationRuntime"]
+                if "ventilationRemainingTime" in status:
+                    self.ventilationRemainingTime = status["ventilationRemainingTime"]
+                if "ventilatingUntilTime" in status:
+                    self.ventilatingUntilTime = status["ventilatingUntilTime"]
+                if "feelsLikeMode" in status:
+                    self.feelsLikeMode = status["feelsLikeMode"]
+
         except Exception as e:
             _LOGGER.error("processSystemMessage - Exception " + str(e))
             raise S30Exception(str(e), EC_PROCESS_MESSAGE, 3)
@@ -826,6 +854,37 @@ class lennox_system(object):
             _LOGGER.error(err_msg)
             raise S30Exception(err_msg, EC_PROCESS_MESSAGE, 1)
 
+    def supports_ventilation(self) -> bool:
+        return self.ventilationUnitType == "ventilator"
+
+    async def ventilation_on(self) -> None:
+        _LOGGER.debug(f"ventilation_on sysid [{self.sysId}]")
+        if self.supports_ventilation() == False:
+            err_msg = f"ventilation_on - attempting to turn ventilation on for non-supported equipment ventilatorUnitType [{self.ventilationUnitType}]"
+            _LOGGER.error(err_msg)
+            raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
+        data = '"Data":{"system":{"config":{"ventilationMode":"on"} } }'
+        await self.api.publishMessageHelper(self.sysId, data)
+
+    async def ventilation_off(self) -> None:
+        _LOGGER.debug(f"ventilation_off sysid [{self.sysId}] ")
+        if self.ventilationUnitType != "ventilator":
+            err_msg = f"ventilation_off - attempting to turn ventilation off for non-supported equipment ventilatorUnitType [{self.ventilationUnitType}]"
+            _LOGGER.error(err_msg)
+            raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
+        data = '"Data":{"system":{"config":{"ventilationMode":"off"} } }'
+        await self.api.publishMessageHelper(self.sysId, data)
+
+    async def allergenDefender_on(self) -> None:
+        _LOGGER.debug(f"allergenDefender_on sysid [{self.sysId}] ")
+        data = '"Data":{"system":{"config":{"allergenDefender":true} } }'
+        await self.api.publishMessageHelper(self.sysId, data)
+
+    async def allergenDefender_off(self) -> None:
+        _LOGGER.debug(f"allergenDefender_on sysid [{self.sysId}] ")
+        data = '"Data":{"system":{"config":{"allergenDefender":false} } }'
+        await self.api.publishMessageHelper(self.sysId, data)
+
 
 class lennox_zone(object):
     def __init__(self, system, id):
@@ -848,8 +907,8 @@ class lennox_zone(object):
         self.hsp = None
 
         self.damper = None  # Damper position 0 - 100
-
-        self.demand = None  # Amount of demand from this zone
+        self.demand = None  # Amount of CFM demand from this zone
+        self.ventilation = None
 
         self.heatingOption = None
         self.maxHsp = None
@@ -964,6 +1023,8 @@ class lennox_zone(object):
                 self.fan = status["fan"]
             if "demand" in status:
                 self.demand = status["demand"]
+            if "ventilation" in status:
+                self.ventilation = status["ventilation"]
 
             if "period" in status:
                 period = status["period"]
