@@ -48,7 +48,7 @@
                                 "unitType": ""
                             },
                             "ventilation": {
-                                "unitType": "none",
+                                "unitType": "ventilator",
                                 "controlMode": "timed"
                             }
                         },
