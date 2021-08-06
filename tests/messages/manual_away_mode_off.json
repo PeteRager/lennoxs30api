@@ -1,0 +1,14 @@
+{
+    "MessageId": "637618746572107413|a03fd4522569461791206d22f82d89a5",
+    "SenderId":  "0000000-0000-0000-0000-000000000001",
+    "TargetID": "mapp079372367620210714081037_myemail@email.com",
+    "MessageType": "PropertyChange",
+    "Data": {
+        "occupancy":
+            {"manualAway":false,
+             "publisher": {
+                 "publisherName":"remote"}
+                 }
+        },
+   "AdditionalParameters": null
+}

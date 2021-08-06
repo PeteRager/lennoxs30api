@@ -939,7 +939,7 @@
             }
         ],
         "occupancy": {
-            "manualAway": false,
+            "manualAway": true,
             "smartAway": {
                 "config": {
                     "enabled": false,

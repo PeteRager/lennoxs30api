@@ -582,6 +582,19 @@ class s30api_async(object):
             raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
         await self.setModeHelper(sysId, "fanMode", mode, scheduleId)
 
+    async def setManualAwayMode(self, sysId: str, mode: bool) -> None:
+        _LOGGER.info(f"setManualAwayMode mode [{mode}] sysId [{sysId}]")
+        str = None
+        if mode == True:
+            str = "true"
+        if mode == False:
+            str = "false"
+        if str is None:
+            err_msg = f"setManualAwayMode - invalid mode [{mode}] requested, must be True or False"
+            raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
+        data = '"Data":{"occupancy":{"manualAway":' + str + "}" + "}"
+        await self.publishMessageHelper(sysId, data)
+
 
 class lennox_system(object):
     def __init__(self, sysId: str):
@@ -602,6 +615,7 @@ class lennox_system(object):
         self.ventilationRemainingTime = None
         self.ventilatingUntilTime = None
         self.feelsLikeMode = None
+        self.manualAwayMode = None
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
 
     def update(self, api: s30api_async, home: lennox_home, idx: int):
@@ -619,6 +633,8 @@ class lennox_system(object):
                 self.processZonesMessage(data["zones"])
             if "schedules" in data:
                 self.processSchedules(data["schedules"])
+            if "occupancy" in data:
+                self.processOccupancy(data["occupancy"])
             self.executeOnUpdateCallbacks()
         except Exception as e:
             _LOGGER.error("processMessage - Exception " + str(e))
@@ -733,6 +749,21 @@ class lennox_system(object):
         except Exception as e:
             _LOGGER.error("processSystemMessage - Exception " + str(e))
             raise S30Exception(str(e), EC_PROCESS_MESSAGE, 3)
+
+    def processOccupancy(self, message):
+        try:
+            if "manualAway" in message:
+                self.manualAwayMode = message["manualAway"]
+
+        except Exception as e:
+            _LOGGER.error("processOccupancy - Exception " + str(e))
+            raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)
+
+    def get_manual_away_mode(self):
+        return self.manualAwayMode
+
+    async def set_manual_away_mode(self, mode: bool) -> None:
+        await self.api.setManualAwayMode(self.sysId, mode)
 
     def getZone(self, id):
         for zone in self._zoneList:

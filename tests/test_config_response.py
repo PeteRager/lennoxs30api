@@ -47,6 +47,7 @@ def test_process_configuration_message():
     assert lsystem.ventilationControlMode == "timed"
     assert lsystem.feelsLikeMode == False
     assert lsystem.ventilatingUntilTime == ""
+    assert lsystem.manualAwayMode == False == lsystem.get_manual_away_mode()
 
     zones = lsystem.getZoneList()
     assert len(zones) == 4
@@ -182,6 +183,7 @@ def test_process_configuration_message():
     assert lsystem.diagRuntime == 5884
     assert lsystem.humifidierType == "none"
     assert lsystem.ventilationUnitType == "none"
+    assert lsystem.manualAwayMode == True == lsystem.get_manual_away_mode()
 
     zone_5: lennox_zone = lsystem.getZoneList()[0]
     assert zone_5.name == "Zone 1"

@@ -306,3 +306,16 @@ def test_ventilation_system_on_and_off():
 
     system = api.getSystem("0000000-0000-0000-0000-000000000001")
     assert system.ventilationMode == "off"
+
+
+def test_manual_away_mode_on_and_off():
+    api = setup_load_configuration()
+    system = api.getSystem("0000000-0000-0000-0000-000000000001")
+
+    data = loadfile("manual_away_mode_on.json")
+    api.processMessage(data)
+    assert system.manualAwayMode == True
+
+    data = loadfile("manual_away_mode_off.json")
+    api.processMessage(data)
+    assert system.manualAwayMode == False
