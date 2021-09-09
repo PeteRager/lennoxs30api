@@ -172,23 +172,21 @@ class s30api_async(object):
 
     async def serverConnect(self) -> None:
         # On a reconnect we will close down the old session and get a new one
-        _LOGGER.info("serverLogin - Entering")
+        _LOGGER.debug("serverLogin - Entering")
         await self._close_session()
         self._session = aiohttp.ClientSession()
-
-        _LOGGER.info("serverLogin - Entering")
         await self.authenticate()
         await self.login()
         await self.negotiate()
         self.metrics.last_reconnect_time = datetime.now()
-        _LOGGER.info("serverLogin - Complete")
+        _LOGGER.debug("serverLogin - Complete")
 
     AUTHENTICATE_RETRIES: int = 5
 
     async def authenticate(self) -> None:
         """Authenticate with Lennox Server by presenting a certificate.  Throws S30Exception on failure"""
         # The only reason this function would fail is if the certificate is no longer valid or the URL is not longer valid.
-        _LOGGER.info("authenticate - Enter")
+        _LOGGER.debug("authenticate - Enter")
         url = AUTHENTICATE_URL
         body = CERTIFICATE
         err_msg: str = None
@@ -204,7 +202,7 @@ class s30api_async(object):
                     self.authBearerToken = resp_json["serverAssigned"]["security"][
                         "certificateToken"
                     ]["encoded"]
-                    _LOGGER.info("authenticate success")
+                    _LOGGER.info("authenticated with Lennox Cloud")
                     # Success branch - return from here
                     return
                 else:
@@ -256,7 +254,7 @@ class s30api_async(object):
 
     async def login(self) -> None:
         """Login to Lennox Server using provided email and password.  Throws S30Exception on failure"""
-        _LOGGER.info("login - Enter")
+        _LOGGER.debug("login - Enter")
         url: str = LOGIN_URL
         try:
             body: str = (
@@ -312,7 +310,7 @@ class s30api_async(object):
                 lsystem.update(self, lhome, system["id"])
 
     async def negotiate(self) -> None:
-        _LOGGER.info("Negotiate - Enter")
+        _LOGGER.debug("Negotiate - Enter")
         try:
             url = NEGOTIATE_URL
             # This sets the version of the client protocol, at some point Lenox could obsolete this version
@@ -384,7 +382,7 @@ class s30api_async(object):
         # Observations:  the clientId is not passed in, they must be mapping the token to the clientId as part of negotiate
         # TODO: The long polling is not working, I have tried adjusting the long polling delay.  Long polling seems to work from the IOS App, not sure
         # what the difference is.   https://gist.github.com/rcarmo/3f0772f2cbe0612b699dcbb839edabeb
-        _LOGGER.info("Request Data - Enter")
+        _LOGGER.debug("Request Data - Enter")
         try:
             url = RETRIEVE_URL
             headers = {
@@ -435,7 +433,7 @@ class s30api_async(object):
         return str(uuid.uuid4())
 
     async def requestDataHelper(self, sysId: str, additionalParameters: str) -> None:
-        _LOGGER.info("requestDataHelper - Enter")
+        _LOGGER.debug("requestDataHelper - Enter")
         try:
             url = REQUESTDATA_URL
             headers = {
@@ -525,7 +523,7 @@ class s30api_async(object):
         )
 
     async def publishMessageHelper(self, sysId: str, data: str) -> None:
-        _LOGGER.info(f"publishMessageHelper sysId [{sysId}] data [{data}]")
+        _LOGGER.debug(f"publishMessageHelper sysId [{sysId}] data [{data}]")
         try:
             body = "{"
             body += '"MessageType":"Command",'
@@ -1031,7 +1029,7 @@ class lennox_zone(object):
                 _LOGGER.error("executeOnUpdateCallback - failed " + str(e))
 
     def processMessage(self, zoneMessage):
-        _LOGGER.info(f"processMessage lennox_zone id [{self.id}]")
+        _LOGGER.debug(f"processMessage lennox_zone id [{self.id}]")
         if "config" in zoneMessage:
             config = zoneMessage["config"]
             if ("name") in config:
