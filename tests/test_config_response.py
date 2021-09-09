@@ -35,6 +35,7 @@ def test_process_configuration_message():
     assert lsystem.name == "Moetown North"
     assert lsystem.numberOfZones == 4
     assert lsystem.outdoorTemperature == 80
+    assert lsystem.outdoorTemperatureC == 27
     assert lsystem.temperatureUnit == "F"
     assert lsystem.indoorUnitType == "furnace"
     assert lsystem.outdoorUnitType == "air conditioner"
@@ -70,15 +71,21 @@ def test_process_configuration_message():
     assert zone_1.humidityMode == "dehumidify"
     assert zone_1.husp == 40
     assert zone_1.maxCsp == 99
-    assert zone_1.maxDehumSp == 60
-    assert zone_1.maxHsp == 90
+    assert zone_1.maxCspC == 37
     assert zone_1.minCsp == 60
+    assert zone_1.minCspC == 15.5
+    assert zone_1.maxHsp == 90
+    assert zone_1.maxHspC == 32
     assert zone_1.minHsp == 40
+    assert zone_1.minHspC == 4.5
+
+    assert zone_1.maxDehumSp == 60
     assert zone_1.scheduleId == 16 == zone_1.getManualModeScheduleId()
     assert zone_1.sp == 73
     assert zone_1.systemMode == "off" == zone_1.getSystemMode()
     assert zone_1.tempOperation == "off"
     assert zone_1.temperature == 79 == zone_1.getTemperature()
+    assert zone_1.temperatureC == 26 == zone_1.getTemperatureC()
     assert zone_1._system.sysId == "0000000-0000-0000-0000-000000000001"
 
     zone_2: lennox_zone = zones[1]
@@ -109,6 +116,7 @@ def test_process_configuration_message():
     assert zone_2.systemMode == "cool" == zone_2.getSystemMode()
     assert zone_2.tempOperation == "off"
     assert zone_2.temperature == 78 == zone_2.getTemperature()
+    assert zone_2.temperatureC == 25.5 == zone_2.getTemperatureC()
     assert zone_2._system.sysId == "0000000-0000-0000-0000-000000000001"
 
     zone_3: lennox_zone = zones[2]
@@ -176,6 +184,7 @@ def test_process_configuration_message():
     assert lsystem.name == "South Moetown"
     assert lsystem.numberOfZones == 1
     assert lsystem.outdoorTemperature == 97
+    assert lsystem.outdoorTemperatureC == 36
     assert lsystem.temperatureUnit == "F"
     assert lsystem.indoorUnitType == "furnace"
     assert lsystem.outdoorUnitType == "air conditioner"

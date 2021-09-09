@@ -6,18 +6,18 @@ import os
 
 
 def test_process_login_message():
-    script_dir = os.path.dirname(__file__)  + '/messages/'
-    file_path = os.path.join(script_dir, 'login_response.json')        
+    script_dir = os.path.dirname(__file__) + "/messages/"
+    file_path = os.path.join(script_dir, "login_response.json")
     with open(file_path) as f:
         data = json.load(f)
 
-    api = s30api_async("myemail@email.com","mypassword")
+    api = s30api_async("myemail@email.com", "mypassword")
 
     api.process_login_response(data)
 
-    lhome:lennox_home = api.getHome('1234567')
+    lhome: lennox_home = api.getHomeByHomeId("1234567")
     assert lhome != None
-    assert lhome.id == '1234567'
+    assert lhome.id == "1234567"
     assert lhome.idx == 0
     assert lhome.name == "MoetownHouse"
     assert lhome.json != None
@@ -30,7 +30,5 @@ def test_process_login_message():
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000002"
     assert lsystem.home.id == lhome.id
 
-
-    assert api.loginBearerToken == 'bearer myveryshortversionofthebearertokenfortesting'
-    assert api.loginToken == 'myveryshortversionofthebearertokenfortesting'
-
+    assert api.loginBearerToken == "bearer myveryshortversionofthebearertokenfortesting"
+    assert api.loginToken == "myveryshortversionofthebearertokenfortesting"
