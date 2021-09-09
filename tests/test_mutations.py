@@ -79,7 +79,6 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.sp == 73
     assert zone_5.tempOperation == "off"
     assert zone_5.temperature == 79 == zone_5.getTemperature()
-    assert zone_5.temperatureC == 26 == zone_5.getTemperatureC()
     assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
 
     # This file does not change anything.  SOmetime this message is not received.
@@ -113,7 +112,6 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.getSystemMode() == "cool"
     assert zone_5.tempOperation == "off"
     assert zone_5.temperature == 79 == zone_5.getTemperature()
-    assert zone_5.temperatureC == 26 == zone_5.getTemperatureC()
     assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
 
     # The system now goes into cooling mode
@@ -147,7 +145,6 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.getSystemMode() == "cool"
     #   assert zone_5.tempOperation == 'off'
     assert zone_5.temperature == 79 == zone_5.getTemperature()
-    assert zone_5.temperatureC == 26 == zone_5.getTemperatureC()
     assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
 
 
@@ -232,7 +229,6 @@ def test_data_before_config() -> s30api_async:
     assert zone_5.sp == None
     assert zone_5.tempOperation == None
     assert zone_5.temperature == None == zone_5.getTemperature()
-    assert zone_5.temperatureC == None == zone_5.getTemperatureC()
     assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
 
     data = loadfile("config_response_system_02.json")
