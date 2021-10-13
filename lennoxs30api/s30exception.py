@@ -12,13 +12,16 @@ EC_COMMS_ERROR = 11
 EC_NO_SCHEDULE = 12
 EC_HTTP_ERR = 13
 EC_LOGOUT = 14
+EC_CONFIG_TIMEOUT = 15
 EC_UNAUTHORIZED = 401
 
+
 class S30Exception(Exception):
-   def __init__(self, value: str, error_code: int, reference: int) -> None:
+    def __init__(self, value: str, error_code: int, reference: int) -> None:
         """Initialize error."""
         super().__init__(self, value)
         self.message = value
         self.error_code = error_code
         self.reference = reference
-   pass
+
+    pass
