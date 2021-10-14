@@ -31,7 +31,7 @@ def loadfile(name) -> json:
 
 
 def setup_load_configuration() -> s30api_async:
-    api = s30api_async("myemail@email.com", "mypassword")
+    api = s30api_async("myemail@email.com", "mypassword", None)
 
     data = loadfile("login_response.json")
     api.process_login_response(data)
@@ -192,7 +192,7 @@ def test_hvac_mode_change_zone_2():
 # Sometimes an config update message arrives before the full config, this
 # test case checks this behavior, it does not happen often.
 def test_data_before_config() -> s30api_async:
-    api = s30api_async("myemail@email.com", "mypassword")
+    api = s30api_async("myemail@email.com", "mypassword", None)
 
     data = loadfile("login_response.json")
     api.process_login_response(data)

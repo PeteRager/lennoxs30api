@@ -116,19 +116,27 @@ class s30api_async(object):
 
     """Representation of the Lennox S30/E30 thermostat."""
 
-    def __init__(self, username: str, password: str):
+    def __init__(self, username: str, password: str, app_id: str):
         """Initialize the API interface."""
         self._username = username
         self._password = password
         # Generate a unique app id, following the existing formatting
-        dt = datetime.now()
-        epoch_time = dt.strftime("%Y%m%d%H%M%S")
-        appPrefix = APPLICATION_ID[: len(APPLICATION_ID) - len(epoch_time)]
-        app_id = appPrefix + epoch_time
-
-        self._applicationid: str = app_id
-
-        _LOGGER.info("__init__ S30TStat  applicationId [" + self._applicationid + "]")
+        if app_id is None:
+            dt = datetime.now()
+            epoch_time = dt.strftime("%Y%m%d%H%M%S")
+            appPrefix = APPLICATION_ID[: len(APPLICATION_ID) - len(epoch_time)]
+            app_id = appPrefix + epoch_time
+            self._applicationid: str = app_id
+            _LOGGER.info(
+                "__init__  generating unique applicationId ["
+                + self._applicationid
+                + "]"
+            )
+        else:
+            self._applicationid: str = app_id
+            _LOGGER.info(
+                "__init__ using provided applicationId [" + self._applicationid + "]"
+            )
 
         self._publishMessageId: int = 1
         self._session: ClientSession = None

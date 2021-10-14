@@ -11,7 +11,7 @@ def setup_load_configuration() -> s30api_async:
     with open(file_path) as f:
         data = json.load(f)
 
-    api = s30api_async("myemail@email.com", "mypassword")
+    api = s30api_async("myemail@email.com", "mypassword", None)
     api.process_login_response(data)
 
     file_path = os.path.join(script_dir, "config_response_system_01.json")

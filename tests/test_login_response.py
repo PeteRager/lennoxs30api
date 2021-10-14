@@ -11,7 +11,7 @@ def test_process_login_message():
     with open(file_path) as f:
         data = json.load(f)
 
-    api = s30api_async("myemail@email.com", "mypassword")
+    api = s30api_async("myemail@email.com", "mypassword", None)
 
     api.process_login_response(data)
 
