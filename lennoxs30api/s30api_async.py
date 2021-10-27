@@ -53,19 +53,17 @@ from .metrics import Metrics
 
 _LOGGER = logging.getLogger(__name__)
 
-AUTHENTICATE_URL = "https://ic3messaging.myicomfort.com/v1/mobile/authenticate"
-LOGIN_URL = "https://ic3messaging.myicomfort.com/v2/user/login"
-NEGOTIATE_URL = (
+CLOUD_AUTHENTICATE_URL = "https://ic3messaging.myicomfort.com/v1/mobile/authenticate"
+CLOUD_LOGIN_URL = "https://ic3messaging.myicomfort.com/v2/user/login"
+CLOUD_NEGOTIATE_URL = (
     "https://icnotificationservice.myicomfort.com/LennoxNotificationServer/negotiate"
 )
-RETRIEVE_URL = "https://icretrieveapi.myicomfort.com/v1/messages/retrieve?LongPollingTimeout=0&StartTime=1&Direction=Oldest-to-Newest&MessageCount=10"
-#                https://icretrieveapi.myicomfort.com/v1/messages/retrieve?LongPollingTimeout=0&direction=Oldest-to-Newest&messageCount=10&startTime=1
-IC3_MESSAGING_REQUEST_URL = (
-    "https://ic3messaging.myicomfort.com/v1/messages/requestData"
+CLOUD_RETRIEVE_URL = "https://icretrieveapi.myicomfort.com/v1/messages/retrieve?LongPollingTimeout=0&StartTime=1&Direction=Oldest-to-Newest&MessageCount=10"
+CLOUD_REQUESTDATA_URL = (
+    "https://icrequestdataapi.myicomfort.com/v1/Messages/RequestData"
 )
-REQUESTDATA_URL = "https://icrequestdataapi.myicomfort.com/v1/Messages/RequestData"
-PUBLISH_URL = "https://icpublishapi.myicomfort.com/v1/messages/publish"
-LOGOUT_URL = "https://ic3messaging.myicomfort.com/v1/user/logout"
+CLOUD_PUBLISH_URL = "https://icpublishapi.myicomfort.com/v1/messages/publish"
+CLOUD_LOGOUT_URL = "https://ic3messaging.myicomfort.com/v1/user/logout"
 
 # May need to update as the version of API increases
 USER_AGENT: str = "lx_ic3_mobile_appstore/3.75.218 (iPad; iOS 14.4.1; Scale/2.00)"
@@ -116,7 +114,9 @@ class s30api_async(object):
 
     """Representation of the Lennox S30/E30 thermostat."""
 
-    def __init__(self, username: str, password: str, app_id: str):
+    def __init__(
+        self, username: str, password: str, app_id: str, ip_address: str = None
+    ):
         """Initialize the API interface."""
         self._username = username
         self._password = password
@@ -137,17 +137,53 @@ class s30api_async(object):
             _LOGGER.info(
                 "__init__ using provided applicationId [" + self._applicationid + "]"
             )
+        if ip_address == None:
+            self._isLANConnection = False
+            self.ssl = True
+            self.initialize_urls_cloud()
+        else:
+            self.ip = ip_address
+            self._isLANConnection = True
+            # The certicate on the S30 cannot be validated.  It is self issued by Lennox
+            self.ssl = False
+            self.initialize_urls_local()
 
         self._publishMessageId: int = 1
         self._session: ClientSession = None
         self.metrics: Metrics = Metrics()
         self.loginBearerToken = None
         self.authBearerToken = None
-
         self._homeList: List[lennox_home] = []
         self._systemList: List["lennox_system"] = []
 
+    def initialize_urls_cloud(self):
+        self.url_authenticate: str = CLOUD_AUTHENTICATE_URL
+        self.url_login: str = CLOUD_LOGIN_URL
+        self.url_negotiate: str = CLOUD_NEGOTIATE_URL
+        self.url_retrieve: str = CLOUD_RETRIEVE_URL
+        self.url_requestdata: str = CLOUD_REQUESTDATA_URL
+        self.url_publish: str = CLOUD_PUBLISH_URL
+        self.url_logout: str = CLOUD_LOGOUT_URL
+
+    def initialize_urls_local(self):
+        self.url_authenticate: str = None
+        self.url_login: str = (
+            f"https://{self.ip}/Endpoints/{self._applicationid}/Connect"
+        )
+        self.url_negotiate: str = None
+        self.url_retrieve: str = (
+            f"https://{self.ip}/Messages/{self._applicationid}/Retrieve"
+        )
+        self.url_requestdata: str = f"https://{self.ip}/Messages/RequestData"
+        self.url_publish: str = f"https://{self.ip}/Messages/Publish"
+        self.url_logout: str = (
+            f"https://{self.ip}/Endpoints/{self._applicationid}/Disconnect"
+        )
+
     def getClientId(self) -> str:
+        if self._isLANConnection == True:
+            return self._applicationid
+        # Cloud appends email address for uniqueness
         return self._applicationid + "_" + self._username
 
     async def shutdown(self) -> None:
@@ -156,6 +192,7 @@ class s30api_async(object):
         await self._close_session()
 
     async def logout(self) -> None:
+        url: str = self.url_logout
         headers = {
             "Authorization": self.loginBearerToken,
             "User-Agent": USER_AGENT,
@@ -164,7 +201,7 @@ class s30api_async(object):
             "Accept-Encoding": "gzip, deflate",
             "Content-Type": "application/json",
         }
-        resp = await self.post(LOGOUT_URL, headers=headers, data=None)
+        resp = await self.post(url, headers=headers, data=None)
         if resp.status != 200:
             errmsg = f"Logout failed response code [{resp.status}]"
             _LOGGER.error(errmsg)
@@ -195,7 +232,9 @@ class s30api_async(object):
         """Authenticate with Lennox Server by presenting a certificate.  Throws S30Exception on failure"""
         # The only reason this function would fail is if the certificate is no longer valid or the URL is not longer valid.
         _LOGGER.debug("authenticate - Enter")
-        url = AUTHENTICATE_URL
+        if self._isLANConnection == True:
+            return
+        url = self.url_authenticate
         body = CERTIFICATE
         err_msg: str = None
         try:
@@ -247,15 +286,21 @@ class s30api_async(object):
         return self._homeList
 
     async def post(self, url, headers=None, data=None):
+        # LAN Connections do not send headers
+        if self._isLANConnection:
+            headers = None
         if data != None:
             self.metrics.inc_send_count(len(data))
-        resp = await self._session.post(url, headers=headers, data=data)
+        resp = await self._session.post(url, headers=headers, data=data, ssl=self.ssl)
         self.metrics.inc_receive_count()
         self.metrics.process_http_code(resp.status)
         return resp
 
     async def get(self, url, headers=None):
-        resp = await self._session.get(url, headers=headers)
+        # LAN Connections do not send headers
+        if self._isLANConnection:
+            headers = None
+        resp = await self._session.get(url, headers=headers, ssl=self.ssl)
         self.metrics.process_http_code(resp.status)
         self.metrics.inc_receive_count()
         return resp
@@ -263,31 +308,39 @@ class s30api_async(object):
     async def login(self) -> None:
         """Login to Lennox Server using provided email and password.  Throws S30Exception on failure"""
         _LOGGER.debug("login - Enter")
-        url: str = LOGIN_URL
+        url: str = self.url_login
         try:
-            body: str = (
-                "username="
-                + str(self._username)
-                + "&password="
-                + str(self._password)
-                + "&grant_type=password"
-                + "&applicationid="
-                + str(self._applicationid)
-            )
-            headers = {
-                "Authorization": self.authBearerToken,
-                "Content-Type": "text/plain",
-                "User-Agent": USER_AGENT,
-            }
-            resp = await self.post(url, headers=headers, data=body)
-            if resp.status != 200:
-                txt = await resp.text()
-                errmsg = f"Login failed response code [{resp.status}] text [{txt}]"
-                _LOGGER.error(errmsg)
-                raise S30Exception(errmsg, EC_LOGIN, 1)
-            resp_json = await resp.json()
-            _LOGGER.debug(json.dumps(resp_json, indent=4))
-            self.process_login_response(resp_json)
+            if self._isLANConnection == True:
+                resp = await self.post(url)
+                if resp.status != 200 and resp.status != 204:
+                    errmsg = f"Local connection failed response code [{resp.status}]"
+                    _LOGGER.error(errmsg)
+                    raise S30Exception(errmsg, EC_LOGIN, 2)
+                self.setup_local_homes()
+            else:
+                body: str = (
+                    "username="
+                    + str(self._username)
+                    + "&password="
+                    + str(self._password)
+                    + "&grant_type=password"
+                    + "&applicationid="
+                    + str(self._applicationid)
+                )
+                headers = {
+                    "Authorization": self.authBearerToken,
+                    "Content-Type": "text/plain",
+                    "User-Agent": USER_AGENT,
+                }
+                resp = await self.post(url, headers=headers, data=body)
+                if resp.status != 200:
+                    txt = await resp.text()
+                    errmsg = f"Login failed response code [{resp.status}] text [{txt}]"
+                    _LOGGER.error(errmsg)
+                    raise S30Exception(errmsg, EC_LOGIN, 1)
+                resp_json = await resp.json()
+                _LOGGER.debug(json.dumps(resp_json, indent=4))
+                self.process_login_response(resp_json)
         except S30Exception as e:
             raise e
         except Exception as e:
@@ -312,15 +365,23 @@ class s30api_async(object):
         for home in homeList:
             lhome: lennox_home = self.getOrCreateHome(home["homeId"])
             lhome.update(home["id"], home["name"], home)
-            self._homeList.append(lhome)
             for system in resp_json["readyHomes"]["homes"][lhome.idx]["systems"]:
                 lsystem = self.getOrCreateSystem(system["sysId"])
                 lsystem.update(self, lhome, system["id"])
 
+    def setup_local_homes(self):
+        # Need to setup a home and system object to represent the local S30.
+        lhome: lennox_home = self.getOrCreateHome("local")
+        lhome.update("0", "local", "")
+        lsystem = self.getOrCreateSystem("LCC")
+        lsystem.update(self, lhome, 0)
+
     async def negotiate(self) -> None:
         _LOGGER.debug("Negotiate - Enter")
         try:
-            url = NEGOTIATE_URL
+            if self._isLANConnection == True:
+                return
+            url = self.url_negotiate
             # This sets the version of the client protocol, at some point Lenox could obsolete this version
             url += "?clientProtocol=1.3.0.0"
             # Since these may have special characters, they need to be URI encoded
@@ -358,41 +419,59 @@ class s30api_async(object):
     # The topics subscribed to here are based on the topics that the WebApp subscribes to.  We likely don't need to subscribe to all of them
     # These appear to be JSON topics that correspond to the returned JSON.  For now we will do what the web app does.
     async def subscribe(self, lennoxSystem: "lennox_system") -> None:
-        ref: int = 1
-        try:
-            await self.requestDataHelper(
-                "ic3server",
-                '"AdditionalParameters":{"publisherpresence":"true"},"Data":{"presence":[{"id":0,"endpointId":"'
-                + lennoxSystem.sysId
-                + '"}]}',
-            )
-            ref = 2
-            await self.requestDataHelper(
-                lennoxSystem.sysId,
-                '"AdditionalParameters":{"JSONPath":"1;\/system;\/zones;\/occupancy;\/schedules;"}',
-            )
-            ref = 3
-            await self.requestDataHelper(
-                lennoxSystem.sysId,
-                '"AdditionalParameters":{"JSONPath":"1;\/reminderSensors;\/reminders;\/alerts\/active;\/alerts\/meta;\/dealers;\/devices;\/equipments;\/fwm;\/ocst;"}',
-            )
-        except S30Exception as e:
-            err_msg = f"subsribe fail loca [{ref}] " + str(e)
-            _LOGGER.error(err_msg)
-            raise e
-        except Exception as e:
-            err_msg = f"subsribe fail locb [{ref}] " + str(e)
-            _LOGGER.error(err_msg)
-            raise S30Exception(err_msg, EC_SUBSCRIBE, 3)
+
+        if self._isLANConnection == True:
+            ref: int = 1
+            try:
+                await self.requestDataHelper(
+                    lennoxSystem.sysId,
+                    '"AdditionalParameters":{"JSONPath":"1;/devices;/zones;/equipments;/schedules;/occupancy;/system"}',
+                )
+            except S30Exception as e:
+                err_msg = f"subsribe fail loca [{ref}] " + str(e)
+                _LOGGER.error(err_msg)
+                raise e
+            except Exception as e:
+                err_msg = f"subsribe fail locb [{ref}] " + str(e)
+                _LOGGER.error(err_msg)
+                raise S30Exception(err_msg, EC_SUBSCRIBE, 3)
+
+        else:
+            ref: int = 1
+            try:
+                await self.requestDataHelper(
+                    "ic3server",
+                    '"AdditionalParameters":{"publisherpresence":"true"},"Data":{"presence":[{"id":0,"endpointId":"'
+                    + lennoxSystem.sysId
+                    + '"}]}',
+                )
+                ref = 2
+                await self.requestDataHelper(
+                    lennoxSystem.sysId,
+                    '"AdditionalParameters":{"JSONPath":"1;\/system;\/zones;\/occupancy;\/schedules;"}',
+                )
+                ref = 3
+                await self.requestDataHelper(
+                    lennoxSystem.sysId,
+                    '"AdditionalParameters":{"JSONPath":"1;\/reminderSensors;\/reminders;\/alerts\/active;\/alerts\/meta;\/dealers;\/devices;\/equipments;\/fwm;\/ocst;"}',
+                )
+            except S30Exception as e:
+                err_msg = f"subsribe fail loca [{ref}] " + str(e)
+                _LOGGER.error(err_msg)
+                raise e
+            except Exception as e:
+                err_msg = f"subsribe fail locb [{ref}] " + str(e)
+                _LOGGER.error(err_msg)
+                raise S30Exception(err_msg, EC_SUBSCRIBE, 3)
 
     async def messagePump(self) -> None:
         # This method reads off the queue.
         # Observations:  the clientId is not passed in, they must be mapping the token to the clientId as part of negotiate
         # TODO: The long polling is not working, I have tried adjusting the long polling delay.  Long polling seems to work from the IOS App, not sure
         # what the difference is.   https://gist.github.com/rcarmo/3f0772f2cbe0612b699dcbb839edabeb
-        _LOGGER.debug("Request Data - Enter")
+        #        _LOGGER.debug("Request Data - Enter")
         try:
-            url = RETRIEVE_URL
+            url = self.url_retrieve
             headers = {
                 "Authorization": self.loginBearerToken,
                 "User-Agent": USER_AGENT,
@@ -405,13 +484,16 @@ class s30api_async(object):
             resp = await self.get(url, headers=headers)
             self.metrics.inc_receive_bytes(resp.content_length)
             if resp.status == 200:
-                resp_json = await resp.json()
+                resp_txt = await resp.text()
+                resp_json = json.loads(resp_txt)
                 _LOGGER.debug(json.dumps(resp_json, indent=4))
                 for message in resp_json["messages"]:
                     # TODO if this throws an exception we will miss other messages!
                     self.processMessage(message)
+            elif resp.status == 204:
+                #                _LOGGER.debug("message pump - 204 received - no data - continuing")
+                return True
             else:
-                #                txt = await resp.text()
                 err_msg = f"messagePump failed response http_code [{resp.status}]"
                 # 502s happen periodically, so this is an expected error and will only be reported as INFO
                 _LOGGER.info(err_msg)
@@ -429,7 +511,11 @@ class s30api_async(object):
 
     def processMessage(self, message):
         self.metrics.inc_message_count()
-        sysId = message["SenderId"]
+        # LAN message and cloud message uses different capitalization.
+        if self._isLANConnection == True:
+            sysId = message["SenderID"]
+        else:
+            sysId = message["SenderId"]
         system = self.getSystem(sysId)
         if system != None:
             system.processMessage(message)
@@ -443,7 +529,7 @@ class s30api_async(object):
     async def requestDataHelper(self, sysId: str, additionalParameters: str) -> None:
         _LOGGER.debug("requestDataHelper - Enter")
         try:
-            url = REQUESTDATA_URL
+            url = self.url_requestdata
             headers = {
                 "Authorization": self.loginBearerToken,
                 "Content-Type": "application/json; charset=utf-8",
@@ -465,7 +551,10 @@ class s30api_async(object):
 
             if resp.status == 200:
                 # TODO we should be inspecting the return body?
-                _LOGGER.debug(json.dumps(await resp.json(), indent=4))
+                if self._isLANConnection == True:
+                    _LOGGER.debug(await resp.text())
+                else:
+                    _LOGGER.debug(json.dumps(await resp.json(), indent=4))
             else:
                 txt = resp.text()
                 err_msg = f"requestDataHelper failed response code [{resp.status}] text [{txt}]"
@@ -547,7 +636,7 @@ class s30api_async(object):
                 "publishMessageHelper message [" + json.dumps(jsbody, indent=4) + "]"
             )
 
-            url = PUBLISH_URL
+            url = self.url_publish
             headers = {
                 "Authorization": self.loginBearerToken,
                 "User-Agent": USER_AGENT,
@@ -562,7 +651,9 @@ class s30api_async(object):
                 err_msg = f"publishMessageHelper failed response code [{resp.status}] text [{txt}]"
                 _LOGGER.error(err_msg)
                 raise S30Exception(err_msg, EC_PUBLISH_MESSAGE, 1)
-            _LOGGER.debug(json.dumps(await resp.json(), indent=4))
+            resp_txt = await resp.text()
+            resp_json = json.loads(resp_txt)
+            _LOGGER.debug(json.dumps(resp_json, indent=4))
         except Exception as e:
             _LOGGER.error("publishMessageHelper - Exception " + str(e))
             raise S30Exception(str(e), EC_PUBLISH_MESSAGE, 2)
@@ -620,8 +711,10 @@ class lennox_system(object):
         self.diagVentilationRuntime = None
         self.ventilationRemainingTime = None
         self.ventilatingUntilTime = None
+        self.ventilationUnitType = None
         self.feelsLikeMode = None
         self.manualAwayMode = None
+        self.serialNumber = None
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
 
     def update(self, api: s30api_async, home: lennox_home, idx: int):
@@ -632,16 +725,25 @@ class lennox_system(object):
 
     def processMessage(self, message) -> None:
         try:
-            data = message["Data"]
-            if "system" in data:
-                self.processSystemMessage(data["system"])
-            if "zones" in data:
-                self.processZonesMessage(data["zones"])
-            if "schedules" in data:
-                self.processSchedules(data["schedules"])
-            if "occupancy" in data:
-                self.processOccupancy(data["occupancy"])
-            self.executeOnUpdateCallbacks()
+            if "Data" in message:
+                data = message["Data"]
+                update = False
+                if "system" in data:
+                    update = self.processSystemMessage(data["system"])
+                if "zones" in data:
+                    self.processZonesMessage(data["zones"])
+                    update = True
+                if "schedules" in data:
+                    self.processSchedules(data["schedules"])
+                    update = True
+                if "occupancy" in data:
+                    self.processOccupancy(data["occupancy"])
+                    update = True
+                if "devices" in data:
+                    self.processDevices(data["devices"])
+                    update = True
+                if update == True:
+                    self.executeOnUpdateCallbacks()
         except Exception as e:
             _LOGGER.error("processMessage - Exception " + str(e))
             raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)
@@ -703,9 +805,11 @@ class lennox_system(object):
                 # Log and eat this exception so we can process other callbacks
                 _LOGGER.error("executeOnUpdateCallback - failed " + str(e))
 
-    def processSystemMessage(self, message):
+    def processSystemMessage(self, message) -> bool:
+        updated = False
         try:
             if "config" in message:
+                updated = True
                 config = message["config"]
                 if "temperatureUnit" in config:
                     self.temperatureUnit = config["temperatureUnit"]
@@ -732,6 +836,7 @@ class lennox_system(object):
                             self.ventilationControlMode = ventilation["controlMode"]
 
             if "status" in message:
+                updated = True
                 status = message["status"]
                 if "outdoorTemperature" in status:
                     self.outdoorTemperature = status["outdoorTemperature"]
@@ -755,6 +860,38 @@ class lennox_system(object):
         except Exception as e:
             _LOGGER.error("processSystemMessage - Exception " + str(e))
             raise S30Exception(str(e), EC_PROCESS_MESSAGE, 3)
+        return updated
+
+    def processDevices(self, message):
+        try:
+            for device in message:
+                if "device" in device:
+                    theDevice = device["device"]
+                    if "deviceType" in theDevice and theDevice["deviceType"] == 500:
+                        if "features" in theDevice:
+                            features = theDevice["features"]
+                            for feature in features:
+                                theFeature = feature["feature"]
+                                if "fid" in theFeature and theFeature["fid"] == 9:
+                                    self.serialNumber = theFeature["values"][0]["value"]
+
+        except Exception as e:
+            _LOGGER.error("processDevices - Exception " + str(e))
+            raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)
+
+    def unique_id(self) -> str:
+        # This returns a unique identifier.  When connected ot the cloud we use the sysid which is a GUID; when
+        # connected to the LAN the sysid is alway "LCC" - which is not unique - so in this case we use the device serial number.
+        if self.api._isLANConnection == True:
+            return self.serialNumber
+        return self.sysId
+
+    def config_complete(self) -> bool:
+        if self.name is None:
+            return False
+        if self.api._isLANConnection and self.serialNumber is None:
+            return False
+        return True
 
     def processOccupancy(self, message):
         try:
