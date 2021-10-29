@@ -78,10 +78,11 @@ def test_process_configuration_message():
     assert zone_1.maxHspC == 32
     assert zone_1.minHsp == 40
     assert zone_1.minHspC == 4.5
+    assert zone_1.sp == 73
+    assert zone_1.spC == 22.5
 
     assert zone_1.maxDehumSp == 60
     assert zone_1.scheduleId == 16 == zone_1.getManualModeScheduleId()
-    assert zone_1.sp == 73
     assert zone_1.systemMode == "off" == zone_1.getSystemMode()
     assert zone_1.tempOperation == "off"
     assert zone_1.temperature == 79 == zone_1.getTemperature()
@@ -113,6 +114,7 @@ def test_process_configuration_message():
     assert zone_2.minHsp == 40
     assert zone_2.scheduleId == 17 == zone_2.getManualModeScheduleId()
     assert zone_2.sp == 73
+    assert zone_2.spC == 23
     assert zone_2.systemMode == "cool" == zone_2.getSystemMode()
     assert zone_2.tempOperation == "off"
     assert zone_2.temperature == 78 == zone_2.getTemperature()
@@ -144,6 +146,7 @@ def test_process_configuration_message():
     assert zone_3.minHsp == 40
     assert zone_3.scheduleId == 18 == zone_3.getManualModeScheduleId()
     assert zone_3.sp == 73
+    assert zone_3.spC == 23
     assert zone_3.systemMode == "cool" == zone_3.getSystemMode()
     assert zone_3.tempOperation == "cooling"
     assert zone_3.temperature == 71 == zone_3.getTemperature()
@@ -173,6 +176,7 @@ def test_process_configuration_message():
     assert zone_4.minHsp == 40
     assert zone_4.scheduleId == 19 == zone_4.getManualModeScheduleId()
     assert zone_4.sp == 73
+    assert zone_4.spC == 23
     assert zone_4.systemMode == "off" == zone_4.getSystemMode()
     assert zone_4.tempOperation == "off"
     assert zone_4.temperature == 76 == zone_4.getTemperature()
@@ -218,6 +222,7 @@ def test_process_configuration_message():
     assert zone_5.minHsp == 40
     assert zone_5.scheduleId == 16 == zone_5.getManualModeScheduleId()
     assert zone_5.sp == 73
+    assert zone_5.spC == 22.5
     assert zone_5.systemMode == "off" == zone_5.getSystemMode()
     assert zone_5.tempOperation == "off"
     assert zone_5.temperature == 79 == zone_5.getTemperature()
