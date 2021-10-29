@@ -714,7 +714,8 @@ class lennox_system(object):
         self.ventilationUnitType = None
         self.feelsLikeMode = None
         self.manualAwayMode = None
-        self.serialNumber = None
+        self.serialNumber: str = None
+        self.single_setpoint_mode: bool = None
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
 
     def update(self, api: s30api_async, home: lennox_home, idx: int):
@@ -742,6 +743,8 @@ class lennox_system(object):
                 if "devices" in data:
                     self.processDevices(data["devices"])
                     update = True
+                if "equipments" in data:
+                    update = self.processEquipments(data["equipments"])
                 if update == True:
                     self.executeOnUpdateCallbacks()
         except Exception as e:
@@ -878,6 +881,28 @@ class lennox_system(object):
         except Exception as e:
             _LOGGER.error("processDevices - Exception " + str(e))
             raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)
+
+    def processEquipments(self, message) -> bool:
+        update = False
+        try:
+            for lequipment in message:
+                if "equipment" in lequipment:
+                    equipment = lequipment["equipment"]
+                    if "parameters" in equipment:
+                        for iparameter in equipment["parameters"]:
+                            if "parameter" in iparameter:
+                                parameter = iparameter["parameter"]
+                                if parameter["pid"] == 525:
+                                    value = parameter["value"]
+                                    update = True
+                                    if value == 1 or value == "1":
+                                        self.single_setpoint_mode = True
+                                    else:
+                                        self.single_setpoint_mode = False
+        except Exception as e:
+            _LOGGER.error("processDevices - Exception " + str(e))
+            raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)
+        return update
 
     def unique_id(self) -> str:
         # This returns a unique identifier.  When connected ot the cloud we use the sysid which is a GUID; when
