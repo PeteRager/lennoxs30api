@@ -296,11 +296,11 @@ class s30api_async(object):
         self.metrics.process_http_code(resp.status)
         return resp
 
-    async def get(self, url, headers=None):
+    async def get(self, url, headers=None, params=None):
         # LAN Connections do not send headers
         if self._isLANConnection:
             headers = None
-        resp = await self._session.get(url, headers=headers, ssl=self.ssl)
+        resp = await self._session.get(url, headers=headers, params=params, ssl=self.ssl)
         self.metrics.process_http_code(resp.status)
         self.metrics.inc_receive_count()
         return resp
@@ -469,6 +469,7 @@ class s30api_async(object):
         # Observations:  the clientId is not passed in, they must be mapping the token to the clientId as part of negotiate
         # TODO: The long polling is not working, I have tried adjusting the long polling delay.  Long polling seems to work from the IOS App, not sure
         # what the difference is.   https://gist.github.com/rcarmo/3f0772f2cbe0612b699dcbb839edabeb
+        # Returns True if messages were received, False if no messages were found, and throws S30Exception for errors
         #        _LOGGER.debug("Request Data - Enter")
         try:
             url = self.url_retrieve
@@ -481,7 +482,13 @@ class s30api_async(object):
                 "Accept-Encoding": "gzip, deflate"
                 #                'Accept-Encoding' : 'gzip, deflate'
             }
-            resp = await self.get(url, headers=headers)
+            params = {
+                "Direction": "Oldest-to-Newest",
+                "MessageCount": "10",
+                "StartTime": "1",
+                "LongPollingTimeout": "15"
+            }
+            resp = await self.get(url, headers=headers, params=params)
             self.metrics.inc_receive_bytes(resp.content_length)
             if resp.status == 200:
                 resp_txt = await resp.text()
@@ -492,7 +499,7 @@ class s30api_async(object):
                     self.processMessage(message)
             elif resp.status == 204:
                 #                _LOGGER.debug("message pump - 204 received - no data - continuing")
-                return True
+                return False
             else:
                 err_msg = f"messagePump failed response http_code [{resp.status}]"
                 # 502s happen periodically, so this is an expected error and will only be reported as INFO
