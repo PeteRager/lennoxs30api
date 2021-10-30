@@ -1,4 +1,12 @@
-from lennoxs30api.s30api_async import lennox_zone, s30api_async, lennox_system
+from lennoxs30api.s30api_async import (
+    LENNOX_HVAC_COOL,
+    LENNOX_HVAC_HEAT,
+    LENNOX_HVAC_HEAT_COOL,
+    LENNOX_HVAC_OFF,
+    lennox_zone,
+    s30api_async,
+    lennox_system,
+)
 from lennoxs30api.lennox_home import lennox_home
 
 import json
@@ -65,6 +73,7 @@ def test_process_configuration_message():
     assert zone_1.fanMode == "auto" == zone_1.getFanMode()
     assert zone_1.heatingOption == True
     assert zone_1.hsp == 64 == zone_1.getHeatSP()
+    assert zone_1.hspC == 18
     assert zone_1.humOperation == "off"
     assert zone_1.humidificationOption == False
     assert zone_1.humidity == 28 == zone_1.getHumidity()
@@ -83,11 +92,43 @@ def test_process_configuration_message():
 
     assert zone_1.maxDehumSp == 60
     assert zone_1.scheduleId == 16 == zone_1.getManualModeScheduleId()
-    assert zone_1.systemMode == "off" == zone_1.getSystemMode()
+    assert zone_1.systemMode == LENNOX_HVAC_HEAT == zone_1.getSystemMode()
     assert zone_1.tempOperation == "off"
     assert zone_1.temperature == 79 == zone_1.getTemperature()
     assert zone_1.temperatureC == 26 == zone_1.getTemperatureC()
     assert zone_1._system.sysId == "0000000-0000-0000-0000-000000000001"
+
+    assert zone_1.systemMode == LENNOX_HVAC_HEAT
+    assert zone_1.getTargetTemperatureF() == zone_1.hsp
+    assert zone_1.getTargetTemperatureC() == zone_1.hspC
+    lsystem.single_setpoint_mode = True
+    assert zone_1.getTargetTemperatureF() == zone_1.sp
+    assert zone_1.getTargetTemperatureC() == zone_1.spC
+    lsystem.single_setpoint_mode = False
+
+    zone_1.systemMode = LENNOX_HVAC_COOL
+    assert zone_1.getTargetTemperatureF() == zone_1.csp
+    assert zone_1.getTargetTemperatureC() == zone_1.cspC
+    lsystem.single_setpoint_mode = True
+    assert zone_1.getTargetTemperatureF() == zone_1.sp
+    assert zone_1.getTargetTemperatureC() == zone_1.spC
+    lsystem.single_setpoint_mode = False
+
+    zone_1.systemMode = LENNOX_HVAC_OFF
+    assert zone_1.getTargetTemperatureF() == None
+    assert zone_1.getTargetTemperatureC() == None
+    lsystem.single_setpoint_mode = True
+    assert zone_1.getTargetTemperatureF() == None
+    assert zone_1.getTargetTemperatureC() == None
+    lsystem.single_setpoint_mode = False
+
+    zone_1.systemMode = LENNOX_HVAC_HEAT_COOL
+    assert zone_1.getTargetTemperatureF() == None
+    assert zone_1.getTargetTemperatureC() == None
+    lsystem.single_setpoint_mode = True
+    assert zone_1.getTargetTemperatureF() == zone_1.sp
+    assert zone_1.getTargetTemperatureC() == zone_1.spC
+    lsystem.single_setpoint_mode = False
 
     zone_2: lennox_zone = zones[1]
 

@@ -300,7 +300,9 @@ class s30api_async(object):
         # LAN Connections do not send headers
         if self._isLANConnection:
             headers = None
-        resp = await self._session.get(url, headers=headers, params=params, ssl=self.ssl)
+        resp = await self._session.get(
+            url, headers=headers, params=params, ssl=self.ssl
+        )
         self.metrics.process_http_code(resp.status)
         self.metrics.inc_receive_count()
         return resp
@@ -486,7 +488,7 @@ class s30api_async(object):
                 "Direction": "Oldest-to-Newest",
                 "MessageCount": "10",
                 "StartTime": "1",
-                "LongPollingTimeout": "15"
+                "LongPollingTimeout": "15",
             }
             resp = await self.get(url, headers=headers, params=params)
             self.metrics.inc_receive_bytes(resp.content_length)
@@ -1343,13 +1345,16 @@ class lennox_zone(object):
         return self.hsp
 
     def getTargetTemperatureF(self):
+        if self.systemMode == LENNOX_HVAC_OFF:
+            return None
+        # In single setpoint mode there is only one target.
+        if self._system.single_setpoint_mode == True:
+            return self.sp
+
         if self.heatingOption == True and self.coolingOption == True:
-            #           _LOGGER.warning("Single target temperature not supported for Heat and Cool HVAC")
-            if self.systemMode == "off":
-                return None
-            if self.systemMode == "cool":
+            if self.systemMode == LENNOX_HVAC_COOL:
                 return self.csp
-            if self.systemMode == "heat":
+            if self.systemMode == LENNOX_HVAC_HEAT:
                 return self.hsp
         elif self.heatingOption == True:
             return self.hsp
@@ -1359,9 +1364,13 @@ class lennox_zone(object):
             return None
 
     def getTargetTemperatureC(self):
+        if self.systemMode == LENNOX_HVAC_OFF:
+            return None
+        # In single setpoint mode there is only one target.
+        if self._system.single_setpoint_mode == True:
+            return self.spC
+
         if self.heatingOption == True and self.coolingOption == True:
-            if self.systemMode == "off":
-                return None
             if self.systemMode == "cool":
                 return self.cspC
             if self.systemMode == "heat":
