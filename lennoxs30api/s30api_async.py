@@ -723,7 +723,8 @@ class lennox_system(object):
         self.ventilationUnitType = None
         self.feelsLikeMode = None
         self.manualAwayMode = None
-        self.serialNumber = None
+        self.serialNumber: str = None
+        self.single_setpoint_mode: bool = None
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
 
     def update(self, api: s30api_async, home: lennox_home, idx: int):
@@ -751,6 +752,8 @@ class lennox_system(object):
                 if "devices" in data:
                     self.processDevices(data["devices"])
                     update = True
+                if "equipments" in data:
+                    update = self.processEquipments(data["equipments"])
                 if update == True:
                     self.executeOnUpdateCallbacks()
         except Exception as e:
@@ -875,18 +878,33 @@ class lennox_system(object):
         try:
             for device in message:
                 if "device" in device:
-                    theDevice = device["device"]
-                    if "deviceType" in theDevice and theDevice["deviceType"] == 500:
-                        if "features" in theDevice:
-                            features = theDevice["features"]
-                            for feature in features:
-                                theFeature = feature["feature"]
-                                if "fid" in theFeature and theFeature["fid"] == 9:
-                                    self.serialNumber = theFeature["values"][0]["value"]
+                    if device.get("device", {}).get("deviceType", {}) == 500:
+                        for feature in device["device"].get("features", []):
+                            if feature.get("feature", {}).get("fid") == 9:
+                                self.serialNumber = feature["feature"]["values"][0][
+                                    "value"
+                                ]
 
         except Exception as e:
             _LOGGER.error("processDevices - Exception " + str(e))
             raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)
+
+    def processEquipments(self, message) -> bool:
+        update = False
+        try:
+            for equipment in message:
+                for parameter in equipment.get("equipment", {}).get("parameters", []):
+                    # 525 is the parameter id for split-setpoint
+                    if parameter.get("parameter", {}).get("pid") == 525:
+                        value = parameter["parameter"]["value"]
+                        if value == 1 or value == "1":
+                            self.single_setpoint_mode = True
+                        else:
+                            self.single_setpoint_mode = False
+        except Exception as e:
+            _LOGGER.error("processDevices - Exception " + str(e))
+            raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)
+        return update
 
     def unique_id(self) -> str:
         # This returns a unique identifier.  When connected ot the cloud we use the sysid which is a GUID; when
