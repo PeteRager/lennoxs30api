@@ -869,14 +869,12 @@ class lennox_system(object):
         try:
             for device in message:
                 if "device" in device:
-                    theDevice = device["device"]
-                    if "deviceType" in theDevice and theDevice["deviceType"] == 500:
-                        if "features" in theDevice:
-                            features = theDevice["features"]
-                            for feature in features:
-                                theFeature = feature["feature"]
-                                if "fid" in theFeature and theFeature["fid"] == 9:
-                                    self.serialNumber = theFeature["values"][0]["value"]
+                    if device.get("device", {}).get("deviceType", {}) == 500:
+                        for feature in device["device"].get("features", []):
+                            if feature.get("feature", {}).get("fid") == 9:
+                                self.serialNumber = feature["feature"]["values"][0][
+                                    "value"
+                                ]
 
         except Exception as e:
             _LOGGER.error("processDevices - Exception " + str(e))
@@ -885,20 +883,15 @@ class lennox_system(object):
     def processEquipments(self, message) -> bool:
         update = False
         try:
-            for lequipment in message:
-                if "equipment" in lequipment:
-                    equipment = lequipment["equipment"]
-                    if "parameters" in equipment:
-                        for iparameter in equipment["parameters"]:
-                            if "parameter" in iparameter:
-                                parameter = iparameter["parameter"]
-                                if parameter["pid"] == 525:
-                                    value = parameter["value"]
-                                    update = True
-                                    if value == 1 or value == "1":
-                                        self.single_setpoint_mode = True
-                                    else:
-                                        self.single_setpoint_mode = False
+            for equipment in message:
+                for parameter in equipment.get("equipment", {}).get("parameters", []):
+                    # 525 is the parameter id for split-setpoint
+                    if parameter.get("parameter", {}).get("pid") == 525:
+                        value = parameter["parameter"]["value"]
+                        if value == 1 or value == "1":
+                            self.single_setpoint_mode = True
+                        else:
+                            self.single_setpoint_mode = False
         except Exception as e:
             _LOGGER.error("processDevices - Exception " + str(e))
             raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)

@@ -14,24 +14,19 @@ def loadfile(name) -> json:
 
 
 def setup_load_lcc_configuration() -> s30api_async:
-    script_dir = os.path.dirname(__file__) + "/messages/"
-
     api = s30api_async("myemail@email.com", "mypassword", None, ip_address="10.0.0.1")
     api.setup_local_homes()
-
-    file_path = os.path.join(script_dir, "equipments_lcc_singlesetpoint.json")
-    with open(file_path) as f:
-        data = json.load(f)
-    api.processMessage(data)
-
     return api
 
 
 def test_process_splitsetpoint():
     api = setup_load_lcc_configuration()
-
     lsystem: lennox_system = api.getSystems()[0]
     assert lsystem.sysId == "LCC"
+
+    data = loadfile("equipments_lcc_singlesetpoint.json")
+    api.processMessage(data)
+
     assert lsystem.single_setpoint_mode == True
 
     data = loadfile("equipments_lcc_splitsetpoint.json")
