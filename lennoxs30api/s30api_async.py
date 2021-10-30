@@ -58,7 +58,7 @@ CLOUD_LOGIN_URL = "https://ic3messaging.myicomfort.com/v2/user/login"
 CLOUD_NEGOTIATE_URL = (
     "https://icnotificationservice.myicomfort.com/LennoxNotificationServer/negotiate"
 )
-CLOUD_RETRIEVE_URL = "https://icretrieveapi.myicomfort.com/v1/messages/retrieve?LongPollingTimeout=0&StartTime=1&Direction=Oldest-to-Newest&MessageCount=10"
+CLOUD_RETRIEVE_URL = "https://icretrieveapi.myicomfort.com/v1/messages/retrieve"
 CLOUD_REQUESTDATA_URL = (
     "https://icrequestdataapi.myicomfort.com/v1/Messages/RequestData"
 )
@@ -497,6 +497,8 @@ class s30api_async(object):
                 for message in resp_json["messages"]:
                     # TODO if this throws an exception we will miss other messages!
                     self.processMessage(message)
+                if len(resp_json["messages"]) == 0:
+                    return False
             elif resp.status == 204:
                 #                _LOGGER.debug("message pump - 204 received - no data - continuing")
                 return False
