@@ -1351,17 +1351,15 @@ class lennox_zone(object):
         if self._system.single_setpoint_mode == True:
             return self.sp
 
-        if self.heatingOption == True and self.coolingOption == True:
-            if self.systemMode == LENNOX_HVAC_COOL:
-                return self.csp
-            if self.systemMode == LENNOX_HVAC_HEAT:
-                return self.hsp
-        elif self.heatingOption == True:
-            return self.hsp
-        elif self.coolingOption == True:
+        if self.systemMode == LENNOX_HVAC_COOL:
             return self.csp
-        else:
+
+        if self.systemMode == LENNOX_HVAC_HEAT:
+            return self.hsp
+        # Calling this method in this mode is probably an error TODO
+        if self.systemMode == LENNOX_HVAC_HEAT_COOL:
             return None
+        return None
 
     def getTargetTemperatureC(self):
         if self.systemMode == LENNOX_HVAC_OFF:

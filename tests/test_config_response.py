@@ -98,7 +98,6 @@ def test_process_configuration_message():
     assert zone_1.temperatureC == 26 == zone_1.getTemperatureC()
     assert zone_1._system.sysId == "0000000-0000-0000-0000-000000000001"
 
-    assert zone_1.systemMode == LENNOX_HVAC_HEAT
     assert zone_1.getTargetTemperatureF() == zone_1.hsp
     assert zone_1.getTargetTemperatureC() == zone_1.hspC
     lsystem.single_setpoint_mode = True
@@ -129,6 +128,8 @@ def test_process_configuration_message():
     assert zone_1.getTargetTemperatureF() == zone_1.sp
     assert zone_1.getTargetTemperatureC() == zone_1.spC
     lsystem.single_setpoint_mode = False
+
+    zone_1.systemMode = LENNOX_HVAC_HEAT
 
     zone_2: lennox_zone = zones[1]
 
