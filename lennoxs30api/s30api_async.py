@@ -523,7 +523,7 @@ class s30api_async(object):
     def processMessage(self, message):
         self.metrics.inc_message_count()
         # LAN message and cloud message uses different capitalization.
-        if self._isLANConnection == True:
+        if "SenderID" in message:
             sysId = message["SenderID"]
         else:
             sysId = message["SenderId"]
@@ -983,95 +983,41 @@ class lennox_system(object):
         )
         await self.api.publishMessageHelper(self.sysId, data)
 
-    async def setpointHelper(self, zoneId, scheduleId, hsp, hspC, csp, cspC) -> None:
-        scheduleId: int = LENNOX_MANUAL_MODE_SCHEDULE_START_INDEX + zoneId
-        data: str = '"Data":{"schedules":[{"schedule":{"periods":[{"id":0,"period":{'
-        data += (
-            '"hsp":'
-            + str(hsp)
-            + ',"cspC":'
-            + str(cspC)
-            + ',"hspC":'
-            + str(hspC)
-            + ',"csp":'
-            + str(csp)
-            + '} }]},"id":'
-            + str(scheduleId)
-            + "}]}"
-        )
+    async def perform_schedule_setpoint(
+        self,
+        zoneId,
+        scheduleId,
+        hsp=None,
+        hspC=None,
+        csp=None,
+        cspC=None,
+        sp=None,
+        spC=None,
+    ) -> None:
+        ### No data validation in this routine, make sure you know what you are setting.
+        ### Use the zone.perform_setpoint for error checking
+        command = {
+            "schedules": [
+                {"schedule": {"periods": [{"id": 0, "period": {}}]}, "id": scheduleId}
+            ]
+        }
+
+        period = command["schedules"][0]["schedule"]["periods"][0]["period"]
+        if hsp != None:
+            period["hsp"] = int(hsp)
+        if cspC != None:
+            period["cspC"] = float(cspC)
+        if hspC != None:
+            period["hspC"] = float(hspC)
+        if csp != None:
+            period["csp"] = int(csp)
+        if sp != None:
+            period["sp"] = int(sp)
+        if spC != None:
+            period["spC"] = float(spC)
+
+        data = '"Data":' + json.dumps(command).replace(" ", "")
         await self.api.publishMessageHelper(self.sysId, data)
-
-    async def setHeatCoolSPF(self, zoneId, scheduleId, r_hsp, r_csp) -> None:
-        hsp = str(self.faren_round(r_hsp))
-        hspC = str(self.convertFtoC(r_hsp))
-        csp = str(self.faren_round(r_csp))
-        cspC = str(self.convertFtoC(r_csp))
-        await self.setpointHelper(zoneId, scheduleId, hsp, hspC, csp, cspC)
-
-    async def setHeatCoolSPC(self, zoneId, scheduleId, r_hspC, r_cspC) -> None:
-        hspC = str(self.celsius_round(r_hspC))
-        hsp = str(self.convertCtoF(r_hspC))
-        cspC = str(self.celsius_round(r_cspC))
-        csp = str(self.convertCtoF(r_cspC))
-        await self.setpointHelper(zoneId, scheduleId, hsp, hspC, csp, cspC)
-
-    async def setCoolSPF(self, zoneId, scheduleId, r_csp) -> None:
-        csp = str(self.faren_round(r_csp))
-        cspC = str(self.convertFtoC(r_csp))
-        await self._setCoolSP(zoneId, scheduleId, csp, cspC)
-
-    async def setCoolSPC(self, zoneId, scheduleId, r_cspC) -> None:
-        cspC = str(self.celsiusRound(r_cspC))
-        csp = str(self.convertCtoF(r_cspC))
-        await self._setCoolSP(zoneId, scheduleId, csp, cspC)
-
-    async def _setCoolSP(self, zoneId, scheduleId, csp, cspC) -> None:
-        schedule = self.getSchedule(scheduleId)
-        if schedule is None:
-            err_msg = f"setCoolSPF - unable to find schedule [{scheduleId}]"
-            _LOGGER.error(err_msg)
-            raise S30Exception(err_msg, EC_NO_SCHEDULE, 1)
-        period = schedule.getPeriod(0)
-        if period is None:
-            err_msg = (
-                f"setCoolSPF - unable to find period schedule [{scheduleId}] period 0"
-            )
-            _LOGGER.error(err_msg)
-            raise S30Exception(err_msg, EC_NO_SCHEDULE, 2)
-        # Lennox App sends both the Heat Setpoints and Cool Setpoints when the App updates just the Cool SP.
-        # Grab the existing heatsetpoints
-        hsp = period.hsp
-        hspC = period.hspC
-        await self.setpointHelper(zoneId, scheduleId, hsp, hspC, csp, cspC)
-
-    async def setHeatSPF(self, zoneId, scheduleId, r_hsp) -> None:
-        hsp = str(self.faren_round(r_hsp))
-        hspC = str(self.convertFtoC(r_hsp))
-        await self._setHeatSP(zoneId, scheduleId, hsp, hspC)
-
-    async def setHeatSPC(self, zoneId, scheduleId, r_hspC) -> None:
-        hspC = self.celsiusRound(r_hspC)
-        hsp = str(self.convertCtoF(r_hspC))
-        await self._setHeatSP(zoneId, scheduleId, hsp, hspC)
-
-    async def _setHeatSP(self, zoneId, scheduleId, hsp, hspC) -> None:
-        schedule = self.getSchedule(scheduleId)
-        if schedule is None:
-            err_msg = f"setCoolSPF - unable to find schedule [{scheduleId}]"
-            _LOGGER.error(err_msg)
-            raise S30Exception(err_msg, EC_NO_SCHEDULE, 1)
-        period = schedule.getPeriod(0)
-        if period is None:
-            err_msg = (
-                f"setCoolSPF - unable to find period schedule [{scheduleId}] period 0"
-            )
-            _LOGGER.error(err_msg)
-            raise S30Exception(err_msg, EC_NO_SCHEDULE, 2)
-        # Lennox App sends both the Heat Setpoints and Cool Setpoints when the App updates just the Cool SP.
-        # Grab the existing coolsetpoints
-        csp = period.csp
-        cspC = period.cspC
-        await self.setpointHelper(zoneId, scheduleId, hsp, hspC, csp, cspC)
 
     def getOrCreateZone(self, id):
         zone = self.getZone(id)
@@ -1246,7 +1192,7 @@ class lennox_zone(object):
                 scheduleHold = config["scheduleHold"]
                 found = False
                 if "scheduleId" in scheduleHold:
-                    if scheduleHold["scheduleId"] == self.getOverdideScheduleId():
+                    if scheduleHold["scheduleId"] == self.getOverrideScheduleId():
                         if scheduleHold["enabled"] == True:
                             self.overrideActive = True
                             found = True
@@ -1383,7 +1329,7 @@ class lennox_zone(object):
     def getManualModeScheduleId(self) -> int:
         return 16 + self.id
 
-    def getOverdideScheduleId(self) -> int:
+    def getOverrideScheduleId(self) -> int:
         return 32 + self.id
 
     def isZoneManualMode(self) -> bool:
@@ -1392,108 +1338,249 @@ class lennox_zone(object):
         return False
 
     def isZoneOveride(self) -> bool:
-        if self.scheduleId == self.getOverdideScheduleId():
+        if self.scheduleId == self.getOverrideScheduleId():
             return True
         return False
 
-    async def setHeatCoolSPF(self, r_hsp, r_csp) -> None:
-        _LOGGER.info(
-            "lennox_zone:setHeatCoolSPF  id ["
-            + str(self.id)
-            + "] hsp ["
-            + str(r_hsp)
-            + "] csp ["
-            + str(r_csp)
-            + "]"
-        )
+    def validate_setpoints(
+        self, r_hsp=None, r_hspC=None, r_csp=None, r_cspC=None, r_sp=None, r_spC=None
+    ):
 
-        if r_csp < self.minCsp:
+        if (
+            r_sp != None or r_spC != None
+        ) and self._system.single_setpoint_mode == False:
+            raise S30Exception(
+                f"validate_setpoints: r_sp or r_spC can only be specified when system is in single setpoint mode",
+                EC_BAD_PARAMETERS,
+                2,
+            )
+
+        if r_sp == None and r_spC == None and self._system.single_setpoint_mode == True:
+            raise S30Exception(
+                f"validate_setpoints: r_sp or r_spC must be specified when system is in single setpoint mode",
+                EC_BAD_PARAMETERS,
+                2,
+            )
+
+        if (
+            r_hsp != None or r_hspC != None or r_csp != None or r_cspC != None
+        ) and self._system.single_setpoint_mode == True:
+            raise S30Exception(
+                f"validate_setpoints: r_hsp, r_hspC, r_csp and r_cspC must not be specified when system is in single setpoint mode",
+                EC_BAD_PARAMETERS,
+                2,
+            )
+
+        if (
+            r_hsp == None
+            and r_hspC == None
+            and r_csp == None
+            and r_cspC == None
+            and self._system.single_setpoint_mode == False
+        ):
+            raise S30Exception(
+                f"validate_setpoints: r_hsp, r_hspC, r_csp or r_cspC must be specified when system is in single setpoint mode",
+                EC_BAD_PARAMETERS,
+                2,
+            )
+
+        if r_csp != None and r_csp < self.minCsp:
             raise S30Exception(
                 f"setHeatCoolSPF r_csp [{r_csp}] must be greater than minCsp [{self.minCsp}]",
                 EC_BAD_PARAMETERS,
                 1,
             )
-        if r_csp > self.maxCsp:
+        if r_csp != None and r_csp > self.maxCsp:
             raise S30Exception(
                 f"setHeatCoolSPF r_csp [{r_csp}] must be less than maxCsp [{self.maxCsp}]",
                 EC_BAD_PARAMETERS,
                 2,
             )
-        if r_hsp < self.minHsp:
+        if r_hsp != None and r_hsp < self.minHsp:
             raise S30Exception(
                 f"setHeatCoolSPF r_hsp [{r_hsp}] must be greater than minCsp [{self.minHsp}]",
                 EC_BAD_PARAMETERS,
                 3,
             )
-        if r_hsp > self.maxHsp:
+        if r_hsp != None and r_hsp > self.maxHsp:
             raise S30Exception(
                 f"setHeatCoolSPF r_hsp [{r_hsp}] must be less than maxHsp [{self.maxHsp}]",
                 EC_BAD_PARAMETERS,
                 2,
             )
 
+        if r_cspC != None and r_cspC < self.minCspC:
+            raise S30Exception(
+                f"setHeatCoolSPC r_cspC [{r_cspC}] must be greater than minCspC [{self.minCspC}]",
+                EC_BAD_PARAMETERS,
+                1,
+            )
+        if r_cspC != None and r_cspC > self.maxCspC:
+            raise S30Exception(
+                f"setHeatCoolSPC r_cspC [{r_cspC}] must be less than maxCspC [{self.maxCspC}]",
+                EC_BAD_PARAMETERS,
+                2,
+            )
+        if r_hspC != None and r_hspC < self.minHspC:
+            raise S30Exception(
+                f"setHeatCoolSPC r_hspC [{r_hspC}] must be greater than minCspC [{self.minHspC}]",
+                EC_BAD_PARAMETERS,
+                3,
+            )
+        if r_hspC != None and r_hspC > self.maxHspC:
+            raise S30Exception(
+                f"setHeatCoolSPC r_hspC [{r_hspC}] must be less than maxHspC [{self.maxHspC}]",
+                EC_BAD_PARAMETERS,
+                2,
+            )
+
+        if r_sp != None and (r_sp > self.maxCsp or r_sp < self.minHsp):
+            raise S30Exception(
+                f"setHeatCoolSPC r_sp [{r_sp}] must be between [{self.minHsp}] and [{self.maxHsp}]",
+                EC_BAD_PARAMETERS,
+                2,
+            )
+
+        if r_spC != None and (r_spC > self.maxCspC or r_spC < self.minHspC):
+            raise S30Exception(
+                f"setHeatCoolSPC r_spC [{r_spC}] must be between [{self.minHspC}] and [{self.maxHspC}]",
+                EC_BAD_PARAMETERS,
+                2,
+            )
+
+    async def perform_setpoint(
+        self, r_hsp=None, r_hspC=None, r_csp=None, r_cspC=None, r_sp=None, r_spC=None
+    ):
+        _LOGGER.debug(
+            f"lennox_zone:setpoint_helper  id [{self.id}] hsp [{r_hsp}] hspC [{r_hspC}] csp [{r_csp}] cspC [{r_cspC}] sp [{r_sp}] spC [{r_spC}]"
+        )
+
+        self.validate_setpoints(
+            r_hsp=r_hsp,
+            r_hspC=r_hspC,
+            r_csp=r_csp,
+            r_cspC=r_cspC,
+            r_sp=r_sp,
+            r_spC=r_spC,
+        )
+
+        hsp = hspC = csp = cspC = sp = spC = None
+
+        # When in this mode, the lennox app always sends hsp,hspC,csp and cspC in the message.  The code fills
+        # in the parameters by either converting faren to celsius or by copying the current setpoint value from the zone
+        if self._system.single_setpoint_mode == False:
+            if r_hsp != None:
+                hsp = self._system.faren_round(r_hsp)
+            else:
+                if r_hspC != None:
+                    hsp = self._system.convertCtoF(r_hspC)
+                else:
+                    hsp = self.hsp
+
+            if r_hspC != None:
+                hspC = self._system.celsius_round(r_hspC)
+            else:
+                if r_hsp != None:
+                    hspC = self._system.convertFtoC(r_hsp)
+                else:
+                    hspC = self.hspC
+
+            if r_csp != None:
+                csp = self._system.faren_round(r_csp)
+            else:
+                if r_cspC != None:
+                    csp = self._system.convertCtoF(r_cspC)
+                else:
+                    csp = self.csp
+
+            if r_cspC != None:
+                cspC = self._system.celsius_round(r_cspC)
+            else:
+                if r_csp != None:
+                    cspC = self._system.convertFtoC(r_csp)
+                else:
+                    cspC = self.cspC
+        else:
+            if r_sp != None:
+                sp = self._system.faren_round(r_sp)
+            elif r_spC != None:
+                sp = self._system.convertCtoF(r_spC)
+
+            if r_spC != None:
+                spC = self._system.celsius_round(r_spC)
+            elif r_sp != None:
+                spC = self._system.convertFtoC(r_sp)
+
         # If the zone is in manual mode, the temperature can just be set.
         if self.isZoneManualMode() == True:
             _LOGGER.info(
-                "lennox_zone:setHeatCoolSPF zone in manual mode id ["
-                + str(self.id)
-                + "] hsp ["
-                + str(r_hsp)
-                + "] csp ["
-                + str(r_csp)
-                + "]"
+                f"lennox_zone:setHeatCoolSPF zone already in manual mode id [{self.id}]"
             )
-            await self._system.setHeatCoolSPF(
-                self.id, self.getManualModeScheduleId(), r_hsp, r_csp
+            await self._system.perform_schedule_setpoint(
+                zoneId=self.id,
+                scheduleId=self.getManualModeScheduleId(),
+                hsp=hsp,
+                hspC=hspC,
+                csp=csp,
+                cspC=cspC,
+                sp=sp,
+                spC=spC,
             )
             return
 
-        # If the zone is already over-ridden then we can just set the temperature
+        # The zone is following a schedule.  So first check if it's already running
+        # the override schedule and we can just set the temperature
         if self.isZoneOveride() == True:
             _LOGGER.info(
-                "lennox_zone:setHeatCoolSPF zone in override mode id ["
-                + str(self.id)
-                + "] hsp ["
-                + str(r_hsp)
-                + "] csp ["
-                + str(r_csp)
-                + "]"
+                f"lennox_zone:setHeatCoolSPF zone already in overridemode id [{self.id}]"
             )
-            await self._system.setHeatCoolSPF(
-                self.id, self.getOverdideScheduleId(), r_hsp, r_csp
+            await self._system.perform_schedule_setpoint(
+                zoneId=self.id,
+                scheduleId=self.getOverrideScheduleId(),
+                hsp=hsp,
+                hspC=hspC,
+                csp=csp,
+                cspC=cspC,
+                sp=sp,
+                spC=spC,
             )
             return
 
         # Otherwise, we are following a schedule and need to switch into manual over-ride
         # Copy all the data over from the current executing period
         _LOGGER.info(
-            "lennox_zone:setHeatCoolSPF zone following schedule, adjusting override schedule ["
-            + str(self.id)
-            + "] hsp ["
-            + str(r_hsp)
-            + "] csp ["
-            + str(r_csp)
-            + "]"
+            _LOGGER.info(
+                f"lennox_zone:setHeatCoolSPF creating zone override [{self.id}]"
+            )
         )
-        hsp = str(self._system.faren_round(r_hsp))
-        hspC = str(self._system.convertFtoC(r_hsp))
-        csp = str(self._system.faren_round(r_csp))
-        cspC = str(self._system.convertFtoC(r_csp))
+
+        if hsp is None:
+            hsp = self.hsp
+        if hspC is None:
+            hspC = self.hspC
+        if csp is None:
+            csp = self.csp
+        if cspC is None:
+            cspC = self.cspC
+        if sp is None:
+            sp = self.sp
+        if spC is None:
+            spC = self.spC
 
         data = '"Data":{"schedules":[{"schedule":{"periods":[{"id":0,"period":'
         data += '{"desp":' + str(self.desp) + ","
         data += '"hsp":' + str(hsp) + ","
         data += '"cspC":' + str(cspC) + ","
-        data += '"sp":' + str(self.sp) + ","
+        data += '"sp":' + str(sp) + ","
         data += '"husp":' + str(self.husp) + ","
         data += '"humidityMode":"' + str(self.humidityMode) + '",'
         data += '"systemMode":"' + str(self.systemMode) + '",'
-        data += '"spC":' + str(self.spC) + ","
+        data += '"spC":' + str(spC) + ","
         data += '"hspC":' + str(hspC) + ","
         data += '"csp":' + str(csp) + ","
         data += '"startTime":' + str(self.startTime) + ","
         data += '"fanMode":"' + self.fanMode + '"}'
-        data += '}]},"id":' + str(self.getOverdideScheduleId()) + "}]}"
+        data += '}]},"id":' + str(self.getOverrideScheduleId()) + "}]}"
 
         try:
             await self._system.api.publishMessageHelper(self._system.sysId, data)
@@ -1518,11 +1605,6 @@ class lennox_zone(object):
             + str(r_csp)
             + "]"
         )
-        # Add a schedule hold to the zone, for now all hold will expire on next period
-        data = '"Data":{"zones":[{"config":{"scheduleHold":'
-        data += '{"scheduleId":' + str(self.getOverdideScheduleId()) + ","
-        data += '"exceptionType":"hold","enabled":true,"expiresOn":"0","expirationMode":"nextPeriod"}'
-        data += '},"id":' + str(self.id) + "}]}"
 
         try:
             await self.setScheduleHold(True)
@@ -1534,149 +1616,6 @@ class lennox_zone(object):
                 + str(r_hsp)
                 + "] csp ["
                 + str(r_csp)
-                + "]"
-            )
-            raise e
-
-    async def setHeatCoolSPC(self, r_hspC, r_cspC) -> None:
-
-        _LOGGER.info(
-            "lennox_zone:setHeatCoolSPC  id ["
-            + str(self.id)
-            + "] hsp ["
-            + str(r_hspC)
-            + "] csp ["
-            + str(r_cspC)
-            + "]"
-        )
-
-        if r_cspC < self.minCspC:
-            raise S30Exception(
-                f"setHeatCoolSPC r_cspC [{r_cspC}] must be greater than minCspC [{self.minCspC}]",
-                EC_BAD_PARAMETERS,
-                1,
-            )
-        if r_cspC > self.maxCspC:
-            raise S30Exception(
-                f"setHeatCoolSPC r_cspC [{r_cspC}] must be less than maxCspC [{self.maxCspC}]",
-                EC_BAD_PARAMETERS,
-                2,
-            )
-        if r_hspC < self.minHspC:
-            raise S30Exception(
-                f"setHeatCoolSPC r_hspC [{r_hspC}] must be greater than minCspC [{self.minHspC}]",
-                EC_BAD_PARAMETERS,
-                3,
-            )
-        if r_hspC > self.maxHspC:
-            raise S30Exception(
-                f"setHeatCoolSPC r_hspC [{r_hspC}] must be less than maxHspC [{self.maxHspC}]",
-                EC_BAD_PARAMETERS,
-                2,
-            )
-
-        # If the zone is in manual mode, the temperature can just be set.
-        if self.isZoneManualMode() == True:
-            _LOGGER.info(
-                "lennox_zone:setHeatCoolSPC zone in manual mode id ["
-                + str(self.id)
-                + "] hspC ["
-                + str(r_hspC)
-                + "] cspC ["
-                + str(r_cspC)
-                + "]"
-            )
-            await self._system.setHeatCoolSPC(
-                self.id, self.getManualModeScheduleId(), r_hspC, r_cspC
-            )
-            return
-
-        # If the zone is already over-ridden then we can just set the temperature
-        if self.isZoneOveride() == True:
-            _LOGGER.info(
-                "lennox_zone:setHeatCoolSPF zone in override mode id ["
-                + str(self.id)
-                + "] hspC ["
-                + str(r_hspC)
-                + "] cspC ["
-                + str(r_cspC)
-                + "]"
-            )
-            await self._system.setHeatCoolSPC(
-                self.id, self.getOverdideScheduleId(), r_hspC, r_cspC
-            )
-            return
-
-        # Otherwise, we are following a schedule and need to switch into manual over-ride
-        # Copy all the data over from the current executing period
-        _LOGGER.info(
-            "lennox_zone:setHeatCoolSPF zone following schedule, adjusting override schedule ["
-            + str(self.id)
-            + "] hsp ["
-            + str(r_hspC)
-            + "] csp ["
-            + str(r_cspC)
-            + "]"
-        )
-        hsp = str(self._system.convertCtoF(r_hspC))
-        csp = str(self._system.convertCtoF(r_cspC))
-        hspC = str(self._system.celsius_round(r_hspC))
-        cspC = str(self._system.celsius_round(r_cspC))
-
-        data = '"Data":{"schedules":[{"schedule":{"periods":[{"id":0,"period":'
-        data += '{"desp":' + str(self.desp) + ","
-        data += '"hsp":' + str(hsp) + ","
-        data += '"cspC":' + str(cspC) + ","
-        data += '"sp":' + str(self.sp) + ","
-        data += '"husp":' + str(self.husp) + ","
-        data += '"humidityMode":"' + str(self.humidityMode) + '",'
-        data += '"systemMode":"' + str(self.systemMode) + '",'
-        data += '"spC":' + str(self.spC) + ","
-        data += '"hspC":' + str(hspC) + ","
-        data += '"csp":' + str(csp) + ","
-        data += '"startTime":' + str(self.startTime) + ","
-        data += '"fanMode":"' + self.fanMode + '"}'
-        data += '}]},"id":' + str(self.getOverdideScheduleId()) + "}]}"
-
-        try:
-            await self._system.api.publishMessageHelper(self._system.sysId, data)
-        except S30Exception as e:
-            _LOGGER.error(
-                "lennox_zone:setHeatCoolSPC failed to create override - zone ["
-                + str(self.id)
-                + "] hsp ["
-                + str(hspC)
-                + "] csp ["
-                + str(cspC)
-                + "]"
-            )
-            raise e
-
-        _LOGGER.info(
-            "lennox_zone:setHeatCoolSPC placing zone in override hold - zone ["
-            + str(self.id)
-            + "] hspC ["
-            + str(r_hspC)
-            + "] cspC ["
-            + str(r_cspC)
-            + "]"
-        )
-        # Add a schedule hold to the zone, for now all hold will expire on next period
-        data = '"Data":{"zones":[{"config":{"scheduleHold":'
-        data += '{"scheduleId":' + str(self.getOverdideScheduleId()) + ","
-        data += '"exceptionType":"hold","enabled":true,"expiresOn":"0","expirationMode":"nextPeriod"}'
-        data += '},"id":' + str(self.id) + "}]}"
-
-        try:
-            await self.setScheduleHold(True)
-        except S30Exception as e:
-            _LOGGER.error(
-                "lennox_zone:setHeatCoolSPC failed to create schedule hold - zone ["
-                + str(self.id)
-                + "] hspC ["
-                + str(r_hspC)
-                + "] cspC ["
-                + str(r_cspC)
                 + "]"
             )
             raise e
@@ -1696,7 +1635,7 @@ class lennox_zone(object):
         )
         # Add a schedule hold to the zone, for now all hold will expire on next period
         data = '"Data":{"zones":[{"config":{"scheduleHold":'
-        data += '{"scheduleId":' + str(self.getOverdideScheduleId()) + ","
+        data += '{"scheduleId":' + str(self.getOverrideScheduleId()) + ","
         data += '"exceptionType":"hold","enabled":' + strHold + ","
         data += '"expiresOn":"0","expirationMode":"nextPeriod"}'
         data += '},"id":' + str(self.id) + "}]}"
@@ -1711,46 +1650,6 @@ class lennox_zone(object):
                 + "]"
             )
             raise e
-
-    async def setCoolSPF(self, r_csp) -> None:
-        _LOGGER.info(
-            "lennox_zone:setCoolSPF  id [" + str(self.id) + "] csp [" + str(r_csp) + "]"
-        )
-        # Lennox API always sends both values, snag the current
-        r_hsp = self.hsp
-        await self.setHeatCoolSPF(r_hsp, r_csp)
-
-    async def setCoolSPC(self, r_cspC) -> None:
-        _LOGGER.info(
-            "lennox_zone:setCoolSPC  id ["
-            + str(self.id)
-            + "] csp ["
-            + str(r_cspC)
-            + "]"
-        )
-        # Lennox API always sends both values, snag the current
-        r_hspC = self.hspC
-        await self.setHeatCoolSPC(r_hspC, r_cspC)
-
-    async def setHeatSPF(self, r_hsp) -> None:
-        _LOGGER.info(
-            "lennox_zone:setHeatSPF  id [" + str(self.id) + "] hsp [" + str(r_hsp) + "]"
-        )
-        # Lennox API always sends both values, snag the current
-        r_csp = self.csp
-        await self.setHeatCoolSPF(r_hsp, r_csp)
-
-    async def setHeatSPC(self, r_hspC) -> None:
-        _LOGGER.info(
-            "lennox_zone:setHeatSPC  id ["
-            + str(self.id)
-            + "] hsp ["
-            + str(r_hspC)
-            + "]"
-        )
-        # Lennox API always sends both values, snag the current
-        r_cspC = self.cspC
-        await self.setHeatCoolSPC(r_hspC, r_cspC)
 
     async def setManualMode(self) -> None:
         await self._system.setSchedule(self.id, self.getManualModeScheduleId())
@@ -1790,11 +1689,11 @@ class lennox_zone(object):
             data += '"csp":' + str(self.csp) + ","
             data += '"startTime":' + str(self.startTime) + ","
             data += '"fanMode":"' + self.fanMode + '"}'
-            data += '}]},"id":' + str(self.getOverdideScheduleId()) + "}]}"
+            data += '}]},"id":' + str(self.getOverrideScheduleId()) + "}]}"
 
             await self._system.api.publishMessageHelper(self._system.sysId, data)
             await self.setScheduleHold(True)
-        await self._system.setFanMode(fan_mode, self.getOverdideScheduleId())
+        await self._system.setFanMode(fan_mode, self.getOverrideScheduleId())
 
     async def setHVACMode(self, hvac_mode: str) -> None:
         # We want to be careful passing modes to the controller that it does not support.  We don't want to brick the controller.
