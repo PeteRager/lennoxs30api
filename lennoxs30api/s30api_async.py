@@ -1291,30 +1291,40 @@ class lennox_zone(object):
         return self.hsp
 
     def getTargetTemperatureF(self):
-        if self.systemMode == "off":
+        if self.systemMode == LENNOX_HVAC_OFF:
             return None
-        if self.systemMode == "cool":
+        # In single setpoint mode there is only one target.
+        if self._system.single_setpoint_mode == True:
+            return self.sp
+
+        if self.systemMode == LENNOX_HVAC_COOL:
             return self.csp
-        if self.systemMode == "heat":
+
+        if self.systemMode == LENNOX_HVAC_HEAT:
             return self.hsp
-        if self.heatingOption == True:
-            return self.hsp
-        if self.coolingOption == True:
-            return self.csp
+        # Calling this method in this mode is probably an error TODO
+        if self.systemMode == LENNOX_HVAC_HEAT_COOL:
+            return None
         return None
 
     def getTargetTemperatureC(self):
-        if self.systemMode == "off":
+        if self.systemMode == LENNOX_HVAC_OFF:
             return None
-        if self.systemMode == "cool":
-            return self.cspC
-        if self.systemMode == "heat":
+        # In single setpoint mode there is only one target.
+        if self._system.single_setpoint_mode == True:
+            return self.spC
+
+        if self.heatingOption == True and self.coolingOption == True:
+            if self.systemMode == "cool":
+                return self.cspC
+            if self.systemMode == "heat":
+                return self.hspC
+        elif self.heatingOption == True:
             return self.hspC
-        if self.heatingOption == True:
-            return self.hspC
-        if self.coolingOption == True:
+        elif self.coolingOption == True:
             return self.cspC
-        return None
+        else:
+            return None
 
     def getManualModeScheduleId(self) -> int:
         return 16 + self.id
