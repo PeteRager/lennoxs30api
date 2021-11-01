@@ -300,7 +300,9 @@ class s30api_async(object):
         # LAN Connections do not send headers
         if self._isLANConnection:
             headers = None
-        resp = await self._session.get(url, headers=headers, params=params, ssl=self.ssl)
+        resp = await self._session.get(
+            url, headers=headers, params=params, ssl=self.ssl
+        )
         self.metrics.process_http_code(resp.status)
         self.metrics.inc_receive_count()
         return resp
@@ -486,7 +488,7 @@ class s30api_async(object):
                 "Direction": "Oldest-to-Newest",
                 "MessageCount": "10",
                 "StartTime": "1",
-                "LongPollingTimeout": "15"
+                "LongPollingTimeout": "15",
             }
             resp = await self.get(url, headers=headers, params=params)
             self.metrics.inc_receive_bytes(resp.content_length)
@@ -1289,35 +1291,30 @@ class lennox_zone(object):
         return self.hsp
 
     def getTargetTemperatureF(self):
-        if self.heatingOption == True and self.coolingOption == True:
-            #           _LOGGER.warning("Single target temperature not supported for Heat and Cool HVAC")
-            if self.systemMode == "off":
-                return None
-            if self.systemMode == "cool":
-                return self.csp
-            if self.systemMode == "heat":
-                return self.hsp
-        elif self.heatingOption == True:
-            return self.hsp
-        elif self.coolingOption == True:
-            return self.csp
-        else:
+        if self.systemMode == "off":
             return None
+        if self.systemMode == "cool":
+            return self.csp
+        if self.systemMode == "heat":
+            return self.hsp
+        if self.heatingOption == True:
+            return self.hsp
+        if self.coolingOption == True:
+            return self.csp
+        return None
 
     def getTargetTemperatureC(self):
-        if self.heatingOption == True and self.coolingOption == True:
-            if self.systemMode == "off":
-                return None
-            if self.systemMode == "cool":
-                return self.cspC
-            if self.systemMode == "heat":
-                return self.hspC
-        elif self.heatingOption == True:
-            return self.hspC
-        elif self.coolingOption == True:
-            return self.cspC
-        else:
+        if self.systemMode == "off":
             return None
+        if self.systemMode == "cool":
+            return self.cspC
+        if self.systemMode == "heat":
+            return self.hspC
+        if self.heatingOption == True:
+            return self.hspC
+        if self.coolingOption == True:
+            return self.cspC
+        return None
 
     def getManualModeScheduleId(self) -> int:
         return 16 + self.id
@@ -1445,7 +1442,7 @@ class lennox_zone(object):
         self, r_hsp=None, r_hspC=None, r_csp=None, r_cspC=None, r_sp=None, r_spC=None
     ):
         _LOGGER.debug(
-            "lennox_zone:setpoint_helper  id [{self.id}] hsp [{r_hsp}] hspC [{r_hspC}] csp [{r_csp}] cspC [{r_cspC}] sp [{r_sp}] spC [{spcC]"
+            f"lennox_zone:setpoint_helper  id [{self.id}] hsp [{r_hsp}] hspC [{r_hspC}] csp [{r_csp}] cspC [{r_cspC}] sp [{r_sp}] spC [{r_spC}]"
         )
 
         self.validate_setpoints(
