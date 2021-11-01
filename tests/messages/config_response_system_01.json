@@ -223,7 +223,7 @@
                                     "enabled": true,
                                     "period": {
                                         "startTime": 0,
-                                        "systemMode": "off",
+                                        "systemMode": "heat",
                                         "fanMode": "auto",
                                         "husp": 40,
                                         "away": false,
@@ -768,7 +768,7 @@
                             "heatCoast": false,
                             "defrost": false,
                             "period": {
-                                "systemMode": "off",
+                                "systemMode": "heat",
                                 "fanMode": "auto",
                                 "husp": 40,
                                 "sp": 73,
@@ -5405,7 +5405,7 @@
                                     "enabled": true,
                                     "period": {
                                         "startTime": 0,
-                                        "systemMode": "off",
+                                        "systemMode": "heat",
                                         "hsp": 64,
                                         "hspC": 18,
                                         "csp": 77,
