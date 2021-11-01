@@ -1269,6 +1269,9 @@ class lennox_zone(object):
     def getTemperature(self):
         return self.temperature
 
+    def is_zone_active(self) -> bool:
+        return self.temperature != None
+
     def getTemperatureC(self):
         return self.temperatureC
 
