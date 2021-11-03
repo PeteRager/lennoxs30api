@@ -50,7 +50,7 @@ def test_process_configuration_message():
     assert lsystem.diagPoweredHours == 40950
     assert lsystem.diagRuntime == 15605
     assert lsystem.diagVentilationRuntime == 0
-    assert lsystem.humifidierType == "none"
+    assert lsystem.humidifierType == "none"
     assert lsystem.ventilationUnitType == "ventilator"
     assert lsystem.supports_ventilation() == True
     assert lsystem.ventilationControlMode == "timed"
@@ -236,7 +236,7 @@ def test_process_configuration_message():
     assert lsystem.outdoorUnitType == "air conditioner"
     assert lsystem.diagPoweredHours == 41071
     assert lsystem.diagRuntime == 5884
-    assert lsystem.humifidierType == "none"
+    assert lsystem.humidifierType == "none"
     assert lsystem.ventilationUnitType == "none"
     assert lsystem.manualAwayMode == True == lsystem.get_manual_away_mode()
 

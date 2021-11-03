@@ -44,22 +44,46 @@ def setup_load_configuration() -> s30api_async:
     return api
 
 
+class callback_handler(object):
+    def __init__(self):
+        self.called = 0
+
+    def update_callback(self):
+        self.called = self.called + 1
+
+
 def test_hvac_mode_change_zone_5():
     api = setup_load_configuration()
 
-    data = loadfile("mut_sys1_zone1_cool_sched.json")
-
     zone_5 = api.getSystem("0000000-0000-0000-0000-000000000002").getZone(0)
     assert zone_5.getSystemMode() == "off"
+
+    zone_5_callback_all = callback_handler()
+    zone_5.registerOnUpdateCallback(zone_5_callback_all.update_callback)
+    zone_5_callback_systemMode = callback_handler()
+    zone_5.registerOnUpdateCallback(
+        zone_5_callback_systemMode.update_callback, match=["systemMode"]
+    )
+    zone_5_callback_tempOperation = callback_handler()
+    zone_5.registerOnUpdateCallback(
+        zone_5_callback_tempOperation.update_callback, match=["tempOperation"]
+    )
+
+    data = loadfile("mut_sys1_zone1_cool_sched.json")
     api.processMessage(data)
     assert zone_5.getSystemMode() == "cool"
+    assert zone_5_callback_all.called == 1
+    assert zone_5_callback_systemMode.called == 1
+    assert zone_5_callback_tempOperation.called == 0
     # Make sure nothing else changed.
     assert zone_5.name == "Zone 1"
     assert zone_5.id == 0
     assert zone_5.coolingOption == True
     assert zone_5.csp == 78 == zone_5.getCoolSP()
+    assert zone_5.cspC == 25.5
     assert zone_5.dehumidificationOption == True
     assert zone_5.desp == 50
+    assert zone_5.demand == 0
     assert zone_5.emergencyHeatingOption == False
     assert zone_5.fanMode == "auto" == zone_5.getFanMode()
     assert zone_5.heatingOption == True
@@ -77,14 +101,19 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.minHsp == 40
     assert zone_5.scheduleId == 16 == zone_5.getManualModeScheduleId()
     assert zone_5.sp == 73
+    assert zone_5.spC == 22.5
     assert zone_5.tempOperation == "off"
     assert zone_5.temperature == 79 == zone_5.getTemperature()
     assert zone_5.temperatureC == 26 == zone_5.getTemperatureC()
     assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
 
-    # This file does not change anything.  SOmetime this message is not received.
+    # This file does not change anything.  Sometimes this message is not received.
     data = loadfile("mut_sys1_zone1_status.json")
     api.processMessage(data)
+
+    assert zone_5_callback_all.called == 1
+    assert zone_5_callback_systemMode.called == 1
+    assert zone_5_callback_tempOperation.called == 0
 
     # Make sure nothing else changed.
     assert zone_5.name == "Zone 1"
@@ -92,6 +121,7 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.coolingOption == True
     assert zone_5.csp == 78 == zone_5.getCoolSP()
     assert zone_5.dehumidificationOption == True
+    assert zone_5.demand == 0
     assert zone_5.desp == 50
     assert zone_5.emergencyHeatingOption == False
     assert zone_5.fanMode == "auto" == zone_5.getFanMode()
@@ -110,6 +140,7 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.minHsp == 40
     assert zone_5.scheduleId == 16 == zone_5.getManualModeScheduleId()
     assert zone_5.sp == 73
+    assert zone_5.spC == 22.5
     assert zone_5.getSystemMode() == "cool"
     assert zone_5.tempOperation == "off"
     assert zone_5.temperature == 79 == zone_5.getTemperature()
@@ -119,7 +150,12 @@ def test_hvac_mode_change_zone_5():
     # The system now goes into cooling mode
     data = loadfile("mut_sys1_zone1_cooling_on.json")
     api.processMessage(data)
+    assert zone_5_callback_all.called == 2
+    assert zone_5_callback_systemMode.called == 1
+    assert zone_5_callback_tempOperation.called == 1
+
     assert zone_5.tempOperation == "cooling"
+    assert zone_5.demand == 37.5
     # Make sure nothing else changed.
     assert zone_5.name == "Zone 1"
     assert zone_5.id == 0
@@ -145,7 +181,6 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.scheduleId == 16 == zone_5.getManualModeScheduleId()
     assert zone_5.sp == 73
     assert zone_5.getSystemMode() == "cool"
-    #   assert zone_5.tempOperation == 'off'
     assert zone_5.temperature == 79 == zone_5.getTemperature()
     assert zone_5.temperatureC == 26 == zone_5.getTemperatureC()
     assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
@@ -154,10 +189,27 @@ def test_hvac_mode_change_zone_5():
 def test_hvac_mode_change_zone_2():
     api = setup_load_configuration()
 
+    zone_2: lennox_zone = api.getSystems()[0].getZoneList()[1]
+
+    zone_2_callback_all = callback_handler()
+    zone_2.registerOnUpdateCallback(zone_2_callback_all.update_callback)
+    zone_2_callback_systemMode = callback_handler()
+    zone_2.registerOnUpdateCallback(
+        zone_2_callback_systemMode.update_callback, match=["systemMode"]
+    )
+    zone_2_callback_tempOperation_csp = callback_handler()
+    zone_2.registerOnUpdateCallback(
+        zone_2_callback_tempOperation_csp.update_callback,
+        match=["tempOperation", "csp"],
+    )
+
     data = loadfile("mut_sys0_zone2_csp.json")
     api.processMessage(data)
 
-    zone_2: lennox_zone = api.getSystems()[0].getZoneList()[1]
+    assert zone_2_callback_all.called == 1
+    assert zone_2_callback_systemMode.called == 0
+    assert zone_2_callback_tempOperation_csp.called == 1
+
     assert zone_2.csp == 77 == zone_2.getCoolSP()
     # check that nothing else changed
     assert zone_2.name == "Zone 2"
@@ -284,31 +336,65 @@ def test_ventilation_zone_status():
 def test_ventilation_system_time_remaining():
     api = setup_load_configuration()
 
+    system = api.getSystem("0000000-0000-0000-0000-000000000001")
+
+    system_callback_all = callback_handler()
+    system.registerOnUpdateCallback(system_callback_all.update_callback)
+    system_callback_remainingTime_and_others = callback_handler()
+    system.registerOnUpdateCallback(
+        system_callback_remainingTime_and_others.update_callback,
+        ["this", "that", "ventilationRemainingTime"],
+    )
+    system_callback_should_not_fire = callback_handler()
+    system.registerOnUpdateCallback(
+        system_callback_should_not_fire.update_callback, ["this", "that", "other"]
+    )
+
     data = loadfile("ventilation_system_remaining_time.json")
     api.processMessage(data)
-
-    system = api.getSystem("0000000-0000-0000-0000-000000000001")
+    assert system_callback_all.called == 1
+    assert system_callback_remainingTime_and_others.called == 1
+    assert system_callback_should_not_fire.called == 0
     assert system.ventilationRemainingTime == 600
     assert system.ventilatingUntilTime == "1626278426"
 
 
 def test_ventilation_system_on_and_off():
     api = setup_load_configuration()
+    system = api.getSystem("0000000-0000-0000-0000-000000000001")
+
+    system_callback_all = callback_handler()
+    system.registerOnUpdateCallback(system_callback_all.update_callback)
+    system_callback_ventilationMode_and_others = callback_handler()
+    system.registerOnUpdateCallback(
+        system_callback_ventilationMode_and_others.update_callback,
+        ["this", "that", "ventilationRemainingTime", "ventilationMode"],
+    )
+    system_callback_should_not_fire = callback_handler()
+    system.registerOnUpdateCallback(
+        system_callback_should_not_fire.update_callback, ["this", "that", "other"]
+    )
 
     data = loadfile("ventilation_system_off.json")
     api.processMessage(data)
 
-    system = api.getSystem("0000000-0000-0000-0000-000000000001")
+    assert system_callback_all.called == 1
+    assert system_callback_ventilationMode_and_others.called == 1
+    assert system_callback_should_not_fire.called == 0
     assert system.ventilationMode == "off"
 
     data = loadfile("ventilation_system_on.json")
     api.processMessage(data)
+    assert system_callback_all.called == 2
+    assert system_callback_ventilationMode_and_others.called == 2
+    assert system_callback_should_not_fire.called == 0
     assert system.ventilationMode == "on"
 
     data = loadfile("ventilation_system_off.json")
     api.processMessage(data)
-
-    system = api.getSystem("0000000-0000-0000-0000-000000000001")
+    assert system_callback_all.called == 3
+    assert system_callback_ventilationMode_and_others.called == 3
+    assert system_callback_should_not_fire.called == 0
     assert system.ventilationMode == "off"
 
 
