@@ -723,10 +723,23 @@ class lennox_system(object):
         self.ventilationRemainingTime = None
         self.ventilatingUntilTime = None
         self.ventilationUnitType = None
+        self.ventilationControlMode = None
         self.feelsLikeMode = None
         self.manualAwayMode = None
         self.serialNumber: str = None
         self.single_setpoint_mode: bool = None
+        self.temperatureUnit: str = None
+        self.dehumidificationMode = None
+        self.indoorUnitType = None
+        self.productType = None
+        self.outdoorUnitType = None
+        self.humidifierType = None
+        self.dehumidifierType = None
+        self.outdoorTemperatureC = None
+        self.outdoorTemperature = None
+        self.numberOfZones = None
+        self._dirty = False
+        self._dirtyList = []
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
 
     def update(self, api: s30api_async, home: lennox_home, idx: int):
@@ -739,25 +752,19 @@ class lennox_system(object):
         try:
             if "Data" in message:
                 data = message["Data"]
-                update = False
                 if "system" in data:
-                    update = self.processSystemMessage(data["system"])
+                    self.processSystemMessage(data["system"])
                 if "zones" in data:
                     self.processZonesMessage(data["zones"])
-                    update = True
                 if "schedules" in data:
                     self.processSchedules(data["schedules"])
-                    update = True
                 if "occupancy" in data:
                     self.processOccupancy(data["occupancy"])
-                    update = True
                 if "devices" in data:
                     self.processDevices(data["devices"])
-                    update = True
                 if "equipments" in data:
                     update = self.processEquipments(data["equipments"])
-                if update == True:
-                    self.executeOnUpdateCallbacks()
+                self.executeOnUpdateCallbacks()
         except Exception as e:
             _LOGGER.error("processMessage - Exception " + str(e))
             raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)
@@ -782,6 +789,8 @@ class lennox_system(object):
     def processSchedules(self, schedules):
         try:
             for schedule in schedules:
+                self._dirty = True
+                self._dirtyList.append("schedules")
                 id = schedule["id"]
                 if "schedule" in schedule:
                     lschedule = self.getSchedule(id)
@@ -808,73 +817,87 @@ class lennox_system(object):
             _LOGGER.error("processSchedules - failed " + str(e))
             raise S30Exception(str(e), EC_PROCESS_MESSAGE, 2)
 
-    def registerOnUpdateCallback(self, callbackfunc):
-        self._callbacks.append(callbackfunc)
+    def registerOnUpdateCallback(self, callbackfunc, match=None):
+        self._callbacks.append({"func": callbackfunc, "match": match})
 
     def executeOnUpdateCallbacks(self):
-        for callbackfunc in self._callbacks:
-            try:
-                callbackfunc()
-            except Exception as e:
-                # Log and eat this exception so we can process other callbacks
-                _LOGGER.error("executeOnUpdateCallback - failed " + str(e))
+        if self._dirty == True:
+            for callback in self._callbacks:
+                callbackfunc = callback["func"]
+                match = callback["match"]
+                matches = False
+                if match is None:
+                    matches = True
+                else:
+                    for m in match:
+                        if m in self._dirtyList:
+                            matches = True
+                            break
+                try:
+                    if matches == True:
+                        callbackfunc()
+                except Exception as e:
+                    # Log and eat this exception so we can process other callbacks
+                    _LOGGER.error("executeOnUpdateCallback - failed " + str(e))
+        self._dirty = False
+        self._dirtyList = []
 
-    def processSystemMessage(self, message) -> bool:
-        updated = False
+    def attr_updater(self, set, attr: str, propertyName: str = None) -> bool:
+        if attr in set:
+            attr_val = set[attr]
+            if propertyName is None:
+                propertyName = attr
+            if getattr(self, propertyName) != attr_val:
+                setattr(self, propertyName, attr_val)
+                self._dirty = True
+                self._dirtyList.append(propertyName)
+                _LOGGER.debug(
+                    f"update_attr: sytem Id [{self.sysId}] attr [{propertyName}]"
+                )
+                return True
+        return False
+
+    def processSystemMessage(self, message):
         try:
             if "config" in message:
-                updated = True
                 config = message["config"]
-                if "temperatureUnit" in config:
-                    self.temperatureUnit = config["temperatureUnit"]
-                if "dehumidificationMode" in config:
-                    self.dehumidificationMode = config["dehumidificationMode"]
-                if "name" in config:
-                    self.name = config["name"]
-                if "allergenDefender" in config:
-                    self.allergenDefender = config["allergenDefender"]
-                if "ventilationMode" in config:
-                    self.ventilationMode = config["ventilationMode"]
+                self.attr_updater(config, "temperatureUnit")
+                self.attr_updater(config, "dehumidificationMode")
+                self.attr_updater(config, "name")
+                self.attr_updater(config, "allergenDefender")
+                self.attr_updater(config, "ventilationMode")
                 if "options" in config:
                     options = config["options"]
-                    self.indoorUnitType = options["indoorUnitType"]
-                    self.productType = options["productType"]  # S30
-                    self.outdoorUnitType = options["outdoorUnitType"]
-                    self.humifidierType = options["humidifierType"]
-                    self.dehumidifierType = options["dehumidifierType"]
+                    self.attr_updater(options, "indoorUnitType")
+                    self.attr_updater(options, "productType")
+                    self.attr_updater(options, "outdoorUnitType")
+                    self.attr_updater(options, "humidifierType")
+                    self.attr_updater(options, "dehumidifierType")
                     if "ventilation" in options:
                         ventilation = options["ventilation"]
-                        if "unitType" in ventilation:
-                            self.ventilationUnitType = ventilation["unitType"]
-                        if "controlMode" in ventilation:
-                            self.ventilationControlMode = ventilation["controlMode"]
+                        self.attr_updater(
+                            ventilation, "unitType", "ventilationUnitType"
+                        )
+                        self.attr_updater(
+                            ventilation, "controlMode", "ventilationControlMode"
+                        )
 
             if "status" in message:
-                updated = True
                 status = message["status"]
-                if "outdoorTemperature" in status:
-                    self.outdoorTemperature = status["outdoorTemperature"]
-                if "outdoorTemperatureC" in status:
-                    self.outdoorTemperatureC = status["outdoorTemperatureC"]
-                if "diagRuntime" in status:
-                    self.diagRuntime = status["diagRuntime"]
-                if "diagPoweredHours" in status:
-                    self.diagPoweredHours = status["diagPoweredHours"]
-                if "numberOfZones" in status:
-                    self.numberOfZones = status["numberOfZones"]
-                if "diagVentilationRuntime" in status:
-                    self.diagVentilationRuntime = status["diagVentilationRuntime"]
-                if "ventilationRemainingTime" in status:
-                    self.ventilationRemainingTime = status["ventilationRemainingTime"]
-                if "ventilatingUntilTime" in status:
-                    self.ventilatingUntilTime = status["ventilatingUntilTime"]
-                if "feelsLikeMode" in status:
-                    self.feelsLikeMode = status["feelsLikeMode"]
+                self.attr_updater(status, "outdoorTemperature")
+                self.attr_updater(status, "outdoorTemperatureC")
+                self.attr_updater(status, "diagRuntime")
+                self.attr_updater(status, "diagPoweredHours")
+                self.attr_updater(status, "numberOfZones")
+                self.attr_updater(status, "diagVentilationRuntime")
+                self.attr_updater(status, "ventilationRemainingTime")
+                self.attr_updater(status, "ventilatingUntilTime")
+                self.attr_updater(status, "feelsLikeMode")
 
         except Exception as e:
             _LOGGER.error("processSystemMessage - Exception " + str(e))
             raise S30Exception(str(e), EC_PROCESS_MESSAGE, 3)
-        return updated
+        return
 
     def processDevices(self, message):
         try:
@@ -886,6 +909,8 @@ class lennox_system(object):
                                 self.serialNumber = feature["feature"]["values"][0][
                                     "value"
                                 ]
+                                self._dirty = True
+                                self._dirtyList.append("serialNumber")
 
         except Exception as e:
             _LOGGER.error("processDevices - Exception " + str(e))
@@ -903,6 +928,8 @@ class lennox_system(object):
                             self.single_setpoint_mode = True
                         else:
                             self.single_setpoint_mode = False
+                        self._dirty = True
+                        self._dirtyList.append("single_setpoint_mode")
         except Exception as e:
             _LOGGER.error("processDevices - Exception " + str(e))
             raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)
@@ -924,8 +951,7 @@ class lennox_system(object):
 
     def processOccupancy(self, message):
         try:
-            if "manualAway" in message:
-                self.manualAwayMode = message["manualAway"]
+            self.attr_updater(message, "manualAway", "manualAwayMode")
 
         except Exception as e:
             _LOGGER.error("processOccupancy - Exception " + str(e))
@@ -1113,8 +1139,10 @@ class lennox_zone(object):
 
         self.maxHumSp = None
         self.maxDehumSp = None
+        self.minDehumSp = None
 
         self.scheduleId = None
+        self.scheduleHold = None
 
         # PERIOD
         self.systemMode = None
@@ -1134,60 +1162,70 @@ class lennox_zone(object):
         self.id: int = id
         self.name: str = None
         self._system: lennox_system = system
+        self._dirty = False
+        self._dirtyList = []
 
         _LOGGER.info(f"Creating lennox_zone id [{self.id}]")
 
-    def registerOnUpdateCallback(self, callbackfunc):
-        self._callbacks.append(callbackfunc)
+    def registerOnUpdateCallback(self, callbackfunc, match=None):
+        self._callbacks.append({"func": callbackfunc, "match": match})
 
     def executeOnUpdateCallbacks(self):
-        for callbackfunc in self._callbacks:
-            try:
-                callbackfunc()
-            except Exception as e:
-                # Log and eat this exception so we can process other callbacks
-                _LOGGER.error("executeOnUpdateCallback - failed " + str(e))
+        if self._dirty == True:
+            for callback in self._callbacks:
+                callbackfunc = callback["func"]
+                match = callback["match"]
+                matches = False
+                if match is None:
+                    matches = True
+                else:
+                    for m in match:
+                        if m in self._dirtyList:
+                            matches = True
+                            break
+                try:
+                    if matches == True:
+                        callbackfunc()
+                except Exception as e:
+                    # Log and eat this exception so we can process other callbacks
+                    _LOGGER.error("executeOnUpdateCallback - failed " + str(e))
+        self._dirty = False
+        self._dirtyList = []
 
-    def processMessage(self, zoneMessage):
+    def attr_updater(self, set, attr: str) -> bool:
+        if attr in set:
+            attr_val = set[attr]
+            if getattr(self, attr) != attr_val:
+                setattr(self, attr, attr_val)
+                self._dirty = True
+                self._dirtyList.append(attr)
+                _LOGGER.debug(f"update_attr: zone Id [{self.id}] attr [{attr}]")
+                return True
+        return False
+
+    def processMessage(self, zoneMessage) -> bool:
         _LOGGER.debug(f"processMessage lennox_zone id [{self.id}]")
         if "config" in zoneMessage:
             config = zoneMessage["config"]
-            if ("name") in config:
-                self.name = config["name"]
-            if "heatingOption" in config:
-                self.heatingOption = config["heatingOption"]
-            if "maxHsp" in config:
-                self.maxHsp = config["maxHsp"]
-            if "maxHspC" in config:
-                self.maxHspC = config["maxHspC"]
-            if "minHsp" in config:
-                self.minHsp = config["minHsp"]
-            if "minHspC" in config:
-                self.minHspC = config["minHspC"]
-            if "coolingOption" in config:
-                self.coolingOption = config["coolingOption"]
-            if "maxCsp" in config:
-                self.maxCsp = config["maxCsp"]
-            if "maxCspC" in config:
-                self.maxCspC = config["maxCspC"]
-            if "minCsp" in config:
-                self.minCsp = config["minCsp"]
-            if "minCspC" in config:
-                self.minCspC = config["minCspC"]
-            if "humidificationOption" in config:
-                self.humidificationOption = config["humidificationOption"]
-            if "maxHumSp" in config:
-                self.maxHumSp = config["maxHumSp"]
-            if "emergencyHeatingOption" in config:
-                self.emergencyHeatingOption = config["emergencyHeatingOption"]
-            if "dehumidificationOption" in config:
-                self.dehumidificationOption = config["dehumidificationOption"]
-            if "maxDehumSp" in config:
-                self.maxDehumSp = config["maxDehumSp"]
-            if "minDehumSp" in config:
-                self.minDehumSp = config["minDehumSp"]
-            if "scheduleId" in config:
-                self.scheduleId = config["scheduleId"]
+            self.attr_updater(config, "name")
+            self.attr_updater(config, "heatingOption")
+            self.attr_updater(config, "maxHsp")
+            self.attr_updater(config, "maxHspC")
+            self.attr_updater(config, "minHsp")
+            self.attr_updater(config, "minHspC")
+            self.attr_updater(config, "coolingOption")
+            self.attr_updater(config, "maxCsp")
+            self.attr_updater(config, "maxCspC")
+            self.attr_updater(config, "minCsp")
+            self.attr_updater(config, "minCspC")
+            self.attr_updater(config, "humidificationOption")
+            self.attr_updater(config, "maxHumSp")
+            self.attr_updater(config, "emergencyHeatingOption")
+            self.attr_updater(config, "dehumidificationOption")
+            self.attr_updater(config, "maxDehumSp")
+            self.attr_updater(config, "minDehumSp")
+            self.attr_updater(config, "scheduleId")
+            self.attr_updater(config, "scheduleHold")
             if "scheduleHold" in config:
                 scheduleHold = config["scheduleHold"]
                 found = False
@@ -1198,73 +1236,44 @@ class lennox_zone(object):
                             found = True
                 if found is False:
                     self.overrideActive = False
+                self._dirty = True
+                self._dirtyList.append("scheduleHold")
 
         if "status" in zoneMessage:
             status = zoneMessage["status"]
-            if "temperature" in status:
-                self.temperature = status["temperature"]
-            if "temperatureC" in status:
-                self.temperatureC = status["temperatureC"]
-            if "humidity" in status:
-                self.humidity = status["humidity"]
-            if "humidity" in status:
-                self.humidity = status["humidity"]
-            if "tempOperation" in status:
-                self.tempOperation = status["tempOperation"]
-            if "humOperation" in status:
-                self.humOperation = status["humOperation"]
-            if "allergenDefender" in status:
-                self.allergenDefender = status["allergenDefender"]
-            if "damper" in status:
-                self.damper = status["damper"]
-            if "fan" in status:
-                self.fan = status["fan"]
-            if "demand" in status:
-                self.demand = status["demand"]
-            if "ventilation" in status:
-                self.ventilation = status["ventilation"]
+            self.attr_updater(status, "temperature")
+            self.attr_updater(status, "temperatureC")
+            self.attr_updater(status, "humidity")
+            self.attr_updater(status, "tempOperation")
+            self.attr_updater(status, "humOperation")
+            self.attr_updater(status, "allergenDefender")
+            self.attr_updater(status, "damper")
+            self.attr_updater(status, "fan")
+            self.attr_updater(status, "demand")
+            self.attr_updater(status, "ventilation")
 
             if "period" in status:
                 period = status["period"]
                 self.processPeriodMessage(period)
-        self.executeOnUpdateCallbacks()
         _LOGGER.debug(
-            "lennox_zone id ["
-            + str(self.id)
-            + "] name ["
-            + str(self.name)
-            + "] temperature ["
-            + str(self.getTemperature())
-            + "] humidity ["
-            + str(self.getHumidity())
-            + "]"
+            f"processMessage complete lennox_zone id [{self.id}] dirty [{self._dirty}] dirtyList [{self._dirtyList}]"
         )
+        self.executeOnUpdateCallbacks()
+        return self._dirty
 
     def processPeriodMessage(self, period):
-        if "systemMode" in period:
-            self.systemMode = period["systemMode"]
-        if "fanMode" in period:
-            self.fanMode = period["fanMode"]
-        if "humidityMode" in period:
-            self.humidityMode = period["humidityMode"]
-        if "csp" in period:
-            self.csp = period["csp"]
-        if "cspC" in period:
-            self.cspC = period["cspC"]
-        if "hsp" in period:
-            self.hsp = period["hsp"]
-        if "hspC" in period:
-            self.hspC = period["hspC"]
-        if "desp" in period:
-            self.desp = period["desp"]
-        if "sp" in period:
-            self.sp = period["sp"]
-        if "spC" in period:
-            self.spC = period["spC"]
-        if "husp" in period:
-            self.husp = period["husp"]
-        if "startTime" in period:
-            self.startTime = period["startTime"]
+        self.attr_updater(period, "systemMode")
+        self.attr_updater(period, "fanMode")
+        self.attr_updater(period, "humidityMode")
+        self.attr_updater(period, "csp")
+        self.attr_updater(period, "cspC")
+        self.attr_updater(period, "hsp")
+        self.attr_updater(period, "hspC")
+        self.attr_updater(period, "desp")
+        self.attr_updater(period, "sp")
+        self.attr_updater(period, "spC")
+        self.attr_updater(period, "husp")
+        self.attr_updater(period, "startTime")
 
     def getTemperature(self):
         return self.temperature
