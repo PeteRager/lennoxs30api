@@ -30,9 +30,6 @@ def setup_load_configuration(single_setpoint: bool = False) -> s30api_async:
     data = loadfile("config_response_system_02.json")
     api.processMessage(data)
 
-    data = loadfile("config_response_system_02.json")
-    api.processMessage(data)
-
     if single_setpoint == True:
         data = loadfile("equipments_lcc_singlesetpoint.json")
         data["SenderID"] = "0000000-0000-0000-0000-000000000001"

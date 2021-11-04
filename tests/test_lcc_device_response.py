@@ -26,3 +26,4 @@ def test_process_device_serial_number():
     assert lsystem.sysId == "LCC"
     assert lsystem.serialNumber == "HD21212121"
     assert lsystem.unique_id() == "HD21212121"
+    assert lsystem.softwareVersion == "3.81.207"
