@@ -19,6 +19,7 @@ def loadfile(name) -> json:
 
 
 def setup_load_configuration(single_setpoint: bool = False) -> s30api_async:
+    asyncio.set_event_loop(asyncio.new_event_loop())
 
     api = s30api_async("myemail@email.com", "mypassword", None)
     data = loadfile("login_response.json")
