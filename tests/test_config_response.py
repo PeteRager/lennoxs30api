@@ -50,6 +50,7 @@ def test_process_configuration_message():
     assert lsystem.diagPoweredHours == 40950
     assert lsystem.diagRuntime == 15605
     assert lsystem.diagVentilationRuntime == 0
+    assert lsystem.diagLevel == 0
     assert lsystem.humidifierType == "none"
     assert lsystem.ventilationUnitType == "ventilator"
     assert lsystem.supports_ventilation() == True

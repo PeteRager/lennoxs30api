@@ -1,0 +1,17 @@
+    {
+        "MessageId": 0,
+        "SenderID": "0000000-0000-0000-0000-000000000001",
+        "TargetID": "mapp079372367620211028212423",
+        "MessageType": "PropertyChange",
+        "Data": {
+            "system": {
+                "time": {
+                    "sysUpTime": 500,
+                    "currentTime": "1635616459"
+                },
+                "publisher": {
+                    "publisherName": "lcc"
+                }
+            }
+        }
+    }

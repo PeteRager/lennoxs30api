@@ -738,6 +738,9 @@ class lennox_system(object):
         self.outdoorTemperatureC = None
         self.outdoorTemperature = None
         self.numberOfZones = None
+        self.sysUpTime = None
+        self.diagLevel = None
+        self.softwareVersion = None
         self._dirty = False
         self._dirtyList = []
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
@@ -886,6 +889,7 @@ class lennox_system(object):
                 status = message["status"]
                 self.attr_updater(status, "outdoorTemperature")
                 self.attr_updater(status, "outdoorTemperatureC")
+                self.attr_updater(status, "diagLevel")
                 self.attr_updater(status, "diagRuntime")
                 self.attr_updater(status, "diagPoweredHours")
                 self.attr_updater(status, "numberOfZones")
@@ -893,6 +897,16 @@ class lennox_system(object):
                 self.attr_updater(status, "ventilationRemainingTime")
                 self.attr_updater(status, "ventilatingUntilTime")
                 self.attr_updater(status, "feelsLikeMode")
+
+            if "time" in message:
+                time = message["time"]
+                old = self.sysUpTime
+                self.attr_updater(time, "sysUpTime")
+                # When uptime become less than what we recorded, it means the S30 has restarted
+                if old is not None and old > self.sysUpTime:
+                    _LOGGER.warning(
+                        f"S30 has rebooted sysId [{self.sysId}] old uptime [{old}] new uptime [{self.sysUpTime}]"
+                    )
 
         except Exception as e:
             _LOGGER.error("processSystemMessage - Exception " + str(e))
@@ -911,6 +925,12 @@ class lennox_system(object):
                                 ]
                                 self._dirty = True
                                 self._dirtyList.append("serialNumber")
+                            if feature.get("feature", {}).get("fid") == 11:
+                                self.softwareVersion = feature["feature"]["values"][0][
+                                    "value"
+                                ]
+                                self._dirty = True
+                                self._dirtyList.append("softwareVersion")
 
         except Exception as e:
             _LOGGER.error("processDevices - Exception " + str(e))
