@@ -1,0 +1,573 @@
+{
+    "Data": {
+        "equipments": [
+            {
+                "equipment": {
+                    "diagnostics": [
+                        {
+                            "diagnostic": {
+                                "name": "",
+                                "unit": "",
+                                "valid": false,
+                                "value": ""
+                            },
+                            "id": 0
+                        }
+                    ],
+                    "equipType": 0,
+                    "features": [
+                    ],
+                    "parameters": [
+                    ],
+                    "szDiagnostics": 0,
+                    "szFeatures": 21,
+                    "szParameters": 164
+                },
+                "id": 0,
+                "publisher": {
+                    "doNotPersist": true,
+                    "publisherName": "unknown",
+                    "writeAccess": "openAll"
+                }
+            },
+            {
+                "equipment": {
+                    "diagnostics": [
+                        {
+                            "diagnostic": {
+                                "name": "Comp. Short Cycle Delay Active",
+                                "unit": "",
+                                "value": "No"
+                            },
+                            "id": 0
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Cooling Rate",
+                                "unit": "%",
+                                "value": "0.0"
+                            },
+                            "id": 1
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Heating Rate",
+                                "unit": "%",
+                                "value": "0.0"
+                            },
+                            "id": 2
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Compressor Shift Delay Active",
+                                "unit": "",
+                                "value": "No"
+                            },
+                            "id": 3
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Defrost Status",
+                                "unit": "",
+                                "value": "Off"
+                            },
+                            "id": 4
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Reversing Valve Status",
+                                "unit": "",
+                                "value": "Heat Mode"
+                            },
+                            "id": 5
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "High Pressure Switch",
+                                "unit": "",
+                                "value": "Closed"
+                            },
+                            "id": 6
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Low Pressure Switch",
+                                "unit": "",
+                                "value": "Closed"
+                            },
+                            "id": 7
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Top Cap Switch Status",
+                                "unit": "",
+                                "value": "Closed"
+                            },
+                            "id": 8
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Liquid Line Temp",
+                                "unit": "F",
+                                "value": "64.3"
+                            },
+                            "id": 9
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Ambient Temp",
+                                "unit": "F",
+                                "value": "66.8"
+                            },
+                            "id": 10
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Coil Temp",
+                                "unit": "F",
+                                "value": "61.4"
+                            },
+                            "id": 11
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Run Time Since Last Defrost",
+                                "unit": "min",
+                                "value": "0"
+                            },
+                            "id": 12
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Control Will Defrost at Delta",
+                                "unit": "F",
+                                "value": "0.0"
+                            },
+                            "id": 13
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Current Delta",
+                                "unit": "F",
+                                "value": "5.4"
+                            },
+                            "id": 14
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Compressor Active Alarm",
+                                "unit": "",
+                                "value": "0"
+                            },
+                            "id": 15
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Compressor Hz",
+                                "unit": "Hz",
+                                "value": "0.0"
+                            },
+                            "id": 16
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Compressor Speed Reduction",
+                                "unit": "",
+                                "value": "Off"
+                            },
+                            "id": 17
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Heat Sink Temperature",
+                                "unit": "F",
+                                "value": "69.8"
+                            },
+                            "id": 18
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Inverter Input Voltage",
+                                "unit": "V",
+                                "value": "247.0"
+                            },
+                            "id": 19
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Inverter Input Current",
+                                "unit": "A",
+                                "value": "4.301"
+                            },
+                            "id": 20
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "DC Link Voltage",
+                                "unit": "V",
+                                "value": "6.0"
+                            },
+                            "id": 21
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Compressor Current",
+                                "unit": "A",
+                                "value": "0.000"
+                            },
+                            "id": 22
+                        }
+                    ],
+                    "equipType": 19,
+                    "features": [
+                        {
+                            "feature": {
+                                "fid": 17,
+                                "format": "u16q8",
+                                "name": "24VAC Average Power Consumption",
+                                "szValues": 1,
+                                "unit": "W",
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "0"
+                                    }
+                                ]
+                            },
+                            "id": 17
+                        },
+                        {
+                            "feature": {
+                                "fid": 16,
+                                "format": "u16q8",
+                                "name": "24VAC Peak Power Consumption",
+                                "szValues": 1,
+                                "unit": "W",
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "0"
+                                    }
+                                ]
+                            },
+                            "id": 18
+                        },
+                        {
+                            "feature": {
+                                "fid": 19,
+                                "format": "u16q4",
+                                "name": "Line Voltage Avg. Power Consumption",
+                                "szValues": 1,
+                                "unit": "W",
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "0"
+                                    }
+                                ]
+                            },
+                            "id": 19
+                        },
+                        {
+                            "feature": {
+                                "fid": 18,
+                                "format": "u16q4",
+                                "name": "Line Voltage Peak Power Consumption",
+                                "szValues": 1,
+                                "unit": "W",
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "0"
+                                    }
+                                ]
+                            },
+                            "id": 20
+                        }
+                    ],
+                    "parameters": [
+                    ],
+                    "szDiagnostics": 23,
+                    "szFeatures": 35,
+                    "szParameters": 8
+                },
+                "id": 1
+            },
+            {
+                "equipment": {
+                    "diagnostics": [
+                        {
+                            "diagnostic": {
+                                "name": "Heating Rate",
+                                "unit": "%",
+                                "value": "0.0"
+                            },
+                            "id": 0
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Blower CFM Demand",
+                                "unit": "CFM",
+                                "value": "250"
+                            },
+                            "id": 1
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Blower Off Delay",
+                                "unit": "",
+                                "value": "Off"
+                            },
+                            "id": 2
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Blower On Delay",
+                                "unit": "",
+                                "value": "Off"
+                            },
+                            "id": 3
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Indoor Blower RPM",
+                                "unit": "",
+                                "value": "270"
+                            },
+                            "id": 4
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Indoor Blower Power",
+                                "unit": "%",
+                                "value": "0.5"
+                            },
+                            "id": 5
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Outdoor Temperature",
+                                "unit": "",
+                                "value": "open"
+                            },
+                            "id": 6
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Discharge Air Temperature",
+                                "unit": "",
+                                "value": "open"
+                            },
+                            "id": 7
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Line Voltage",
+                                "unit": "V",
+                                "value": "592.5"
+                            },
+                            "id": 8
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "24VAC Voltage",
+                                "unit": "V",
+                                "value": "28.4"
+                            },
+                            "id": 9
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "G - Input",
+                                "unit": "",
+                                "value": "Off"
+                            },
+                            "id": 10
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "W1 - Input",
+                                "unit": "",
+                                "value": "Off"
+                            },
+                            "id": 11
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Upstage Timer",
+                                "unit": "",
+                                "value": "Off"
+                            },
+                            "id": 12
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "# of Electric Heat Sections ON",
+                                "unit": "",
+                                "value": "0"
+                            },
+                            "id": 13
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Link Relay Status",
+                                "unit": "",
+                                "value": "Closed"
+                            },
+                            "id": 14
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Defrost Status",
+                                "unit": "",
+                                "value": "Off"
+                            },
+                            "id": 15
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Dehumidification Relay Status",
+                                "unit": "",
+                                "value": "Open"
+                            },
+                            "id": 16
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Humidification Relay Status",
+                                "unit": "",
+                                "value": "Open"
+                            },
+                            "id": 17
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "O Relay Status",
+                                "unit": "",
+                                "value": "Open"
+                            },
+                            "id": 18
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Y2 Relay Status",
+                                "unit": "",
+                                "value": "Open"
+                            },
+                            "id": 19
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Y1 Relay Status",
+                                "unit": "",
+                                "value": "Open"
+                            },
+                            "id": 20
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Detecting Electrical Heat",
+                                "unit": "",
+                                "value": "Off"
+                            },
+                            "id": 21
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Undetected Electric Heat",
+                                "unit": "",
+                                "value": "No"
+                            },
+                            "id": 22
+                        },
+                        {
+                            "diagnostic": {
+                                "name": "Electric Heat On Delay",
+                                "unit": "",
+                                "value": "Off"
+                            },
+                            "id": 23
+                        }
+                    ],
+                    "equipType": 17,
+                    "features": [
+                        {
+                            "feature": {
+                                "fid": 17,
+                                "format": "u16q8",
+                                "name": "24VAC Average Power Consumption",
+                                "szValues": 1,
+                                "unit": "W",
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "2.55996093750e+02"
+                                    }
+                                ]
+                            },
+                            "id": 18
+                        },
+                        {
+                            "feature": {
+                                "fid": 16,
+                                "format": "u16q8",
+                                "name": "24VAC Peak Power Consumption",
+                                "szValues": 1,
+                                "unit": "W",
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "2.55996093750e+02"
+                                    }
+                                ]
+                            },
+                            "id": 19
+                        },
+                        {
+                            "feature": {
+                                "fid": 19,
+                                "format": "u16q4",
+                                "name": "Line Voltage Avg. Power Consumption",
+                                "szValues": 1,
+                                "unit": "W",
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "4.09593750e+03"
+                                    }
+                                ]
+                            },
+                            "id": 20
+                        },
+                        {
+                            "feature": {
+                                "fid": 18,
+                                "format": "u16q4",
+                                "name": "Line Voltage Peak Power Consumption",
+                                "szValues": 1,
+                                "unit": "W",
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "4.09593750e+03"
+                                    }
+                                ]
+                            },
+                            "id": 21
+                        }
+                    ],
+                    "parameters": [
+                    ],
+                    "szDiagnostics": 24,
+                    "szFeatures": 32,
+                    "szParameters": 15
+                },
+                "id": 2
+            }
+        ]
+    },
+    "MessageId": 0,
+    "MessageType": "PropertyChange",
+    "SenderID": "LCC",
+    "TargetID": "python_client"
+}

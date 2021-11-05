@@ -741,6 +741,9 @@ class lennox_system(object):
         self.sysUpTime = None
         self.diagLevel = None
         self.softwareVersion = None
+        self.diagnosticPaths = {}
+        self.diagInverterInputVoltage = None
+        self.diagInverterInputCurrent = None
         self._dirty = False
         self._dirtyList = []
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
@@ -940,6 +943,7 @@ class lennox_system(object):
         update = False
         try:
             for equipment in message:
+                equipment_id = equipment.get("id")
                 for parameter in equipment.get("equipment", {}).get("parameters", []):
                     # 525 is the parameter id for split-setpoint
                     if parameter.get("parameter", {}).get("pid") == 525:
@@ -950,6 +954,20 @@ class lennox_system(object):
                             self.single_setpoint_mode = False
                         self._dirty = True
                         self._dirtyList.append("single_setpoint_mode")
+                for diagnostic in equipment.get("equipment", {}).get("diagnostics", []):
+                    # the diagnostic values sometimes don't have names
+                    # so remember where we found important keys
+                    diagnostic_id = diagnostic.get("id")
+                    diagnostic_data = diagnostic.get("diagnostic", {})
+                    diagnostic_name = diagnostic_data.get("name")
+                    diagnostic_path = f"equipment_{equipment_id}:diagnostic_{diagnostic_id}"
+                    if diagnostic_name == "Inverter Input Voltage":
+                        self.diagnosticPaths[diagnostic_path] = "diagInverterInputVoltage"
+                    if diagnostic_name == "Inverter Input Current":
+                        self.diagnosticPaths[diagnostic_path] = "diagInverterInputCurrent"
+
+                    if diagnostic_path in self.diagnosticPaths:
+                        self.attr_updater(diagnostic_data, "value", self.diagnosticPaths[diagnostic_path])
         except Exception as e:
             _LOGGER.error("processDevices - Exception " + str(e))
             raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)
