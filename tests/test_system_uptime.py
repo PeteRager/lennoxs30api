@@ -41,6 +41,7 @@ def test_system_uptime(caplog):
     assert lsystem.sysUpTime == 698820
 
     with caplog.at_level(logging.WARNING):
+        caplog.clear()
         data = loadfile("system_uptime.json")
         api.processMessage(data)
         assert lsystem.sysUpTime == 5039520
