@@ -450,12 +450,12 @@ class s30api_async(object):
                 ref = 2
                 await self.requestDataHelper(
                     lennoxSystem.sysId,
-                    '"AdditionalParameters":{"JSONPath":"1;\/system;\/zones;\/occupancy;\/schedules;"}',
+                    '"AdditionalParameters":{"JSONPath":"1;/system;/zones;/occupancy;/schedules;"}',
                 )
                 ref = 3
                 await self.requestDataHelper(
                     lennoxSystem.sysId,
-                    '"AdditionalParameters":{"JSONPath":"1;\/reminderSensors;\/reminders;\/alerts\/active;\/alerts\/meta;\/dealers;\/devices;\/equipments;\/fwm;\/ocst;"}',
+                    '"AdditionalParameters":{"JSONPath":"1;/reminderSensors;/reminders;/alerts/active;/alerts/meta;/dealers;/devices;/equipments;/fwm;/ocst;"}',
                 )
             except S30Exception as e:
                 err_msg = f"subsribe fail loca [{ref}] " + str(e)
@@ -769,7 +769,10 @@ class lennox_system(object):
                 if "devices" in data:
                     self.processDevices(data["devices"])
                 if "equipments" in data:
-                    update = self.processEquipments(data["equipments"])
+                    self.processEquipments(data["equipments"])
+                _LOGGER.debug(
+                    f"processMessage complete system id [{self.sysId}] dirty [{self._dirty}] dirtyList [{self._dirtyList}]"
+                )
                 self.executeOnUpdateCallbacks()
         except Exception as e:
             _LOGGER.error("processMessage - Exception " + str(e))
@@ -858,7 +861,7 @@ class lennox_system(object):
                 self._dirty = True
                 self._dirtyList.append(propertyName)
                 _LOGGER.debug(
-                    f"update_attr: sytem Id [{self.sysId}] attr [{propertyName}]"
+                    f"update_attr: system Id [{self.sysId}] attr [{propertyName}]"
                 )
                 return True
         return False
@@ -960,14 +963,24 @@ class lennox_system(object):
                     diagnostic_id = diagnostic.get("id")
                     diagnostic_data = diagnostic.get("diagnostic", {})
                     diagnostic_name = diagnostic_data.get("name")
-                    diagnostic_path = f"equipment_{equipment_id}:diagnostic_{diagnostic_id}"
+                    diagnostic_path = (
+                        f"equipment_{equipment_id}:diagnostic_{diagnostic_id}"
+                    )
                     if diagnostic_name == "Inverter Input Voltage":
-                        self.diagnosticPaths[diagnostic_path] = "diagInverterInputVoltage"
+                        self.diagnosticPaths[
+                            diagnostic_path
+                        ] = "diagInverterInputVoltage"
                     if diagnostic_name == "Inverter Input Current":
-                        self.diagnosticPaths[diagnostic_path] = "diagInverterInputCurrent"
+                        self.diagnosticPaths[
+                            diagnostic_path
+                        ] = "diagInverterInputCurrent"
 
                     if diagnostic_path in self.diagnosticPaths:
-                        self.attr_updater(diagnostic_data, "value", self.diagnosticPaths[diagnostic_path])
+                        self.attr_updater(
+                            diagnostic_data,
+                            "value",
+                            self.diagnosticPaths[diagnostic_path],
+                        )
         except Exception as e:
             _LOGGER.error("processDevices - Exception " + str(e))
             raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)
