@@ -11,9 +11,11 @@ from lennoxs30api.lennox_home import lennox_home
 
 import json
 import os
+import pytest
 
 
-def setup_load_configuration() -> s30api_async:
+@pytest.fixture
+def api_with_configuration() -> s30api_async:
     script_dir = os.path.dirname(__file__) + "/messages/"
     file_path = os.path.join(script_dir, "login_response.json")
     with open(file_path) as f:
@@ -31,12 +33,17 @@ def setup_load_configuration() -> s30api_async:
     with open(file_path) as f:
         data = json.load(f)
     api.processMessage(data)
+
+    file_path = os.path.join(script_dir, "config_system_03_heatpump_and_furnace.json")
+    with open(file_path) as f:
+        data = json.load(f)
+    api.processMessage(data)
+
     return api
 
 
-def test_process_configuration_message():
-    api = setup_load_configuration()
-
+def test_process_configuration_message(api_with_configuration):
+    api = api_with_configuration
     lsystem: lennox_system = api.getSystems()[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.productType == "S30"
@@ -47,6 +54,8 @@ def test_process_configuration_message():
     assert lsystem.temperatureUnit == "F"
     assert lsystem.indoorUnitType == "furnace"
     assert lsystem.outdoorUnitType == "air conditioner"
+    assert lsystem.has_emergency_heat() == False
+
     assert lsystem.diagPoweredHours == 40950
     assert lsystem.diagRuntime == 15605
     assert lsystem.diagVentilationRuntime == 0
@@ -97,6 +106,13 @@ def test_process_configuration_message():
     assert zone_1.tempOperation == "off"
     assert zone_1.temperature == 79 == zone_1.getTemperature()
     assert zone_1.temperatureC == 26 == zone_1.getTemperatureC()
+    assert zone_1.heatCoast == False
+    assert zone_1.defrost == False
+    assert zone_1.balancePoint == "none"
+    assert zone_1.aux == False
+    assert zone_1.coolCoast == False
+    assert zone_1.ssr == False
+
     assert zone_1._system.sysId == "0000000-0000-0000-0000-000000000001"
 
     assert zone_1.getTargetTemperatureF() == zone_1.hsp
@@ -270,3 +286,15 @@ def test_process_configuration_message():
     assert zone_5.tempOperation == "off"
     assert zone_5.temperature == 79 == zone_5.getTemperature()
     assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
+
+
+def test_process_configuration_heatpump(api_with_configuration):
+    api = api_with_configuration
+    lsystem: lennox_system = api.getSystems()[2]
+    assert lsystem.sysId == "0000000-0000-0000-0000-000000000003"
+    assert lsystem.productType == "S30"
+    assert lsystem.name == "West Moetown"
+    assert lsystem.numberOfZones == 1
+    assert lsystem.indoorUnitType == "furnace"
+    assert lsystem.outdoorUnitType == "heat pump"
+    assert lsystem.has_emergency_heat() == True

@@ -88,6 +88,12 @@ HVAC_MODE_TARGETS: Final = {"fanMode", "systemMode"}
 
 LENNOX_MANUAL_MODE_SCHEDULE_START_INDEX: int = 16
 
+LENNOX_INDOOR_UNIT_FURNACE: Final = "furnace"
+LENNOX_INDOOR_UNIT_AIR_HANDLER: Final = "air handler"
+LENNOX_OUTDOOR_UNIT_AC = "air conditioner"
+LENNOX_OUTDOOR_UNIT_HP = "heat pump"
+
+
 # NOTE:  This application id is super important and a point of brittleness.  You can find this in the burp logs between the mobile app and the Lennox server.
 # If we start getting reports of missesd message, this is the place to look....
 # Here is what I do know
@@ -859,7 +865,8 @@ class lennox_system(object):
             if getattr(self, propertyName) != attr_val:
                 setattr(self, propertyName, attr_val)
                 self._dirty = True
-                self._dirtyList.append(propertyName)
+                if propertyName not in self._dirtyList:
+                    self._dirtyList.append(propertyName)
                 _LOGGER.debug(
                     f"update_attr: system Id [{self.sysId}] attr [{propertyName}]"
                 )
@@ -985,6 +992,16 @@ class lennox_system(object):
             _LOGGER.error("processDevices - Exception " + str(e))
             raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)
         return update
+
+    def has_emergency_heat(self) -> bool:
+        """Returns True is the system has emergency heat"""
+        # Emergency heat is defined as a system with a heat pump that also has an indoor furnace
+        if (
+            self.outdoorUnitType == LENNOX_OUTDOOR_UNIT_HP
+            and self.indoorUnitType == LENNOX_INDOOR_UNIT_FURNACE
+        ):
+            return True
+        return False
 
     def unique_id(self) -> str:
         # This returns a unique identifier.  When connected ot the cloud we use the sysid which is a GUID; when
@@ -1161,6 +1178,12 @@ class lennox_zone(object):
         self.fan = (
             None  # The current state of fan,  False = not running, True = running
         )
+        self.heatCoast = None
+        self.defrost = None
+        self.balancePoint = None
+        self.aux = None
+        self.coolCoast = None
+        self.ssr = None
         self.allergenDefender = None  # Allergen defender on or off
 
         self.humidityMode = None
@@ -1249,7 +1272,8 @@ class lennox_zone(object):
             if getattr(self, attr) != attr_val:
                 setattr(self, attr, attr_val)
                 self._dirty = True
-                self._dirtyList.append(attr)
+                if attr not in self._dirtyList:
+                    self._dirtyList.append(attr)
                 _LOGGER.debug(f"update_attr: zone Id [{self.id}] attr [{attr}]")
                 return True
         return False
@@ -1302,6 +1326,12 @@ class lennox_zone(object):
             self.attr_updater(status, "fan")
             self.attr_updater(status, "demand")
             self.attr_updater(status, "ventilation")
+            self.attr_updater(status, "heatCoast")
+            self.attr_updater(status, "defrost")
+            self.attr_updater(status, "balancePoint")
+            self.attr_updater(status, "aux")
+            self.attr_updater(status, "coolCoast")
+            self.attr_updater(status, "ssr")
 
             if "period" in status:
                 period = status["period"]
