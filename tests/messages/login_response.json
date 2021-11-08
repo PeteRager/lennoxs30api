@@ -32,6 +32,11 @@
                         "id": 1,
                         "sysId": "0000000-0000-0000-0000-000000000002",
                         "controlModelNumber": null
+                    },
+                    {
+                        "id": 2,
+                        "sysId": "0000000-0000-0000-0000-000000000003",
+                        "controlModelNumber": null
                     }
                 ]
             }
