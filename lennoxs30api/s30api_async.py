@@ -1012,7 +1012,6 @@ class lennox_system(object):
     def unique_id(self) -> str:
         # This returns a unique identifier.  When connected ot the cloud we use the sysid which is a GUID; when
         # connected to the LAN the sysid is alway "LCC" - which is not unique - so in this case we use the device serial number.
-        if self.api._isLANConnection == True:
         if self.sysId == "LCC":
             return self.serialNumber
         return self.sysId
