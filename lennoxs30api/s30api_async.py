@@ -874,7 +874,7 @@ class lennox_system(object):
                 if propertyName not in self._dirtyList:
                     self._dirtyList.append(propertyName)
                 _LOGGER.debug(
-                    f"update_attr: system Id [{self.sysId}] attr [{propertyName}]"
+                    f"update_attr: system Id [{self.sysId}] attr [{propertyName}] value [{attr_val}]"
                 )
                 return True
         return False
@@ -1280,7 +1280,9 @@ class lennox_zone(object):
                 self._dirty = True
                 if attr not in self._dirtyList:
                     self._dirtyList.append(attr)
-                _LOGGER.debug(f"update_attr: zone Id [{self.id}] attr [{attr}]")
+                _LOGGER.debug(
+                    f"update_attr: zone Id [{self.id}] attr [{attr}] value [{attr_val}]"
+                )
                 return True
         return False
 
