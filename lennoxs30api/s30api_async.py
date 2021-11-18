@@ -68,21 +68,26 @@ CLOUD_LOGOUT_URL = "https://ic3messaging.myicomfort.com/v1/user/logout"
 # May need to update as the version of API increases
 USER_AGENT: str = "lx_ic3_mobile_appstore/3.75.218 (iPad; iOS 14.4.1; Scale/2.00)"
 
-LENNOX_HVAC_OFF: Final = "off"
-LENNOX_HVAC_COOL: Final = "cool"
-LENNOX_HVAC_HEAT: Final = "heat"
+LENNOX_HVAC_OFF: Final = "off"  # validated
+LENNOX_HVAC_COOL: Final = "cool"  # validated
+LENNOX_HVAC_HEAT: Final = "heat"  # validated
 LENNOX_HVAC_HEAT_COOL: Final = "heat and cool"  # validated
-
-LENNOX_HUMID_OPERATION_DEHUMID: Final = "dehumidifying"  # validated
-LENNOX_HUMID_OPERATION_HUMID: Final = "humidifying"  # a guess
-LENNOX_HUMID_OPERATION_WAITING: Final = "waiting"
+LENNOX_HVAC_EMERGENCY_HEAT: Final = "emergency heat"  # validated
 
 HVAC_MODES: Final = {
     LENNOX_HVAC_OFF,
     LENNOX_HVAC_COOL,
     LENNOX_HVAC_HEAT,
     LENNOX_HVAC_HEAT_COOL,
+    LENNOX_HVAC_EMERGENCY_HEAT,
 }
+
+
+LENNOX_HUMID_OPERATION_DEHUMID: Final = "dehumidifying"  # validated
+LENNOX_HUMID_OPERATION_HUMID: Final = "humidifying"  # a guess
+LENNOX_HUMID_OPERATION_WAITING: Final = "waiting"
+
+
 FAN_MODES: Final = {"on", "auto", "circulate"}
 HVAC_MODE_TARGETS: Final = {"fanMode", "systemMode"}
 
@@ -198,6 +203,7 @@ class s30api_async(object):
         await self._close_session()
 
     async def logout(self) -> None:
+        _LOGGER.debug("logout - Entering")
         url: str = self.url_logout
         headers = {
             "Authorization": self.loginBearerToken,
@@ -1007,6 +1013,7 @@ class lennox_system(object):
         # This returns a unique identifier.  When connected ot the cloud we use the sysid which is a GUID; when
         # connected to the LAN the sysid is alway "LCC" - which is not unique - so in this case we use the device serial number.
         if self.api._isLANConnection == True:
+        if self.sysId == "LCC":
             return self.serialNumber
         return self.sysId
 
@@ -1810,6 +1817,16 @@ class lennox_zone(object):
                     f"setHvacMode - invalid hvac mode - zone [{self.id}]  does not support [{hvac_mode}]",
                     EC_BAD_PARAMETERS,
                     3,
+                )
+        elif hvac_mode == LENNOX_HVAC_EMERGENCY_HEAT:
+            if (
+                self.heatingOption == False
+                or self._system.has_emergency_heat() == False
+            ):
+                raise S30Exception(
+                    f"setHvacMode - invalid hvac mode - zone [{self.id}]  does not support [{hvac_mode}]",
+                    EC_BAD_PARAMETERS,
+                    4,
                 )
         elif hvac_mode == LENNOX_HVAC_OFF:
             pass
