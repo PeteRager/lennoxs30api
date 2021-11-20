@@ -1,5 +1,5 @@
 """
-Lennox iomfort Wifi API.
+Lennox iComfort Wifi API.
 
 Support added for AirEase MyComfortSync thermostats.
 
