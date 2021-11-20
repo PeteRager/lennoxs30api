@@ -374,7 +374,7 @@ class s30api_async(object):
             raise e
         except Exception as e:
             txt = str(e)
-            _LOGGER.error("Login - Exception " + str(e))
+            _LOGGER.error("login - Exception " + str(e))
             raise S30Exception(str(e), EC_COMMS_ERROR, 2)
         _LOGGER.info(
             f"login Success homes [{len(self._homeList)}] systems [{len(self._systemList)}]"
