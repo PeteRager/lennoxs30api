@@ -126,11 +126,17 @@ class s30api_async(object):
     """Representation of the Lennox S30/E30 thermostat."""
 
     def __init__(
-        self, username: str, password: str, app_id: str, ip_address: str = None
+        self,
+        username: str,
+        password: str,
+        app_id: str,
+        ip_address: str = None,
+        protocol: str = "https",
     ):
         """Initialize the API interface."""
         self._username = username
         self._password = password
+        self._protocol = protocol
         # Generate a unique app id, following the existing formatting
         if app_id is None:
             dt = datetime.now()
@@ -176,18 +182,27 @@ class s30api_async(object):
         self.url_publish: str = CLOUD_PUBLISH_URL
         self.url_logout: str = CLOUD_LOGOUT_URL
 
+    def set_url_protocol(self, url: str) -> str:
+        if self._protocol == "https":
+            return url
+        return url.replace("https:", self._protocol + ":")
+
     def initialize_urls_local(self):
         self.url_authenticate: str = None
-        self.url_login: str = (
+        self.url_login: str = self.set_url_protocol(
             f"https://{self.ip}/Endpoints/{self._applicationid}/Connect"
         )
         self.url_negotiate: str = None
-        self.url_retrieve: str = (
+        self.url_retrieve: str = self.set_url_protocol(
             f"https://{self.ip}/Messages/{self._applicationid}/Retrieve"
         )
-        self.url_requestdata: str = f"https://{self.ip}/Messages/RequestData"
-        self.url_publish: str = f"https://{self.ip}/Messages/Publish"
-        self.url_logout: str = (
+        self.url_requestdata: str = self.set_url_protocol(
+            f"https://{self.ip}/Messages/RequestData"
+        )
+        self.url_publish: str = self.set_url_protocol(
+            f"https://{self.ip}/Messages/Publish"
+        )
+        self.url_logout: str = self.set_url_protocol(
             f"https://{self.ip}/Endpoints/{self._applicationid}/Disconnect"
         )
 
@@ -327,7 +342,7 @@ class s30api_async(object):
             if self._isLANConnection == True:
                 resp = await self.post(url)
                 if resp.status != 200 and resp.status != 204:
-                    errmsg = f"Local connection failed response code [{resp.status}]"
+                    errmsg = f"Local connection failed url [{url}] response code [{resp.status}]"
                     _LOGGER.error(errmsg)
                     raise S30Exception(errmsg, EC_LOGIN, 2)
                 self.setup_local_homes()
@@ -349,7 +364,7 @@ class s30api_async(object):
                 resp = await self.post(url, headers=headers, data=body)
                 if resp.status != 200:
                     txt = await resp.text()
-                    errmsg = f"Login failed response code [{resp.status}] text [{txt}]"
+                    errmsg = f"login failed response code [{resp.status}] text [{txt}]"
                     _LOGGER.error(errmsg)
                     raise S30Exception(errmsg, EC_LOGIN, 1)
                 resp_json = await resp.json()
@@ -359,7 +374,7 @@ class s30api_async(object):
             raise e
         except Exception as e:
             txt = str(e)
-            _LOGGER.error("Exception " + str(e))
+            _LOGGER.error("login - Exception " + str(e))
             raise S30Exception(str(e), EC_COMMS_ERROR, 2)
         _LOGGER.info(
             f"login Success homes [{len(self._homeList)}] systems [{len(self._systemList)}]"
@@ -1401,7 +1416,10 @@ class lennox_zone(object):
         if self.systemMode == LENNOX_HVAC_COOL:
             return self.csp
 
-        if self.systemMode == LENNOX_HVAC_HEAT:
+        if (
+            self.systemMode == LENNOX_HVAC_HEAT
+            or self.systemMode == LENNOX_HVAC_EMERGENCY_HEAT
+        ):
             return self.hsp
         # Calling this method in this mode is probably an error TODO
         if self.systemMode == LENNOX_HVAC_HEAT_COOL:
