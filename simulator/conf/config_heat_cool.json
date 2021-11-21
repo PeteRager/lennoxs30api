@@ -1,0 +1,6 @@
+{
+    "configFile" : "tests/messages/config_response_system_01.json",
+    "deviceFile" : "tests/messages/device_response_lcc.json",
+    "substitutions" : [ { "old_value" : "HD21212121", 
+                       "new_value" : "HD00000000" }  ]
+}

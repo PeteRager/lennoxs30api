@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Module",
+      "name": "Python: Simulator 1",
       "type": "python",
       "request": "launch",
       "module": "aiohttp.web",
@@ -14,6 +14,22 @@
         "simulator.main:init_func",
         "-c",
         "${workspaceFolder}/simulator/conf/config_heatpump_furnace.json"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Python: Simulator 2",
+      "type": "python",
+      "request": "launch",
+      "module": "aiohttp.web",
+      "args": [
+        "-H",
+        "localhost",
+        "-P",
+        "8081",
+        "simulator.main:init_func",
+        "-c",
+        "${workspaceFolder}/simulator/conf/config_heat_cool.json"
       ],
       "console": "integratedTerminal"
     },

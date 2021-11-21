@@ -53,6 +53,14 @@ class Simulator(object):
                 return web.Response(text="Simulator Success")
         return web.Response(status=404, text="Simulator Failuer")
 
+    def perform_substitutions(self, message: str) -> str:
+        if "substitutions" in self.config_data:
+            for substitution in self.config_data["substitutions"]:
+                message = message.replace(
+                    substitution["old_value"], substitution["new_value"]
+                )
+        return message
+
     async def retrieve(self, request):
         app_id = request.match_info["app_id"]
         if app_id in self.appList:
@@ -61,6 +69,7 @@ class Simulator(object):
                 return web.Response(status=204)
             message = app.queue.pop()
             data = '{ "messages": [' + json.dumps(message) + "]}"
+            data = self.perform_substitutions(data)
             return web.Response(status=200, body=data)
         return web.Response(status=204)
 
