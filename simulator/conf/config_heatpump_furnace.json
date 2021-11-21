@@ -1,5 +1,6 @@
 {
     "configFile" : "tests/messages/config_system_03_heatpump_and_furnace.json",
     "deviceFile" : "tests/messages/device_response_lcc.json",
-    "serial_number" : "HD12341234"
+    "substitutions" : [ { "old_value" : "HD21212121", 
+                       "new_value" : "HD12341234" }  ]
 }
