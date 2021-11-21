@@ -250,7 +250,7 @@ class s30api_async(object):
         await self.authenticate()
         await self.login()
         await self.negotiate()
-        self.metrics.last_reconnect_time = datetime.now()
+        self.metrics.last_reconnect_time = self.metrics.now()
         _LOGGER.debug("serverLogin - Complete")
 
     AUTHENTICATE_RETRIES: int = 5
