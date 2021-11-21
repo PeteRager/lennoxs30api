@@ -511,12 +511,20 @@ class s30api_async(object):
                 "Accept-Encoding": "gzip, deflate"
                 #                'Accept-Encoding' : 'gzip, deflate'
             }
-            params = {
-                "Direction": "Oldest-to-Newest",
-                "MessageCount": "10",
-                "StartTime": "1",
-                "LongPollingTimeout": "15",
-            }
+            if self._isLANConnection:
+                params = {
+                    "Direction": "Oldest-to-Newest",
+                    "MessageCount": "10",
+                    "StartTime": "1",
+                    "LongPollingTimeout": "15",
+                }
+            else:
+                params = {
+                    "Direction": "Oldest-to-Newest",
+                    "MessageCount": "10",
+                    "StartTime": "1",
+                    "LongPollingTimeout": "0",
+                }
             resp = await self.get(url, headers=headers, params=params)
             self.metrics.inc_receive_bytes(resp.content_length)
             if resp.status == 200:
