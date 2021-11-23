@@ -13,6 +13,7 @@ class Metrics:
         self.http_2xx_cnt: int = 0
         self.http_4xx_cnt: int = 0
         self.http_5xx_cnt: int = 0
+        self.exceptions: int = 0
 
         self.last_receive_time: datetime = None
         self.last_send_time: datetime = None
@@ -35,6 +36,7 @@ class Metrics:
             "bytes_in": self.bytes_in,
             "bytes_out": self.bytes_out,
             "error_count": self.error_count,
+            "exceptions": self.exceptions,
             "http_2xx_cnt": self.http_2xx_cnt,
             "http_4xx_cnt": self.http_4xx_cnt,
             "http_5xx_cnt": self.http_5xx_cnt,
@@ -65,10 +67,10 @@ class Metrics:
             self.bytes_in += bytes
 
     def inc_receive_message_error(self) -> None:
-        self.receive_message_error += 1
         self.last_error_time = self.now()
         self.last_metric_time = self.now()
         self.error_count += 1
+        self.exceptions += 1
 
     def process_http_code(self, http_code: int) -> None:
         self.last_metric_time = self.now()
