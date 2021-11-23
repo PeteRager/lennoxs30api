@@ -551,6 +551,7 @@ class s30api_async(object):
         except S30Exception as e:
             raise e
         except Exception as e:
+            self.metrics.inc_receive_message_error()
             err_msg = "messagePump Failed - Exception " + str(e)
             _LOGGER.error(err_msg)
             raise S30Exception(err_msg, EC_RETRIEVE, 2)
