@@ -1,12 +1,8 @@
 import logging
-from unittest import mock
-from lennoxs30api.s30api_async import lennox_zone, s30api_async, lennox_system
-from lennoxs30api.lennox_home import lennox_home
+from lennoxs30api.s30api_async import s30api_async, lennox_system
 
 import json
 import os
-import unittest
-import asyncio
 
 from unittest.mock import patch
 

@@ -1,5 +1,6 @@
 import json
 import os
+import asyncio
 
 from aiohttp import web
 from aiohttp.typedefs import JSONDecoder
@@ -65,12 +66,13 @@ class Simulator(object):
         app_id = request.match_info["app_id"]
         if app_id in self.appList:
             app: AppConnection = self.appList[app_id]
-            if len(app.queue) == 0:
-                return web.Response(status=204)
-            message = app.queue.pop()
-            data = '{ "messages": [' + json.dumps(message) + "]}"
-            data = self.perform_substitutions(data)
-            return web.Response(status=200, body=data)
+            for i in range(15):
+                if len(app.queue) != 0:
+                    message = app.queue.pop()
+                    data = '{ "messages": [' + json.dumps(message) + "]}"
+                    data = self.perform_substitutions(data)
+                    return web.Response(status=200, body=data)
+                await asyncio.sleep(1.0)
         return web.Response(status=204)
 
     async def publish(self, request):
