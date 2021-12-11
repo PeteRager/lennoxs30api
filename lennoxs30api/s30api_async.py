@@ -138,7 +138,16 @@ class s30api_async(object):
         message_debug_logging=True,
         message_logging_file=None,
     ):
-        """Initialize the API interface."""
+        """Initialize the API interface.
+        username: The user name to login with when using a cloud connection
+        password: The password of the user to login with when using a cloud connection
+        app_id: The unique application id to use to create a message subscription
+        ip_address: The ip_address to connect to when using Local Connection.  None if using a Cloud Connection
+        protocol: The protocol to use.  Set to http when using the simulator, else should be https
+        pii_message_logs: Indicates if personal information should be redacted from the message logs.
+        message_debug_logging:  Indicates if messages should be include when debug logging
+        message_logging_file:  When specified messages will be logged to this file only.
+        """
         self._username = username
         self._password = password
         self._protocol = protocol
@@ -1283,6 +1292,10 @@ class lennox_zone(object):
         self._dirtyList = []
 
         _LOGGER.info(f"Creating lennox_zone id [{self.id}]")
+
+    @property
+    def unique_id(self) -> str:
+        return (self._system.unique_id() + "_" + str(self.id)).replace("-", "") + "_T"
 
     def registerOnUpdateCallback(self, callbackfunc, match=None):
         self._callbacks.append({"func": callbackfunc, "match": match})

@@ -1,0 +1,32 @@
+   "messages": [
+        {
+            "MessageId": 0,
+            "SenderID": "LCC",
+            "TargetID": "ha_prod",
+            "MessageType": "PropertyChange",
+            "Data": {
+                "equipments": [
+                    {
+                        "publisher": {
+                            "publisherName": "lcc"
+                        },
+                        "equipment": {
+                            "parameters": [
+                                {
+                                    "parameter": {
+                                        "pid": 19,
+                                        "enabled": true,
+                                        "value": "345"
+                                    },
+                                    "id": 9
+                                }
+                            ],
+                            "equipType": 17
+                        },
+                        "id": 2
+                    }
+                ]
+            }
+        }
+    ]
+}
