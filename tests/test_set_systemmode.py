@@ -1,14 +1,11 @@
 from lennoxs30api.s30api_async import (
     LENNOX_HVAC_EMERGENCY_HEAT,
     lennox_zone,
-    s30api_async,
     lennox_system,
 )
 
 import json
-import os
 import asyncio
-import pytest
 
 from unittest.mock import patch
 

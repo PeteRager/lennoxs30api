@@ -1215,6 +1215,18 @@ class lennox_system(object):
         data = '"Data":{"system":{"config":{"allergenDefender":false} } }'
         await self.api.publishMessageHelper(self.sysId, data)
 
+    async def set_diagnostic_level(self, level: int) -> None:
+        _LOGGER.debug(f"set_diagnostic_level sysid [{self.sysId}] level[{level}]")
+        if level not in (0, 1, 2):
+            raise S30Exception(
+                f"Invalid diagnostic level [{level}] valid value [0,1,2]",
+                EC_BAD_PARAMETERS,
+                1,
+            )
+        level = int(level)
+        data = '"Data":{"systemControl":{"diagControl":{"level":' + str(level) + "} } }"
+        await self.api.publishMessageHelper(self.sysId, data)
+
 
 class lennox_zone(object):
     def __init__(self, system, id):
