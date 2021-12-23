@@ -1,6 +1,4 @@
 from lennoxs30api.s30api_async import (
-    LENNOX_HVAC_EMERGENCY_HEAT,
-    lennox_zone,
     lennox_system,
 )
 

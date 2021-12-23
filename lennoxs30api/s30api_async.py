@@ -100,6 +100,8 @@ LENNOX_INDOOR_UNIT_AIR_HANDLER: Final = "air handler"
 LENNOX_OUTDOOR_UNIT_AC = "air conditioner"
 LENNOX_OUTDOOR_UNIT_HP = "heat pump"
 
+# String in lennox JSON representing no value.
+LENNOX_NONE_STR: Final = "none"
 
 # NOTE:  This application id is super important and a point of brittleness.  You can find this in the burp logs between the mobile app and the Lennox server.
 # If we start getting reports of missesd message, this is the place to look....
@@ -479,7 +481,7 @@ class s30api_async(object):
             try:
                 await self.requestDataHelper(
                     lennoxSystem.sysId,
-                    '"AdditionalParameters":{"JSONPath":"1;/devices;/zones;/equipments;/schedules;/occupancy;/system"}',
+                    '"AdditionalParameters":{"JSONPath":"1;/devices;/zones;/equipments;/schedules;/occupancy;/system;/systemControl"}',
                 )
             except S30Exception as e:
                 err_msg = f"subscribe fail loca [{ref}] {e.as_string()}"
@@ -834,6 +836,7 @@ class lennox_system(object):
             "occupancy": self._processOccupancy,
             "devices": self._processDevices,
             "equipments": self._processEquipments,
+            "systemControl": self._processSystemControl,
         }
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
 
@@ -891,6 +894,11 @@ class lennox_system(object):
 
     def getSchedules(self):
         return self._schedules
+
+    def _processSystemControl(self, systemControl):
+        if "diagControl" in systemControl:
+            self.attr_updater(systemControl["diagControl"], "level", "diagLevel")
+        pass
 
     def _processSchedules(self, schedules):
         """Processes the schedule messages, throws base exceptions if a problem is encoutered"""
@@ -988,7 +996,6 @@ class lennox_system(object):
             status = message["status"]
             self.attr_updater(status, "outdoorTemperature")
             self.attr_updater(status, "outdoorTemperatureC")
-            self.attr_updater(status, "diagLevel")
             self.attr_updater(status, "diagRuntime")
             self.attr_updater(status, "diagPoweredHours")
             self.attr_updater(status, "numberOfZones")
@@ -1216,6 +1223,7 @@ class lennox_system(object):
         await self.api.publishMessageHelper(self.sysId, data)
 
     async def set_diagnostic_level(self, level: int) -> None:
+        level = int(level)
         _LOGGER.debug(f"set_diagnostic_level sysid [{self.sysId}] level[{level}]")
         if level not in (0, 1, 2):
             raise S30Exception(
@@ -1223,9 +1231,23 @@ class lennox_system(object):
                 EC_BAD_PARAMETERS,
                 1,
             )
-        level = int(level)
         data = '"Data":{"systemControl":{"diagControl":{"level":' + str(level) + "} } }"
         await self.api.publishMessageHelper(self.sysId, data)
+        updateMessage = {"level": level}
+        # This is not ideal, but the S30 does not send an update after this value is set!!!  It will refresh on reload.
+        self.attr_updater(updateMessage, "level", "diagLevel")
+
+    @property
+    def has_indoor_unit(self) -> bool:
+        if self.indoorUnitType != None and self.indoorUnitType != LENNOX_NONE_STR:
+            return True
+        return False
+
+    @property
+    def has_outdoor_unit(self) -> bool:
+        if self.outdoorUnitType != None and self.outdoorUnitType != LENNOX_NONE_STR:
+            return True
+        return False
 
 
 class lennox_zone(object):

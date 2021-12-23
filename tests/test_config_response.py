@@ -3,6 +3,7 @@ from lennoxs30api.s30api_async import (
     LENNOX_HVAC_HEAT,
     LENNOX_HVAC_HEAT_COOL,
     LENNOX_HVAC_OFF,
+    LENNOX_NONE_STR,
     lennox_zone,
     s30api_async,
     lennox_system,
@@ -52,14 +53,27 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.outdoorTemperature == 80
     assert lsystem.outdoorTemperatureC == 27
     assert lsystem.temperatureUnit == "F"
+
     assert lsystem.indoorUnitType == "furnace"
+    assert lsystem.has_indoor_unit == True
+    lsystem.indoorUnitType = None
+    assert lsystem.has_indoor_unit == False
+    lsystem.indoorUnitType = LENNOX_NONE_STR
+    assert lsystem.has_indoor_unit == False
+    lsystem.indoorUnitType = "furnace"
+
     assert lsystem.outdoorUnitType == "air conditioner"
     assert lsystem.has_emergency_heat() == False
+    assert lsystem.has_outdoor_unit == True
+    lsystem.outdoorUnitType = None
+    assert lsystem.has_outdoor_unit == False
+    lsystem.outdoorUnitType = LENNOX_NONE_STR
+    assert lsystem.has_outdoor_unit == False
+    lsystem.outdoorUnitType = "air conditioner"
 
     assert lsystem.diagPoweredHours == 40950
     assert lsystem.diagRuntime == 15605
     assert lsystem.diagVentilationRuntime == 0
-    assert lsystem.diagLevel == 0
     assert lsystem.humidifierType == "none"
     assert lsystem.ventilationUnitType == "ventilator"
     assert lsystem.supports_ventilation() == True
