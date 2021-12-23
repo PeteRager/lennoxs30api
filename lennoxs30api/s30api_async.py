@@ -1233,9 +1233,12 @@ class lennox_system(object):
             )
         data = '"Data":{"systemControl":{"diagControl":{"level":' + str(level) + "} } }"
         await self.api.publishMessageHelper(self.sysId, data)
-        updateMessage = {"level": level}
-        # This is not ideal, but the S30 does not send an update after this value is set!!!  It will refresh on reload.
-        self.attr_updater(updateMessage, "level", "diagLevel")
+        # The S30 does not send message when the systemControl parameters are update, but if we re-ask
+        # for the systemControl subscription, it will send us the current data.
+        await self.api.requestDataHelper(
+            self.sysId,
+            '"AdditionalParameters":{"JSONPath":"/systemControl"}',
+        )
 
     @property
     def has_indoor_unit(self) -> bool:
