@@ -898,7 +898,6 @@ class lennox_system(object):
     def _processSystemControl(self, systemControl):
         if "diagControl" in systemControl:
             self.attr_updater(systemControl["diagControl"], "level", "diagLevel")
-        pass
 
     def _processSchedules(self, schedules):
         """Processes the schedule messages, throws base exceptions if a problem is encoutered"""
