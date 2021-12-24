@@ -17,5 +17,5 @@ class lennox_home(object):
         self.name = homeName
         self.json = json
         _LOGGER.info(
-            f"Updating lennox_home homeIdx [{str(self.idx)} homeId [{self.id}] homeName [{self.name}] json [{str(json)}]"
+            f"Updating lennox_home homeIdx [{str(self.idx)} homeId [{self.id}] homeName [{self.name}]"
         )

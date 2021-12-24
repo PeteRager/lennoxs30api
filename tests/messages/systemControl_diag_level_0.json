@@ -1,0 +1,55 @@
+    {
+        "MessageId": 0,
+        "SenderID": "**redacted**",
+        "TargetID": "ha_dev",
+        "MessageType": "PropertyChange",
+        "Data": {
+            "systemControl": {
+                "publisher": {
+                    "writeAccess": "openAll",
+                    "publisherName": "unknown",
+                    "doNotPersist": true
+                },
+                "doNotPersist": true,
+                "getAlarms": false,
+                "zoneTestControl": {
+                    "enable": false,
+                    "doNotPersist": true,
+                    "value": 0,
+                    "writeAccess": "remote",
+                    "parameterNumber": 0
+                },
+                "diagControl": {
+                    "level": 0,
+                    "writeAccess": "remote"
+                },
+                "parameterReset": {
+                    "doNotPersist": true,
+                    "writeAccess": "remote",
+                    "resetAll": false,
+                    "et": 0
+                },
+                "parameterUpdate": {
+                    "doNotPersist": true,
+                    "pid": 0,
+                    "value": "345.0",
+                    "writeAccess": "remote",
+                    "et": 0
+                },
+                "reconfigure": false,
+                "testControl": {
+                    "enable": false,
+                    "doNotPersist": true,
+                    "writeAccess": "remote",
+                    "tid": 0
+                },
+                "writeAccess": "remote",
+                "processControl": {
+                    "doNotPersist": true,
+                    "terminate": "",
+                    "writeAccess": "remote",
+                    "piStatusMessage": false
+                }
+            }
+        }
+    }

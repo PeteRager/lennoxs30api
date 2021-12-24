@@ -24,4 +24,7 @@ class S30Exception(Exception):
         self.error_code = error_code
         self.reference = reference
 
+    def as_string(self) -> str:
+        return f"Code [{self.error_code}] Reference [{self.reference}] [{self.message}]"
+
     pass

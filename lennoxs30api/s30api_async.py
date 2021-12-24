@@ -20,6 +20,7 @@ v0.2.0 - Initial Release
 """
 
 from aiohttp.client import ClientSession
+
 from .s30exception import (
     EC_AUTHENTICATE,
     EC_BAD_PARAMETERS,
@@ -50,6 +51,7 @@ from .lennox_period import lennox_period
 from .lennox_schedule import lennox_schedule
 from .lennox_home import lennox_home
 from .metrics import Metrics
+from .message_logger import MessageLogger
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -98,6 +100,8 @@ LENNOX_INDOOR_UNIT_AIR_HANDLER: Final = "air handler"
 LENNOX_OUTDOOR_UNIT_AC = "air conditioner"
 LENNOX_OUTDOOR_UNIT_HP = "heat pump"
 
+# String in lennox JSON representing no value.
+LENNOX_NONE_STR: Final = "none"
 
 # NOTE:  This application id is super important and a point of brittleness.  You can find this in the burp logs between the mobile app and the Lennox server.
 # If we start getting reports of missesd message, this is the place to look....
@@ -132,11 +136,27 @@ class s30api_async(object):
         app_id: str,
         ip_address: str = None,
         protocol: str = "https",
+        pii_message_logs=True,
+        message_debug_logging=True,
+        message_logging_file=None,
     ):
-        """Initialize the API interface."""
+        """Initialize the API interface.
+        username: The user name to login with when using a cloud connection
+        password: The password of the user to login with when using a cloud connection
+        app_id: The unique application id to use to create a message subscription
+        ip_address: The ip_address to connect to when using Local Connection.  None if using a Cloud Connection
+        protocol: The protocol to use.  Set to http when using the simulator, else should be https
+        pii_message_logs: Indicates if personal information should be redacted from the message logs.
+        message_debug_logging:  Indicates if messages should be include when debug logging
+        message_logging_file:  When specified messages will be logged to this file only.
+        """
         self._username = username
         self._password = password
         self._protocol = protocol
+        self._pii_message_logs = pii_message_logs
+        self.message_log = MessageLogger(
+            _LOGGER, message_debug_logging, message_logging_file
+        )
         # Generate a unique app id, following the existing formatting
         if app_id is None:
             dt = datetime.now()
@@ -186,6 +206,9 @@ class s30api_async(object):
         if self._protocol == "https":
             return url
         return url.replace("https:", self._protocol + ":")
+
+    def message_logger(self, msg) -> None:
+        self.message_log.log_message(self._pii_message_logs, msg)
 
     def initialize_urls_local(self):
         self.url_authenticate: str = None
@@ -240,7 +263,7 @@ class s30api_async(object):
                 await self._session.close()
                 self._sesssion = None
             except Exception as e:
-                _LOGGER.error("serverConnect - failed to close session [" + str(e))
+                _LOGGER.exception("serverConnect - failed to close session")
 
     async def serverConnect(self) -> None:
         # On a reconnect we will close down the old session and get a new one
@@ -272,7 +295,7 @@ class s30api_async(object):
                 resp = await self.post(url, data=body)
                 if resp.status == 200:
                     resp_json = await resp.json()
-                    _LOGGER.debug(json.dumps(resp_json, indent=4))
+                    self.message_logger(resp_json)
                     self.authBearerToken = resp_json["serverAssigned"]["security"][
                         "certificateToken"
                     ]["encoded"]
@@ -286,7 +309,7 @@ class s30api_async(object):
                     _LOGGER.warning(err_msg)
             raise S30Exception(err_msg, EC_AUTHENTICATE, 1)
         except Exception as e:
-            _LOGGER.error("authenticate exception " + str(e))
+            _LOGGER.exception("authenticate exception ")
             raise S30Exception("Authentication Failed", EC_AUTHENTICATE, 2)
 
     def getHomeByHomeId(self, homeId) -> lennox_home:
@@ -368,14 +391,20 @@ class s30api_async(object):
                     _LOGGER.error(errmsg)
                     raise S30Exception(errmsg, EC_LOGIN, 1)
                 resp_json = await resp.json()
-                _LOGGER.debug(json.dumps(resp_json, indent=4))
+                self.message_logger(resp_json)
                 self.process_login_response(resp_json)
         except S30Exception as e:
             raise e
+        except aiohttp.ClientConnectionError as e:
+            raise S30Exception(
+                f"login failed due host not reachable url [{url}] {e}",
+                EC_COMMS_ERROR,
+                3,
+            )
         except Exception as e:
             txt = str(e)
-            _LOGGER.error("login - Exception " + str(e))
-            raise S30Exception(str(e), EC_COMMS_ERROR, 2)
+            _LOGGER.exception("login - Exception")
+            raise S30Exception("login failed due to exception", EC_COMMS_ERROR, 2)
         _LOGGER.info(
             f"login Success homes [{len(self._homeList)}] systems [{len(self._systemList)}]"
         )
@@ -423,7 +452,7 @@ class s30api_async(object):
                 _LOGGER.error(err_msg)
                 raise S30Exception(err_msg, EC_NEGOTIATE, 1)
             resp_json = await resp.json()
-            _LOGGER.debug(json.dumps(resp_json, indent=4))
+            self.message_logger(resp_json)
             # So we get these two pieces of information, but they are never used, perhaps these are used by the websockets interface?
             self._connectionId = resp_json["ConnectionId"]
             self._connectionToken = resp_json["ConnectionToken"]
@@ -431,18 +460,16 @@ class s30api_async(object):
             # to use websockets, so we will stash the info for future use.
             self._tryWebsockets = resp_json["TryWebSockets"]
             self._streamURL = resp_json["Url"]
-            _LOGGER.info(
-                "Negotiate Success connectionId ["
-                + self._connectionId
-                + "] tryWebSockets ["
+            _LOGGER.debug(
+                "Negotiate Success tryWebSockets ["
                 + str(self._tryWebsockets)
                 + "] streamUrl ["
                 + self._streamURL
                 + "]"
             )
         except Exception as e:
-            err_msg = "Negotiate - Failed - Exception " + str(e)
-            _LOGGER.error(err_msg)
+            err_msg = "Negotiate - Failed - Exception"
+            _LOGGER.exception(err_msg)
             raise S30Exception(err_msg, EC_NEGOTIATE, 2)
 
     # The topics subscribed to here are based on the topics that the WebApp subscribes to.  We likely don't need to subscribe to all of them
@@ -454,15 +481,15 @@ class s30api_async(object):
             try:
                 await self.requestDataHelper(
                     lennoxSystem.sysId,
-                    '"AdditionalParameters":{"JSONPath":"1;/devices;/zones;/equipments;/schedules;/occupancy;/system"}',
+                    '"AdditionalParameters":{"JSONPath":"1;/devices;/zones;/equipments;/schedules;/occupancy;/system;/systemControl"}',
                 )
             except S30Exception as e:
-                err_msg = f"subsribe fail loca [{ref}] " + str(e)
+                err_msg = f"subscribe fail loca [{ref}] {e.as_string()}"
                 _LOGGER.error(err_msg)
                 raise e
             except Exception as e:
-                err_msg = f"subsribe fail locb [{ref}] " + str(e)
-                _LOGGER.error(err_msg)
+                err_msg = f"subscribe fail locb [{ref}] "
+                _LOGGER.exception(err_msg)
                 raise S30Exception(err_msg, EC_SUBSCRIBE, 3)
 
         else:
@@ -485,12 +512,12 @@ class s30api_async(object):
                     '"AdditionalParameters":{"JSONPath":"1;/reminderSensors;/reminders;/alerts/active;/alerts/meta;/dealers;/devices;/equipments;/fwm;/ocst;"}',
                 )
             except S30Exception as e:
-                err_msg = f"subsribe fail loca [{ref}] " + str(e)
+                err_msg = f"subscribe fail locc [{ref}] {e.as_string()}"
                 _LOGGER.error(err_msg)
                 raise e
             except Exception as e:
-                err_msg = f"subsribe fail locb [{ref}] " + str(e)
-                _LOGGER.error(err_msg)
+                err_msg = f"subscribe fail locd [{ref}] "
+                _LOGGER.exception(err_msg)
                 raise S30Exception(err_msg, EC_SUBSCRIBE, 3)
 
     async def messagePump(self) -> None:
@@ -506,41 +533,34 @@ class s30api_async(object):
                 "Authorization": self.loginBearerToken,
                 "User-Agent": USER_AGENT,
                 "Accept": "*.*",
-                #                'Accept' : '*/*',
                 "Accept-Language": "en-US;q=1",
-                "Accept-Encoding": "gzip, deflate"
-                #                'Accept-Encoding' : 'gzip, deflate'
+                "Accept-Encoding": "gzip, deflate",
+            }
+            params = {
+                "Direction": "Oldest-to-Newest",
+                "MessageCount": "10",
+                "StartTime": "1",
             }
             if self._isLANConnection:
-                params = {
-                    "Direction": "Oldest-to-Newest",
-                    "MessageCount": "10",
-                    "StartTime": "1",
-                    "LongPollingTimeout": "15",
-                }
+                params["LongPollingTimeout"] = "15"
             else:
-                params = {
-                    "Direction": "Oldest-to-Newest",
-                    "MessageCount": "10",
-                    "StartTime": "1",
-                    "LongPollingTimeout": "0",
-                }
+                params["LongPollingTimeout"] = "0"
+
             resp = await self.get(url, headers=headers, params=params)
             self.metrics.inc_receive_bytes(resp.content_length)
             if resp.status == 200:
                 resp_txt = await resp.text()
                 resp_json = json.loads(resp_txt)
-                _LOGGER.debug(json.dumps(resp_json, indent=4))
-                for message in resp_json["messages"]:
-                    # TODO if this throws an exception we will miss other messages!
-                    self.processMessage(message)
                 if len(resp_json["messages"]) == 0:
                     return False
+                self.message_logger(resp_json)
+                for message in resp_json["messages"]:
+                    # This method does not throw exceptions.
+                    self.processMessage(message)
             elif resp.status == 204:
-                #                _LOGGER.debug("message pump - 204 received - no data - continuing")
                 return False
             else:
-                err_msg = f"messagePump failed response http_code [{resp.status}]"
+                err_msg = f"messagePump response http_code [{resp.status}]"
                 # 502s happen periodically, so this is an expected error and will only be reported as INFO
                 _LOGGER.info(err_msg)
                 err_code = EC_HTTP_ERR
@@ -548,13 +568,40 @@ class s30api_async(object):
                     err_code = EC_UNAUTHORIZED
                 raise S30Exception(err_msg, err_code, resp.status)
             return True
+        except aiohttp.ClientResponseError as e:
+            self.metrics.inc_receive_message_error()
+            resp_status = e.status
+            msg = (
+                f"Error while executing request: [{e.message}]: "
+                f"error={type(e)}, resp.status=[{resp_status}], "
+                f"resp.request_info=[{e.request_info}], "
+                f"resp.headers=[{e.headers}]"
+            )
+            # Logging this information is here for diagnostic purposes
+            _LOGGER.error(
+                "MessagePump clientResponse please report this information as an Issue - "
+                + msg
+            )
+            if resp_status == 400 and "unexpected content-length header" == e.message:
+                _LOGGER.info("Ignoring this ClientResponseError and returning 204")
+                return False
+            raise S30Exception(f"ClientResponseError {msg}", EC_COMMS_ERROR, 2)
+        except aiohttp.ServerDisconnectedError as e:
+            self.metrics.inc_receive_message_error()
+            err_msg = "messagePump  - Server Disconnected"
+            raise S30Exception(err_msg, EC_COMMS_ERROR, 4)
+        except aiohttp.ClientConnectionError as e:
+            self.metrics.inc_receive_message_error()
+            err_msg = "messagePump - ClientConnectionError " + str(e)
+            raise S30Exception(err_msg, EC_COMMS_ERROR, 3)
         except S30Exception as e:
             raise e
+        # should not be here, these are unexpected exceptions that should be handled better
         except Exception as e:
             self.metrics.inc_receive_message_error()
-            err_msg = "messagePump Failed - Exception " + str(e)
-            _LOGGER.error(err_msg)
-            raise S30Exception(err_msg, EC_RETRIEVE, 2)
+            err_msg = "messagePump exception"
+            _LOGGER.exception(err_msg)
+            raise S30Exception(err_msg, EC_RETRIEVE, 5)
 
     def processMessage(self, message):
         self.metrics.inc_message_count()
@@ -593,7 +640,9 @@ class s30api_async(object):
             payload += '"TargetID":"' + sysId + '",'
             payload += additionalParameters
             payload += "}"
-            _LOGGER.debug("requestDataHelper Payload  [" + payload + "]")
+
+            p_json = json.loads(payload)
+            self.message_logger(p_json)
             resp = await self.post(url, headers=headers, data=payload)
 
             if resp.status == 200:
@@ -601,15 +650,15 @@ class s30api_async(object):
                 if self._isLANConnection == True:
                     _LOGGER.debug(await resp.text())
                 else:
-                    _LOGGER.debug(json.dumps(await resp.json(), indent=4))
+                    self.message_logger(await resp.json())
             else:
                 txt = resp.text()
                 err_msg = f"requestDataHelper failed response code [{resp.status}] text [{txt}]"
                 _LOGGER.error(err_msg)
                 raise S30Exception(err_msg, EC_REQUEST_DATA_HELPER, 1)
         except Exception as e:
-            err_msg = "requestDataHelper - Exception " + str(e)
-            _LOGGER.error(err_msg)
+            err_msg = "requestDataHelper - Exception "
+            _LOGGER.exception(err_msg)
             raise S30Exception(err_msg, EC_REQUEST_DATA_HELPER, 2)
 
     def getSystems(self) -> List["lennox_system"]:
@@ -657,10 +706,10 @@ class s30api_async(object):
             _LOGGER.debug("setmode message [" + data + "]")
             await self.publishMessageHelper(sysId, data)
         except S30Exception as e:
-            _LOGGER.error("setmode - S30Exception " + str(e))
+            _LOGGER.error(f"setmode - S30Exception {e.as_string()}")
             raise e
         except Exception as e:
-            _LOGGER.error("setmode - Exception " + str(e))
+            _LOGGER.exception("setmode - Exception ")
             raise S30Exception(str(e), EC_SETMODE_HELPER, 1)
         _LOGGER.info(
             f"setModeHelper success[{mode}] scheduleId [{scheduleId}] sysId [{sysId}]"
@@ -679,9 +728,7 @@ class s30api_async(object):
 
             # See if we can parse the JSON, if we can't error will be thrown, no point in sending lennox bad data
             jsbody = json.loads(body)
-            _LOGGER.debug(
-                "publishMessageHelper message [" + json.dumps(jsbody, indent=4) + "]"
-            )
+            self.message_logger(jsbody)
 
             url = self.url_publish
             headers = {
@@ -702,7 +749,7 @@ class s30api_async(object):
             resp_json = json.loads(resp_txt)
             _LOGGER.debug(json.dumps(resp_json, indent=4))
         except Exception as e:
-            _LOGGER.error("publishMessageHelper - Exception " + str(e))
+            _LOGGER.exception("publishMessageHelper - Exception ")
             raise S30Exception(str(e), EC_PUBLISH_MESSAGE, 2)
         _LOGGER.info("publishMessageHelper success sysId [" + str(sysId) + "]")
 
@@ -782,6 +829,15 @@ class lennox_system(object):
         self.diagInverterInputCurrent = None
         self._dirty = False
         self._dirtyList = []
+        self.message_processing_list = {
+            "system": self._processSystemMessage,
+            "zones": self._processZonesMessage,
+            "schedules": self._processSchedules,
+            "occupancy": self._processOccupancy,
+            "devices": self._processDevices,
+            "equipments": self._processEquipments,
+            "systemControl": self._processSystemControl,
+        }
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
 
     def update(self, api: s30api_async, home: lennox_home, idx: int):
@@ -794,25 +850,33 @@ class lennox_system(object):
         try:
             if "Data" in message:
                 data = message["Data"]
-                if "system" in data:
-                    self.processSystemMessage(data["system"])
-                if "zones" in data:
-                    self.processZonesMessage(data["zones"])
-                if "schedules" in data:
-                    self.processSchedules(data["schedules"])
-                if "occupancy" in data:
-                    self.processOccupancy(data["occupancy"])
-                if "devices" in data:
-                    self.processDevices(data["devices"])
-                if "equipments" in data:
-                    self.processEquipments(data["equipments"])
+                for key in self.message_processing_list:
+                    try:
+                        if key in data:
+                            self.message_processing_list[key](data[key])
+                    except Exception as e:
+                        _LOGGER.exception(
+                            f"processMessage key [{key}] Exception - Failed Message to Follow"
+                        )
+                        _LOGGER.error(
+                            json.dumps(
+                                self.api.message_log.remove_redacted_fields(message),
+                                indent=4,
+                            )
+                        )
                 _LOGGER.debug(
                     f"processMessage complete system id [{self.sysId}] dirty [{self._dirty}] dirtyList [{self._dirtyList}]"
                 )
                 self.executeOnUpdateCallbacks()
         except Exception as e:
-            _LOGGER.error("processMessage - Exception " + str(e))
-            raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)
+            _LOGGER.exception(
+                "processMessage - unexpected exception - Failed Message to Follow"
+            )
+            _LOGGER.error(
+                json.dumps(
+                    self.api.message_log.remove_redacted_fields(message), indent=4
+                )
+            )
 
     def getOrCreateSchedule(self, id):
         schedule = self.getSchedule(id)
@@ -831,36 +895,38 @@ class lennox_system(object):
     def getSchedules(self):
         return self._schedules
 
-    def processSchedules(self, schedules):
-        try:
-            for schedule in schedules:
-                self._dirty = True
+    def _processSystemControl(self, systemControl):
+        if "diagControl" in systemControl:
+            self.attr_updater(systemControl["diagControl"], "level", "diagLevel")
+
+    def _processSchedules(self, schedules):
+        """Processes the schedule messages, throws base exceptions if a problem is encoutered"""
+        for schedule in schedules:
+            self._dirty = True
+            if "schedules" in self._dirtyList == False:
                 self._dirtyList.append("schedules")
-                id = schedule["id"]
-                if "schedule" in schedule:
-                    lschedule = self.getSchedule(id)
-                    if lschedule is None and "name" in schedule["schedule"]:
-                        lschedule = self.getOrCreateSchedule(id)
-                    if lschedule != None:
-                        lschedule.update(schedule)
-                        # In manual mode, the updates only hit the schedulde rather than the period within the status.
-                        # So here, we look for changes to these schedules and route them to the zone but only
-                        # if it is in manual mode.
-                        if schedule["id"] in (
-                            16,
-                            17,
-                            18,
-                            19,
-                        ):  # Manual Mode Zones 1 .. 4
-                            zone_id = id - LENNOX_MANUAL_MODE_SCHEDULE_START_INDEX
-                            period = schedule["schedule"]["periods"][0]["period"]
-                            zone: lennox_zone = self.getZone(zone_id)
-                            if zone.isZoneManualMode():
-                                zone.processPeriodMessage(period)
-                                zone.executeOnUpdateCallbacks()
-        except Exception as e:
-            _LOGGER.error("processSchedules - failed " + str(e))
-            raise S30Exception(str(e), EC_PROCESS_MESSAGE, 2)
+            id = schedule["id"]
+            if "schedule" in schedule:
+                lschedule = self.getSchedule(id)
+                if lschedule is None and "name" in schedule["schedule"]:
+                    lschedule = self.getOrCreateSchedule(id)
+                if lschedule != None:
+                    lschedule.update(schedule)
+                    # In manual mode, the updates only hit the schedulde rather than the period within the status.
+                    # So here, we look for changes to these schedules and route them to the zone but only
+                    # if it is in manual mode.
+                    if schedule["id"] in (
+                        16,
+                        17,
+                        18,
+                        19,
+                    ):  # Manual Mode Zones 1 .. 4
+                        zone_id = id - LENNOX_MANUAL_MODE_SCHEDULE_START_INDEX
+                        period = schedule["schedule"]["periods"][0]["period"]
+                        zone: lennox_zone = self.getZone(zone_id)
+                        if zone.isZoneManualMode():
+                            zone._processPeriodMessage(period)
+                            zone.executeOnUpdateCallbacks()
 
     def registerOnUpdateCallback(self, callbackfunc, match=None):
         self._callbacks.append({"func": callbackfunc, "match": match})
@@ -883,7 +949,7 @@ class lennox_system(object):
                         callbackfunc()
                 except Exception as e:
                     # Log and eat this exception so we can process other callbacks
-                    _LOGGER.error("executeOnUpdateCallback - failed " + str(e))
+                    _LOGGER.exception("executeOnUpdateCallback - failed ")
         self._dirty = False
         self._dirtyList = []
 
@@ -903,125 +969,97 @@ class lennox_system(object):
                 return True
         return False
 
-    def processSystemMessage(self, message):
-        try:
-            if "config" in message:
-                config = message["config"]
-                self.attr_updater(config, "temperatureUnit")
-                self.attr_updater(config, "dehumidificationMode")
-                self.attr_updater(config, "name")
-                self.attr_updater(config, "allergenDefender")
-                self.attr_updater(config, "ventilationMode")
-                if "options" in config:
-                    options = config["options"]
-                    self.attr_updater(options, "indoorUnitType")
-                    self.attr_updater(options, "productType")
-                    self.attr_updater(options, "outdoorUnitType")
-                    self.attr_updater(options, "humidifierType")
-                    self.attr_updater(options, "dehumidifierType")
-                    if "ventilation" in options:
-                        ventilation = options["ventilation"]
-                        self.attr_updater(
-                            ventilation, "unitType", "ventilationUnitType"
-                        )
-                        self.attr_updater(
-                            ventilation, "controlMode", "ventilationControlMode"
-                        )
-
-            if "status" in message:
-                status = message["status"]
-                self.attr_updater(status, "outdoorTemperature")
-                self.attr_updater(status, "outdoorTemperatureC")
-                self.attr_updater(status, "diagLevel")
-                self.attr_updater(status, "diagRuntime")
-                self.attr_updater(status, "diagPoweredHours")
-                self.attr_updater(status, "numberOfZones")
-                self.attr_updater(status, "diagVentilationRuntime")
-                self.attr_updater(status, "ventilationRemainingTime")
-                self.attr_updater(status, "ventilatingUntilTime")
-                self.attr_updater(status, "feelsLikeMode")
-
-            if "time" in message:
-                time = message["time"]
-                old = self.sysUpTime
-                self.attr_updater(time, "sysUpTime")
-                # When uptime become less than what we recorded, it means the S30 has restarted
-                if old is not None and old > self.sysUpTime:
-                    _LOGGER.warning(
-                        f"S30 has rebooted sysId [{self.sysId}] old uptime [{old}] new uptime [{self.sysUpTime}]"
+    def _processSystemMessage(self, message):
+        if "config" in message:
+            config = message["config"]
+            self.attr_updater(config, "temperatureUnit")
+            self.attr_updater(config, "dehumidificationMode")
+            self.attr_updater(config, "name")
+            self.attr_updater(config, "allergenDefender")
+            self.attr_updater(config, "ventilationMode")
+            if "options" in config:
+                options = config["options"]
+                self.attr_updater(options, "indoorUnitType")
+                self.attr_updater(options, "productType")
+                self.attr_updater(options, "outdoorUnitType")
+                self.attr_updater(options, "humidifierType")
+                self.attr_updater(options, "dehumidifierType")
+                if "ventilation" in options:
+                    ventilation = options["ventilation"]
+                    self.attr_updater(ventilation, "unitType", "ventilationUnitType")
+                    self.attr_updater(
+                        ventilation, "controlMode", "ventilationControlMode"
                     )
 
-        except Exception as e:
-            _LOGGER.error("processSystemMessage - Exception " + str(e))
-            raise S30Exception(str(e), EC_PROCESS_MESSAGE, 3)
-        return
+        if "status" in message:
+            status = message["status"]
+            self.attr_updater(status, "outdoorTemperature")
+            self.attr_updater(status, "outdoorTemperatureC")
+            self.attr_updater(status, "diagRuntime")
+            self.attr_updater(status, "diagPoweredHours")
+            self.attr_updater(status, "numberOfZones")
+            self.attr_updater(status, "diagVentilationRuntime")
+            self.attr_updater(status, "ventilationRemainingTime")
+            self.attr_updater(status, "ventilatingUntilTime")
+            self.attr_updater(status, "feelsLikeMode")
 
-    def processDevices(self, message):
-        try:
-            for device in message:
-                if "device" in device:
-                    if device.get("device", {}).get("deviceType", {}) == 500:
-                        for feature in device["device"].get("features", []):
-                            if feature.get("feature", {}).get("fid") == 9:
-                                self.serialNumber = feature["feature"]["values"][0][
-                                    "value"
-                                ]
-                                self._dirty = True
-                                self._dirtyList.append("serialNumber")
-                            if feature.get("feature", {}).get("fid") == 11:
-                                self.softwareVersion = feature["feature"]["values"][0][
-                                    "value"
-                                ]
-                                self._dirty = True
-                                self._dirtyList.append("softwareVersion")
+        if "time" in message:
+            time = message["time"]
+            old = self.sysUpTime
+            self.attr_updater(time, "sysUpTime")
+            # When uptime become less than what we recorded, it means the S30 has restarted
+            if old is not None and old > self.sysUpTime:
+                _LOGGER.warning(
+                    f"S30 has rebooted sysId [{self.sysId}] old uptime [{old}] new uptime [{self.sysUpTime}]"
+                )
 
-        except Exception as e:
-            _LOGGER.error("processDevices - Exception " + str(e))
-            raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)
+    def _processDevices(self, message):
+        for device in message:
+            if "device" in device:
+                if device.get("device", {}).get("deviceType", {}) == 500:
+                    for feature in device["device"].get("features", []):
+                        if feature.get("feature", {}).get("fid") == 9:
+                            self.serialNumber = feature["feature"]["values"][0]["value"]
+                            self._dirty = True
+                            self._dirtyList.append("serialNumber")
+                        if feature.get("feature", {}).get("fid") == 11:
+                            self.softwareVersion = feature["feature"]["values"][0][
+                                "value"
+                            ]
+                            self._dirty = True
+                            self._dirtyList.append("softwareVersion")
 
-    def processEquipments(self, message) -> bool:
-        update = False
-        try:
-            for equipment in message:
-                equipment_id = equipment.get("id")
-                for parameter in equipment.get("equipment", {}).get("parameters", []):
-                    # 525 is the parameter id for split-setpoint
-                    if parameter.get("parameter", {}).get("pid") == 525:
-                        value = parameter["parameter"]["value"]
-                        if value == 1 or value == "1":
-                            self.single_setpoint_mode = True
-                        else:
-                            self.single_setpoint_mode = False
-                        self._dirty = True
-                        self._dirtyList.append("single_setpoint_mode")
-                for diagnostic in equipment.get("equipment", {}).get("diagnostics", []):
-                    # the diagnostic values sometimes don't have names
-                    # so remember where we found important keys
-                    diagnostic_id = diagnostic.get("id")
-                    diagnostic_data = diagnostic.get("diagnostic", {})
-                    diagnostic_name = diagnostic_data.get("name")
-                    diagnostic_path = (
-                        f"equipment_{equipment_id}:diagnostic_{diagnostic_id}"
+    def _processEquipments(self, message):
+        for equipment in message:
+            equipment_id = equipment.get("id")
+            for parameter in equipment.get("equipment", {}).get("parameters", []):
+                # 525 is the parameter id for split-setpoint
+                if parameter.get("parameter", {}).get("pid") == 525:
+                    value = parameter["parameter"]["value"]
+                    if value == 1 or value == "1":
+                        self.single_setpoint_mode = True
+                    else:
+                        self.single_setpoint_mode = False
+                    self._dirty = True
+                    self._dirtyList.append("single_setpoint_mode")
+            for diagnostic in equipment.get("equipment", {}).get("diagnostics", []):
+                # the diagnostic values sometimes don't have names
+                # so remember where we found important keys
+                diagnostic_id = diagnostic.get("id")
+                diagnostic_data = diagnostic.get("diagnostic", {})
+                diagnostic_name = diagnostic_data.get("name")
+                diagnostic_path = f"equipment_{equipment_id}:diagnostic_{diagnostic_id}"
+                if diagnostic_name == "Inverter Input Voltage":
+                    self.diagnosticPaths[diagnostic_path] = "diagInverterInputVoltage"
+                if diagnostic_name == "Inverter Input Current":
+                    self.diagnosticPaths[diagnostic_path] = "diagInverterInputCurrent"
+
+                if diagnostic_path in self.diagnosticPaths:
+                    self.attr_updater(
+                        diagnostic_data,
+                        "value",
+                        self.diagnosticPaths[diagnostic_path],
                     )
-                    if diagnostic_name == "Inverter Input Voltage":
-                        self.diagnosticPaths[
-                            diagnostic_path
-                        ] = "diagInverterInputVoltage"
-                    if diagnostic_name == "Inverter Input Current":
-                        self.diagnosticPaths[
-                            diagnostic_path
-                        ] = "diagInverterInputCurrent"
-
-                    if diagnostic_path in self.diagnosticPaths:
-                        self.attr_updater(
-                            diagnostic_data,
-                            "value",
-                            self.diagnosticPaths[diagnostic_path],
-                        )
-        except Exception as e:
-            _LOGGER.error("processDevices - Exception " + str(e))
-            raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)
-        return update
 
     def has_emergency_heat(self) -> bool:
         """Returns True is the system has emergency heat"""
@@ -1047,13 +1085,8 @@ class lennox_system(object):
             return False
         return True
 
-    def processOccupancy(self, message):
-        try:
-            self.attr_updater(message, "manualAway", "manualAwayMode")
-
-        except Exception as e:
-            _LOGGER.error("processOccupancy - Exception " + str(e))
-            raise S30Exception(str(e), EC_PROCESS_MESSAGE, 1)
+    def _processOccupancy(self, message):
+        self.attr_updater(message, "manualAway", "manualAwayMode")
 
     def get_manual_away_mode(self):
         return self.manualAwayMode
@@ -1151,16 +1184,11 @@ class lennox_system(object):
         self._zoneList.append(zone)
         return zone
 
-    def processZonesMessage(self, message):
-        try:
-            for zone in message:
-                id = zone["id"]
-                lzone = self.getOrCreateZone(id)
-                lzone.processMessage(zone)
-        except Exception as e:
-            err_msg = "processZonesMessage - Exception " + str(e)
-            _LOGGER.error(err_msg)
-            raise S30Exception(err_msg, EC_PROCESS_MESSAGE, 1)
+    def _processZonesMessage(self, message):
+        for zone in message:
+            id = zone["id"]
+            lzone = self.getOrCreateZone(id)
+            lzone.processMessage(zone)
 
     def supports_ventilation(self) -> bool:
         return self.ventilationUnitType == "ventilator"
@@ -1192,6 +1220,36 @@ class lennox_system(object):
         _LOGGER.debug(f"allergenDefender_on sysid [{self.sysId}] ")
         data = '"Data":{"system":{"config":{"allergenDefender":false} } }'
         await self.api.publishMessageHelper(self.sysId, data)
+
+    async def set_diagnostic_level(self, level: int) -> None:
+        level = int(level)
+        _LOGGER.debug(f"set_diagnostic_level sysid [{self.sysId}] level[{level}]")
+        if level not in (0, 1, 2):
+            raise S30Exception(
+                f"Invalid diagnostic level [{level}] valid value [0,1,2]",
+                EC_BAD_PARAMETERS,
+                1,
+            )
+        data = '"Data":{"systemControl":{"diagControl":{"level":' + str(level) + "} } }"
+        await self.api.publishMessageHelper(self.sysId, data)
+        # The S30 does not send message when the systemControl parameters are update, but if we re-ask
+        # for the systemControl subscription, it will send us the current data.
+        await self.api.requestDataHelper(
+            self.sysId,
+            '"AdditionalParameters":{"JSONPath":"/systemControl"}',
+        )
+
+    @property
+    def has_indoor_unit(self) -> bool:
+        if self.indoorUnitType != None and self.indoorUnitType != LENNOX_NONE_STR:
+            return True
+        return False
+
+    @property
+    def has_outdoor_unit(self) -> bool:
+        if self.outdoorUnitType != None and self.outdoorUnitType != LENNOX_NONE_STR:
+            return True
+        return False
 
 
 class lennox_zone(object):
@@ -1271,6 +1329,10 @@ class lennox_zone(object):
 
         _LOGGER.info(f"Creating lennox_zone id [{self.id}]")
 
+    @property
+    def unique_id(self) -> str:
+        return (self._system.unique_id() + "_" + str(self.id)).replace("-", "") + "_T"
+
     def registerOnUpdateCallback(self, callbackfunc, match=None):
         self._callbacks.append({"func": callbackfunc, "match": match})
 
@@ -1292,7 +1354,7 @@ class lennox_zone(object):
                         callbackfunc()
                 except Exception as e:
                     # Log and eat this exception so we can process other callbacks
-                    _LOGGER.error("executeOnUpdateCallback - failed " + str(e))
+                    _LOGGER.exception("executeOnUpdateCallback - failed")
         self._dirty = False
         self._dirtyList = []
 
@@ -1310,7 +1372,7 @@ class lennox_zone(object):
                 return True
         return False
 
-    def processMessage(self, zoneMessage) -> bool:
+    def processMessage(self, zoneMessage):
         _LOGGER.debug(f"processMessage lennox_zone id [{self.id}]")
         if "config" in zoneMessage:
             config = zoneMessage["config"]
@@ -1367,14 +1429,13 @@ class lennox_zone(object):
 
             if "period" in status:
                 period = status["period"]
-                self.processPeriodMessage(period)
+                self._processPeriodMessage(period)
         _LOGGER.debug(
             f"processMessage complete lennox_zone id [{self.id}] dirty [{self._dirty}] dirtyList [{self._dirtyList}]"
         )
         self.executeOnUpdateCallbacks()
-        return self._dirty
 
-    def processPeriodMessage(self, period):
+    def _processPeriodMessage(self, period):
         self.attr_updater(period, "systemMode")
         self.attr_updater(period, "fanMode")
         self.attr_updater(period, "humidityMode")

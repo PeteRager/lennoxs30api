@@ -1,5 +1,6 @@
 import json
 import os
+import asyncio
 
 from aiohttp import web
 from aiohttp.typedefs import JSONDecoder
@@ -65,20 +66,38 @@ class Simulator(object):
         app_id = request.match_info["app_id"]
         if app_id in self.appList:
             app: AppConnection = self.appList[app_id]
-            if len(app.queue) == 0:
-                return web.Response(status=204)
-            message = app.queue.pop()
-            data = '{ "messages": [' + json.dumps(message) + "]}"
-            data = self.perform_substitutions(data)
-            return web.Response(status=200, body=data)
+            for i in range(15):
+                if len(app.queue) != 0:
+                    message = app.queue.pop()
+                    data = '{ "messages": [' + json.dumps(message) + "]}"
+                    data = self.perform_substitutions(data)
+                    return web.Response(status=200, body=data)
+                await asyncio.sleep(1.0)
         return web.Response(status=204)
+
+    def process_message(self, msg):
+        if "Data" in msg:
+            data = msg["Data"]
+            if "systemControl" in data:
+                if "diagControl" in data["systemControl"]:
+                    if "level" in data["systemControl"]["diagControl"]:
+                        level = data["systemControl"]["diagControl"]["level"]
+                        msg["Data"] = {
+                            "system": {
+                                "status": {
+                                    "diagLevel": level,
+                                }
+                            }
+                        }
+        return msg
 
     async def publish(self, request):
         data = await request.json()
         data["SenderID"] = "LCC"
         data["MessageType"] = "PropertyChange"
+        message_to_send = self.process_message(data)
         for appName, appObject in self.appList.items():
-            appObject.queue.append(data)
+            appObject.queue.append(message_to_send)
 
         body_json = {"code": 1, "message": "", "retry_after": 0}
         body_txt = json.dumps(body_json)
