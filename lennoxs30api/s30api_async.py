@@ -236,7 +236,7 @@ class s30api_async(object):
         return self._applicationid + "_" + self._username
 
     async def shutdown(self) -> None:
-        if self.loginBearerToken != None:
+        if self._isLANConnection == True or self.loginBearerToken != None:
             await self.logout()
         await self._close_session()
 
@@ -252,7 +252,7 @@ class s30api_async(object):
             "Content-Type": "application/json",
         }
         resp = await self.post(url, headers=headers, data=None)
-        if resp.status != 200:
+        if resp.status != 200 and resp.status != 204:
             errmsg = f"Logout failed response code [{resp.status}]"
             _LOGGER.error(errmsg)
             raise S30Exception(errmsg, EC_LOGOUT, 1)
