@@ -241,7 +241,7 @@ class s30api_async(object):
         await self._close_session()
 
     async def logout(self) -> None:
-        _LOGGER.debug("logout - Entering")
+        _LOGGER.info("logout - Entering")
         url: str = self.url_logout
         headers = {
             "Authorization": self.loginBearerToken,
@@ -401,6 +401,12 @@ class s30api_async(object):
                 EC_COMMS_ERROR,
                 3,
             )
+        except aiohttp.ClientConnectorError as e:
+            raise S30Exception(
+                f"login failed due host not reachable url [{url}] {e}",
+                EC_COMMS_ERROR,
+                4,
+            )
         except Exception as e:
             txt = str(e)
             _LOGGER.exception("login - Exception")
@@ -481,7 +487,7 @@ class s30api_async(object):
             try:
                 await self.requestDataHelper(
                     lennoxSystem.sysId,
-                    '"AdditionalParameters":{"JSONPath":"1;/devices;/zones;/equipments;/schedules;/occupancy;/system;/systemControl"}',
+                    '"AdditionalParameters":{"JSONPath":"1;/systemControl;/devices;/zones;/equipments;/schedules;/occupancy;/system"}',
                 )
             except S30Exception as e:
                 err_msg = f"subscribe fail loca [{ref}] {e.as_string()}"
@@ -594,6 +600,12 @@ class s30api_async(object):
             self.metrics.inc_receive_message_error()
             err_msg = "messagePump - ClientConnectionError " + str(e)
             raise S30Exception(err_msg, EC_COMMS_ERROR, 3)
+        except aiohttp.ClientConnectorError as e:
+            raise S30Exception(
+                f"messagePump - ClienConnectorError {e}",
+                EC_COMMS_ERROR,
+                4,
+            )
         except S30Exception as e:
             raise e
         # should not be here, these are unexpected exceptions that should be handled better
