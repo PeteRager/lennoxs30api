@@ -39,6 +39,11 @@ class Simulator(object):
             self.appList[app_id] = AppConnection(app_id)
         return web.Response(text="Simulator Success")
 
+    async def disconnect(self, request: Request):
+        app_id = request.match_info["app_id"]
+        self.appList.pop(app_id)
+        return web.Response(text="Simulator Success")
+
     async def request_data(self, request: Request):
         data = await request.json()
         if "SenderID" in data:
@@ -113,6 +118,7 @@ def init_func(argv):
             app.add_routes(
                 [
                     web.post("/Endpoints/{app_id}/Connect", simulator.connect),
+                    web.post("/Endpoints/{app_id}/Disconnect", simulator.disconnect),
                     web.post("/Messages/RequestData", simulator.request_data),
                     web.get("/Messages/{app_id}/Retrieve", simulator.retrieve),
                     web.post("/Messages/Publish", simulator.publish),
