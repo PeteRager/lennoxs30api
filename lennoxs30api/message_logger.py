@@ -29,7 +29,6 @@ class MessageLogger(object):
             "streetAddress1",
             "streetAddress2",
             "city",
-            "state",
             "country",
             "zip",
             "latitude",

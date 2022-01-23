@@ -4,6 +4,9 @@ from lennoxs30api.s30api_async import (
     LENNOX_HVAC_HEAT_COOL,
     LENNOX_HVAC_OFF,
     LENNOX_NONE_STR,
+    LENNOX_SA_SETPOINT_STATE_HOME,
+    LENNOX_SA_STATE_DISABLED,
+    LENNOX_SA_STATE_ENABLED_CANCELLED,
     lennox_zone,
     s30api_async,
     lennox_system,
@@ -80,7 +83,14 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.ventilationControlMode == "timed"
     assert lsystem.feelsLikeMode == False
     assert lsystem.ventilatingUntilTime == ""
+
+    # Away Mode and Smart Away Tests
     assert lsystem.manualAwayMode == False == lsystem.get_manual_away_mode()
+    assert lsystem.sa_enabled == True
+    assert lsystem.sa_reset == False
+    assert lsystem.sa_cancel == False
+    assert lsystem.sa_state == LENNOX_SA_STATE_ENABLED_CANCELLED
+    assert lsystem.sa_setpointState == LENNOX_SA_SETPOINT_STATE_HOME
 
     zones = lsystem.getZoneList()
     assert len(zones) == 4
@@ -269,7 +279,13 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.diagRuntime == 5884
     assert lsystem.humidifierType == "none"
     assert lsystem.ventilationUnitType == "none"
+    # Away Mode and Smart Away Tests
     assert lsystem.manualAwayMode == True == lsystem.get_manual_away_mode()
+    assert lsystem.sa_enabled == False
+    assert lsystem.sa_reset == False
+    assert lsystem.sa_cancel == False
+    assert lsystem.sa_state == LENNOX_SA_STATE_DISABLED
+    assert lsystem.sa_setpointState == LENNOX_SA_SETPOINT_STATE_HOME
 
     zone_5: lennox_zone = lsystem.getZoneList()[0]
     assert zone_5.name == "Zone 1"
