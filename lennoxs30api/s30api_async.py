@@ -102,6 +102,8 @@ LENNOX_OUTDOOR_UNIT_HP = "heat pump"
 
 LENNOX_SA_STATE_ENABLED_CANCELLED = "enabled cancelled"
 LENNOX_SA_STATE_DISABLED = "disabled"
+## TODO need the correct string
+LENNOX_SA_STATE_AWAY = "away"
 
 LENNOX_SA_SETPOINT_STATE_HOME = "home"
 
@@ -831,7 +833,7 @@ class lennox_system(object):
         self.ventilationUnitType = None
         self.ventilationControlMode = None
         self.feelsLikeMode = None
-        self.manualAwayMode = None
+        self.manualAwayMode: bool = None
         self.serialNumber: str = None
         self.single_setpoint_mode: bool = None
         self.temperatureUnit: str = None
@@ -851,11 +853,11 @@ class lennox_system(object):
         self.diagInverterInputVoltage = None
         self.diagInverterInputCurrent = None
         # Smart Away fields
-        self.sa_enabled = None
-        self.sa_reset = None
-        self.sa_cancel = None
-        self.sa_state = None
-        self.sa_setpointState = None
+        self.sa_enabled: bool = None
+        self.sa_reset: bool = None
+        self.sa_cancel: bool = None
+        self.sa_state: str = None
+        self.sa_setpointState: str = None
 
         self._dirty = False
         self._dirtyList = []
@@ -1131,8 +1133,18 @@ class lennox_system(object):
                     smart_away_status, "setpointState", "sa_setpointState"
                 )
 
-    def get_manual_away_mode(self):
+    def get_manual_away_mode(self) -> bool:
         return self.manualAwayMode
+
+    def get_smart_away_mode(self) -> bool:
+        if self.sa_enabled == True and self.sa_state == LENNOX_SA_STATE_AWAY:
+            return True
+        return False
+
+    def get_away_mode(self) -> bool:
+        if self.get_manual_away_mode() == True or self.get_smart_away_mode() == True:
+            return True
+        return False
 
     async def set_manual_away_mode(self, mode: bool) -> None:
         await self.api.setManualAwayMode(self.sysId, mode)
