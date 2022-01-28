@@ -101,11 +101,13 @@ LENNOX_OUTDOOR_UNIT_AC = "air conditioner"
 LENNOX_OUTDOOR_UNIT_HP = "heat pump"
 
 LENNOX_SA_STATE_ENABLED_CANCELLED = "enabled cancelled"
+LENNOX_SA_STATE_ENABLED_ACTIVE = "enabled active"
+LENNOX_SA_STATE_ENABLED_INACTIVE = "enabled inactive"
 LENNOX_SA_STATE_DISABLED = "disabled"
-## TODO need the correct string
-LENNOX_SA_STATE_AWAY = "away"
 
 LENNOX_SA_SETPOINT_STATE_HOME = "home"
+LENNOX_SA_SETPOINT_STATE_TRANSITION = "transition"
+LENNOX_SA_SETPOINT_STATE_AWAY = "away"
 
 # String in lennox JSON representing no value.
 LENNOX_NONE_STR: Final = "none"
@@ -811,6 +813,21 @@ class s30api_async(object):
         data = '"Data":' + json.dumps(command).replace(" ", "")
         await self.publishMessageHelper(sysId, data)
 
+    async def enable_smart_away(self, sysId: str, mode: bool) -> None:
+        _LOGGER.info(f"enable_smart_away mode [{mode}] sysId [{sysId}]")
+        str = None
+        if mode == True:
+            str = "true"
+        if mode == False:
+            str = "false"
+        if str is None:
+            err_msg = f"enable_smart_away - invalid mode [{mode}] requested, must be True or False"
+            raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
+        _LOGGER.info(f"cancel_smart_away sysId [{sysId}]")
+        command = {"occupancy": {"smartAway": {"config": {"enabled": str}}}}
+        data = '"Data":' + json.dumps(command).replace(" ", "")
+        await self.publishMessageHelper(sysId, data)
+
 
 class lennox_system(object):
     def __init__(self, sysId: str):
@@ -1137,7 +1154,10 @@ class lennox_system(object):
         return self.manualAwayMode
 
     def get_smart_away_mode(self) -> bool:
-        if self.sa_enabled == True and self.sa_state == LENNOX_SA_STATE_AWAY:
+        if self.sa_enabled == True and (
+            self.sa_setpointState == LENNOX_SA_SETPOINT_STATE_TRANSITION
+            or self.sa_setpointState == LENNOX_SA_SETPOINT_STATE_AWAY
+        ):
             return True
         return False
 
@@ -1157,6 +1177,9 @@ class lennox_system(object):
                 1,
             )
         await self.api.cancel_smart_away(self.sysId)
+
+    async def enable_smart_away(self, mode: bool) -> None:
+        await self.api.enable_smart_away(self.sysId, mode)
 
     def getZone(self, id):
         for zone in self._zoneList:

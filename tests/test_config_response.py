@@ -5,7 +5,8 @@ from lennoxs30api.s30api_async import (
     LENNOX_HVAC_OFF,
     LENNOX_NONE_STR,
     LENNOX_SA_SETPOINT_STATE_HOME,
-    LENNOX_SA_STATE_AWAY,
+    LENNOX_SA_SETPOINT_STATE_AWAY,
+    LENNOX_SA_SETPOINT_STATE_TRANSITION,
     LENNOX_SA_STATE_DISABLED,
     LENNOX_SA_STATE_ENABLED_CANCELLED,
     lennox_zone,
@@ -293,9 +294,12 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.get_away_mode() == True
     lsystem.manualAwayMode = False
     assert lsystem.get_away_mode() == False
-    lsystem.sa_state = LENNOX_SA_STATE_AWAY
+    lsystem.sa_setpointState = LENNOX_SA_SETPOINT_STATE_AWAY
     assert lsystem.get_smart_away_mode() == False
     lsystem.sa_enabled = True
+    assert lsystem.get_smart_away_mode() == True
+    assert lsystem.get_away_mode() == True
+    lsystem.sa_setpointState = LENNOX_SA_SETPOINT_STATE_TRANSITION
     assert lsystem.get_smart_away_mode() == True
     assert lsystem.get_away_mode() == True
 
