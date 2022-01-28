@@ -80,7 +80,7 @@ def test_enable_smart_away(api):
         arg1 = mock_message_helper.await_args[0][1]
         jsbody = json.loads("{" + arg1 + "}")
         sa_enabled = jsbody["Data"]["occupancy"]["smartAway"]["config"]["enabled"]
-        assert sa_enabled == "true"
+        assert sa_enabled == True
 
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         loop = asyncio.get_event_loop()
@@ -91,7 +91,7 @@ def test_enable_smart_away(api):
         arg1 = mock_message_helper.await_args[0][1]
         jsbody = json.loads("{" + arg1 + "}")
         sa_enabled = jsbody["Data"]["occupancy"]["smartAway"]["config"]["enabled"]
-        assert sa_enabled == "false"
+        assert sa_enabled == False
 
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         lsystem.sa_enabled = False
