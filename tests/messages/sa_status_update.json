@@ -1,0 +1,74 @@
+{
+    "MessageId": 0,
+    "SenderID": "0000000-0000-0000-0000-000000000001",
+    "TargetID": "ha_test",
+    "MessageType": "PropertyChange",
+    "Data": {
+        "occupancy": {
+            "smartAway": {
+                "status": {
+                    "state": "enabled cancelled",
+                    "closestBandStatus": 4,
+                    "setpointState": "home",
+                    "closestBandParticipant": "690399479999999"
+                },
+                "participants": [
+                    {
+                        "r1": 3,
+                        "lastUpdateTimestamp": "1642863517000",
+                        "deviceId": "690399472124059999",
+                        "bandStatus": 4,
+                        "currentBand": 4,
+                        "id": 0,
+                        "previousBand": 3
+                    },
+                    {
+                        "r1": 2,
+                        "lastUpdateTimestamp": "1642863108000",
+                        "deviceId": "2895878949999999999",
+                        "bandStatus": 6,
+                        "currentBand": 5,
+                        "id": 1,
+                        "previousBand": 4
+                    },
+                    {
+                        "r1": 2,
+                        "lastUpdateTimestamp": "1581037861000",
+                        "deviceId": "",
+                        "bandStatus": 6,
+                        "currentBand": 5,
+                        "id": 2,
+                        "previousBand": 4
+                    },
+                    {
+                        "r1": 2,
+                        "lastUpdateTimestamp": "1559860231000",
+                        "deviceId": "",
+                        "bandStatus": 0,
+                        "currentBand": 1,
+                        "id": 3,
+                        "previousBand": 3
+                    },
+                    {
+                        "r1": 2,
+                        "lastUpdateTimestamp": "1559514308",
+                        "deviceId": "",
+                        "bandStatus": 0,
+                        "currentBand": 1,
+                        "id": 4,
+                        "previousBand": 2
+                    }
+                ],
+                "config": {
+                    "reset": false,
+                    "cancel": false,
+                    "enabled": true,
+                    "masterLcc": ""
+                }
+            },
+            "publisher": {
+                "publisherName": "lcc"
+            }
+        }
+    }
+}

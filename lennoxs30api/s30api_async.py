@@ -100,6 +100,15 @@ LENNOX_INDOOR_UNIT_AIR_HANDLER: Final = "air handler"
 LENNOX_OUTDOOR_UNIT_AC = "air conditioner"
 LENNOX_OUTDOOR_UNIT_HP = "heat pump"
 
+LENNOX_SA_STATE_ENABLED_CANCELLED = "enabled cancelled"
+LENNOX_SA_STATE_ENABLED_ACTIVE = "enabled active"
+LENNOX_SA_STATE_ENABLED_INACTIVE = "enabled inactive"
+LENNOX_SA_STATE_DISABLED = "disabled"
+
+LENNOX_SA_SETPOINT_STATE_HOME = "home"
+LENNOX_SA_SETPOINT_STATE_TRANSITION = "transition"
+LENNOX_SA_SETPOINT_STATE_AWAY = "away"
+
 # String in lennox JSON representing no value.
 LENNOX_NONE_STR: Final = "none"
 
@@ -798,6 +807,21 @@ class s30api_async(object):
         data = '"Data":{"occupancy":{"manualAway":' + str + "}" + "}"
         await self.publishMessageHelper(sysId, data)
 
+    async def cancel_smart_away(self, sysId: str) -> None:
+        _LOGGER.info(f"cancel_smart_away sysId [{sysId}]")
+        command = {"occupancy": {"smartAway": {"config": {"cancel": True}}}}
+        data = '"Data":' + json.dumps(command).replace(" ", "")
+        await self.publishMessageHelper(sysId, data)
+
+    async def enable_smart_away(self, sysId: str, mode: bool) -> None:
+        _LOGGER.info(f"enable_smart_away mode [{mode}] sysId [{sysId}]")
+        if mode != True and mode != False:
+            err_msg = f"enable_smart_away - invalid mode [{mode}] requested, must be True or False"
+            raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
+        command = {"occupancy": {"smartAway": {"config": {"enabled": mode}}}}
+        data = '"Data":' + json.dumps(command).replace(" ", "")
+        await self.publishMessageHelper(sysId, data)
+
 
 class lennox_system(object):
     def __init__(self, sysId: str):
@@ -820,7 +844,7 @@ class lennox_system(object):
         self.ventilationUnitType = None
         self.ventilationControlMode = None
         self.feelsLikeMode = None
-        self.manualAwayMode = None
+        self.manualAwayMode: bool = None
         self.serialNumber: str = None
         self.single_setpoint_mode: bool = None
         self.temperatureUnit: str = None
@@ -839,6 +863,13 @@ class lennox_system(object):
         self.diagnosticPaths = {}
         self.diagInverterInputVoltage = None
         self.diagInverterInputCurrent = None
+        # Smart Away fields
+        self.sa_enabled: bool = None
+        self.sa_reset: bool = None
+        self.sa_cancel: bool = None
+        self.sa_state: str = None
+        self.sa_setpointState: str = None
+
         self._dirty = False
         self._dirtyList = []
         self.message_processing_list = {
@@ -1099,12 +1130,50 @@ class lennox_system(object):
 
     def _processOccupancy(self, message):
         self.attr_updater(message, "manualAway", "manualAwayMode")
+        if "smartAway" in message:
+            smart_away = message["smartAway"]
+            if "config" in smart_away:
+                smart_away_config = smart_away["config"]
+                self.attr_updater(smart_away_config, "enabled", "sa_enabled")
+                self.attr_updater(smart_away_config, "reset", "sa_reset")
+                self.attr_updater(smart_away_config, "cancel", "sa_cancel")
+            if "status" in smart_away:
+                smart_away_status = smart_away["status"]
+                self.attr_updater(smart_away_status, "state", "sa_state")
+                self.attr_updater(
+                    smart_away_status, "setpointState", "sa_setpointState"
+                )
 
-    def get_manual_away_mode(self):
+    def get_manual_away_mode(self) -> bool:
         return self.manualAwayMode
+
+    def get_smart_away_mode(self) -> bool:
+        if self.sa_enabled == True and (
+            self.sa_setpointState == LENNOX_SA_SETPOINT_STATE_TRANSITION
+            or self.sa_setpointState == LENNOX_SA_SETPOINT_STATE_AWAY
+        ):
+            return True
+        return False
+
+    def get_away_mode(self) -> bool:
+        if self.get_manual_away_mode() == True or self.get_smart_away_mode() == True:
+            return True
+        return False
 
     async def set_manual_away_mode(self, mode: bool) -> None:
         await self.api.setManualAwayMode(self.sysId, mode)
+
+    async def cancel_smart_away(self) -> None:
+        if self.sa_enabled != True:
+            raise S30Exception(
+                f"Unable to cancel smart away, system [{self.sysId}] smart away not enabled [{self.sa_enabled}]",
+                EC_BAD_PARAMETERS,
+                1,
+            )
+        await self.api.cancel_smart_away(self.sysId)
+
+    async def enable_smart_away(self, mode: bool) -> None:
+        await self.api.enable_smart_away(self.sysId, mode)
 
     def getZone(self, id):
         for zone in self._zoneList:

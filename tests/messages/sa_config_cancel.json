@@ -1,0 +1,18 @@
+{
+    "MessageId": 0,
+    "SenderID": "0000000-0000-0000-0000-000000000001",
+    "TargetID": "ha_test",
+    "MessageType": "PropertyChange",
+    "Data": {
+        "occupancy": {
+            "smartAway": {
+                "config": {
+                    "cancel": true
+                }
+            },
+            "publisher": {
+                "publisherName": "remote"
+            }
+        }
+    }
+}

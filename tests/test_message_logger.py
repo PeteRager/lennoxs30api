@@ -70,7 +70,7 @@ def test_logging_remove_redacted(caplog):
         assert home_addr["streetAddress1"] == REDACTED
         assert home_addr["streetAddress2"] == REDACTED
         assert home_addr["city"] == REDACTED
-        assert home_addr["state"] == REDACTED
+        assert home_addr["state"] != REDACTED
         assert home_addr["country"] == REDACTED
         assert home_addr["zip"] == REDACTED
         assert home_addr["latitude"] == REDACTED

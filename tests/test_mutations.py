@@ -1,4 +1,10 @@
-from lennoxs30api.s30api_async import lennox_zone, s30api_async, lennox_system
+from lennoxs30api.s30api_async import (
+    LENNOX_SA_SETPOINT_STATE_HOME,
+    LENNOX_SA_STATE_ENABLED_CANCELLED,
+    lennox_zone,
+    s30api_async,
+    lennox_system,
+)
 from lennoxs30api.lennox_home import lennox_home
 
 import json
@@ -409,3 +415,31 @@ def test_manual_away_mode_on_and_off():
     data = loadfile("manual_away_mode_off.json")
     api.processMessage(data)
     assert system.manualAwayMode == False
+
+
+def test_smart_away_mutations():
+    api = setup_load_configuration()
+    system = api.getSystem("0000000-0000-0000-0000-000000000001")
+    assert system.sa_enabled == True
+    assert system.sa_reset == False
+    assert system.sa_cancel == False
+    assert system.sa_state == LENNOX_SA_STATE_ENABLED_CANCELLED
+    assert system.sa_setpointState == LENNOX_SA_SETPOINT_STATE_HOME
+
+    data = loadfile("sa_config_cancel.json")
+    api.processMessage(data)
+    assert system.sa_enabled == True
+    assert system.sa_reset == False
+    assert system.sa_cancel == True
+    assert system.sa_state == LENNOX_SA_STATE_ENABLED_CANCELLED
+    assert system.sa_setpointState == LENNOX_SA_SETPOINT_STATE_HOME
+
+    system.sa_state = "Unkownn"
+    system.sa_setpointState = "Unknown"
+    data = loadfile("sa_status_update.json")
+    api.processMessage(data)
+    assert system.sa_enabled == True
+    assert system.sa_reset == False
+    assert system.sa_cancel == False
+    assert system.sa_state == LENNOX_SA_STATE_ENABLED_CANCELLED
+    assert system.sa_setpointState == LENNOX_SA_SETPOINT_STATE_HOME
