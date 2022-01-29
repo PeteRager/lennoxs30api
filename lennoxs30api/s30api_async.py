@@ -818,7 +818,6 @@ class s30api_async(object):
         if mode != True and mode != False:
             err_msg = f"enable_smart_away - invalid mode [{mode}] requested, must be True or False"
             raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
-        _LOGGER.info(f"cancel_smart_away sysId [{sysId}]")
         command = {"occupancy": {"smartAway": {"config": {"enabled": mode}}}}
         data = '"Data":' + json.dumps(command).replace(" ", "")
         await self.publishMessageHelper(sysId, data)
