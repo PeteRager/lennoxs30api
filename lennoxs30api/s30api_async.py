@@ -847,7 +847,7 @@ class lennox_system(object):
         self.manualAwayMode: bool = None
         self.serialNumber: str = None
         # M30 does not send this info, so default to disabled.
-        self.single_setpoint_mode: bool = False   
+        self.single_setpoint_mode: bool = False
         self.temperatureUnit: str = None
         self.dehumidificationMode = None
         self.indoorUnitType = None
@@ -1233,6 +1233,23 @@ class lennox_system(object):
         sp=None,
         spC=None,
     ) -> None:
+        _LOGGER.debug(
+            f"lennox_system:perform_schedule_setpoint  sysid [{self.sysId}] zoneid [{zoneId}] schedule_id [{scheduleId}] hsp [{hsp}] hspC [{hspC}] csp [{csp}] cspC [{cspC}] sp [{sp}] spC [{spC}] single_setpoint_mode [{self.single_setpoint_mode}]"
+        )
+        if (
+            hsp == None
+            and hspC == None
+            and csp == None
+            and cspC == None
+            and sp == None
+            and spC == None
+        ):
+            raise S30Exception(
+                f"lennox_system:perform_schedule_setpoint  sysid [{self.sysId}] no setpoints provided - must specify one or more setpoints",
+                EC_BAD_PARAMETERS,
+                1,
+            )
+
         ### No data validation in this routine, make sure you know what you are setting.
         ### Use the zone.perform_setpoint for error checking
         command = {
@@ -1723,7 +1740,7 @@ class lennox_zone(object):
         self, r_hsp=None, r_hspC=None, r_csp=None, r_cspC=None, r_sp=None, r_spC=None
     ):
         _LOGGER.debug(
-            f"lennox_zone:setpoint_helper  id [{self.id}] hsp [{r_hsp}] hspC [{r_hspC}] csp [{r_csp}] cspC [{r_cspC}] sp [{r_sp}] spC [{r_spC}]"
+            f"lennox_zone:perform_setpoint  id [{self.id}] hsp [{r_hsp}] hspC [{r_hspC}] csp [{r_csp}] cspC [{r_cspC}] sp [{r_sp}] spC [{r_spC}] single_setpoint_mode [{self._system.single_setpoint_mode}]"
         )
 
         self.validate_setpoints(
