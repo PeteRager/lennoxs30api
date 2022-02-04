@@ -1,0 +1,3903 @@
+{
+    "MessageId": "637795364199845651|53f3779c9c1f4b1885127b5a15569839",
+    "SenderId":  "0000000-0000-0000-0000-000000000001",
+    "TargetID": "mapp079372367644467046827081_email@outlook.com",
+    "MessageType": "PropertyChange",
+    "Data": {
+        "reminderSensors": [
+            {
+                "status": {
+                    "calibrationStatus": false,
+                    "sensorStatus": "none",
+                    "reminderExpired": false,
+                    "reminderExpiredTime": "",
+                    "isValid": false,
+                    "remainingPct": 0,
+                    "reminderSetTime": "",
+                    "replacedDate": ""
+                },
+                "config": {
+                    "kind": "pureAirFilter",
+                    "enabled": false,
+                    "reminderExpiryType": "sensor",
+                    "percentage": 10,
+                    "viewed": false
+                },
+                "publisher": {
+                    "publisherName": "unknown"
+                },
+                "id": 0
+            },
+            {
+                "status": {
+                    "calibrationStatus": false,
+                    "sensorStatus": "none",
+                    "reminderExpired": false,
+                    "reminderExpiredTime": "",
+                    "isValid": false,
+                    "remainingPct": 0,
+                    "reminderSetTime": "",
+                    "replacedDate": ""
+                },
+                "config": {
+                    "kind": "pureAirPurifier",
+                    "enabled": false,
+                    "reminderExpiryType": "sensor",
+                    "percentage": 10,
+                    "viewed": false
+                },
+                "publisher": {
+                    "publisherName": "unknown"
+                },
+                "id": 1
+            }
+        ],
+        "reminders": [
+            {
+                "id": 0,
+                "maxItems": 8,
+                "config": {
+                    "kind": "filter1",
+                    "enabled": false,
+                    "reminderExpiryType": "systemCalendarTime",
+                    "viewed": false
+                },
+                "status": {
+                    "isValid": true,
+                    "reminderExpired": false
+                },
+                "publisher": {
+                    "publisherName": "unknown"
+                }
+            },
+            {
+                "id": 1,
+                "config": {
+                    "kind": "filter2",
+                    "enabled": false,
+                    "reminderExpiryType": "systemCalendarTime",
+                    "viewed": false
+                },
+                "status": {
+                    "isValid": true,
+                    "reminderExpired": false
+                },
+                "publisher": {
+                    "publisherName": "unknown"
+                }
+            },
+            {
+                "id": 2,
+                "config": {
+                    "kind": "uvBulb",
+                    "enabled": false,
+                    "reminderExpiryType": "systemCalendarTime",
+                    "viewed": false
+                },
+                "status": {
+                    "isValid": true,
+                    "reminderExpired": false
+                },
+                "publisher": {
+                    "publisherName": "unknown"
+                }
+            },
+            {
+                "id": 3,
+                "config": {
+                    "kind": "humidifiedPad",
+                    "enabled": false,
+                    "reminderExpiryType": "systemCalendarTime",
+                    "viewed": false
+                },
+                "status": {
+                    "isValid": true,
+                    "reminderExpired": false
+                },
+                "publisher": {
+                    "publisherName": "unknown"
+                }
+            },
+            {
+                "id": 4,
+                "config": {
+                    "kind": "pureAir",
+                    "enabled": false,
+                    "reminderExpiryType": "systemCalendarTime",
+                    "viewed": false
+                },
+                "status": {
+                    "isValid": true,
+                    "reminderExpired": false
+                },
+                "publisher": {
+                    "publisherName": "unknown"
+                }
+            },
+            {
+                "id": 5,
+                "config": {
+                    "kind": "maintenance",
+                    "enabled": false,
+                    "reminderExpiryType": "systemCalendarTime",
+                    "viewed": false
+                },
+                "status": {
+                    "isValid": true,
+                    "reminderExpired": false
+                },
+                "publisher": {
+                    "publisherName": "unknown"
+                }
+            },
+            {
+                "id": 6,
+                "config": {
+                    "kind": "ventilationMaintenance",
+                    "enabled": false,
+                    "reminderExpiryType": "systemCalendarTime",
+                    "viewed": false
+                },
+                "status": {
+                    "isValid": false,
+                    "reminderExpired": false,
+                    "reminderExpiredTime": "0",
+                    "reminderExpiryTime": "0",
+                    "reminderSetTime": "0",
+                    "reminderRemainingPct": 0
+                },
+                "publisher": {
+                    "publisherName": "unknown"
+                }
+            },
+            {
+                "id": 7,
+                "config": {
+                    "kind": "ventilationFilter",
+                    "enabled": false,
+                    "reminderExpiryType": "systemCalendarTime",
+                    "viewed": false
+                },
+                "status": {
+                    "isValid": false,
+                    "reminderExpired": false,
+                    "reminderExpiredTime": "0",
+                    "reminderExpiryTime": "0",
+                    "reminderSetTime": "0",
+                    "reminderRemainingPct": 0
+                },
+                "publisher": {
+                    "publisherName": "unknown"
+                }
+            }
+        ],
+        "alerts": {
+            "active": [
+                {
+                    "alert": {
+                        "userMessageID": 0,
+                        "timestampClear": null,
+                        "code": 0,
+                        "notifyDealer": false,
+                        "userMessage": "",
+                        "isStillActive": false,
+                        "update": false,
+                        "clearableByDealer": true,
+                        "timestampLast": null,
+                        "priority": "minor",
+                        "notifyUser": false,
+                        "clearedBy": "device",
+                        "timestampFirst": null,
+                        "equipmentType": 0,
+                        "optionalfieldData": "",
+                        "action": "clear",
+                        "optionalfieldType": "null",
+                        "clearableByUser": false,
+                        "count": 0
+                    },
+                    "maxItems": 256,
+                    "id": 0
+                }
+            ],
+            "meta": {
+                "numClearedAlerts": 0,
+                "numActiveAlerts": 0,
+                "lastClearedAlertId": 0,
+                "szClearedAlerts": 256,
+                "firstClearedAlertId": 0,
+                "numAlertsInActiveArray": 0
+            }
+        },
+        "dealers": [
+            {
+                "web": "http://www.lennoxdealer.com/",
+                "kind": "dealer",
+                "tel": "(972) 497-5000",
+                "name": "Lennox",
+                "id": 0,
+                "number": "l00001",
+                "lastUpdated": "0",
+                "address": {
+                    "streetAddress2": "**redacted**",
+                    "streetAddress1": "**redacted**",
+                    "zip": "**redacted**",
+                    "country": "**redacted**",
+                    "longitude": "**redacted**",
+                    "state": "TX",
+                    "latitude": "**redacted**",
+                    "city": "**redacted**",
+                    "publisher": {
+                        "publisherName": "unknown"
+                    }
+                },
+                "logoPath": "",
+                "email": "",
+                "publisher": {
+                    "publisherName": "unknown"
+                }
+            }
+        ],
+        "devices": [
+            {
+                "maxItems": 16,
+                "device": {
+                    "features": [
+                        {
+                            "id": 0,
+                            "feature": {
+                                "name": "control model number",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "105144-01"
+                                    }
+                                ],
+                                "fid": 8,
+                                "unit": "",
+                                "format": "nts"
+                            }
+                        },
+                        {
+                            "id": 1,
+                            "feature": {
+                                "name": "control serial number",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "A220K00436"
+                                    }
+                                ],
+                                "fid": 9,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 2,
+                            "feature": {
+                                "name": "control hardware revision",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "0211"
+                                    }
+                                ],
+                                "fid": 10,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 3,
+                            "feature": {
+                                "name": "control software revision",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "03.00.0384"
+                                    }
+                                ],
+                                "fid": 11,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 4,
+                            "feature": {
+                                "name": "Language Support",
+                                "format": "bool8",
+                                "szValues": 8,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 1,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 2,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 3,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 4,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 5,
+                                        "value": "1"
+                                    },
+                                    {
+                                        "id": 6,
+                                        "value": "1"
+                                    },
+                                    {
+                                        "id": 7,
+                                        "value": "1"
+                                    }
+                                ],
+                                "fid": 14,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 5,
+                            "feature": {
+                                "name": "Equipment Type Name",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "Thermostat"
+                                    }
+                                ],
+                                "fid": 15,
+                                "unit": ""
+                            }
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "parameter": {
+                                "name": "System Config Status",
+                                "pid": 5000,
+                                "defaultValue": "0",
+                                "enabled": false,
+                                "value": "1",
+                                "range": {
+                                    "max": "",
+                                    "min": "",
+                                    "inc": ""
+                                },
+                                "radio": {
+                                    "max": "",
+                                    "texts": [
+                                        {
+                                            "text": "",
+                                            "id": 0
+                                        }
+                                    ]
+                                },
+                                "unit": "",
+                                "string": {
+                                    "max": ""
+                                },
+                                "descriptor": "bool"
+                            },
+                            "id": 0
+                        },
+                        {
+                            "parameter": {
+                                "name": "Screen Locked",
+                                "format": "enum",
+                                "pid": 5001,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "3",
+                                    "texts": [
+                                        {
+                                            "text": "unlocked",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "partially locked",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "locked",
+                                            "id": 2
+                                        }
+                                    ]
+                                }
+                            },
+                            "id": 1
+                        },
+                        {
+                            "parameter": {
+                                "name": "Display Outdoor Weather",
+                                "pid": 5002,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "bool"
+                            },
+                            "id": 2
+                        },
+                        {
+                            "id": 3
+                        },
+                        {
+                            "parameter": {
+                                "name": "Outdoor Temperature",
+                                "format": "enum",
+                                "pid": 5004,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "2",
+                                    "texts": [
+                                        {
+                                            "text": "off",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "internet",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "sensor",
+                                            "id": 2
+                                        }
+                                    ]
+                                }
+                            },
+                            "id": 4
+                        },
+                        {
+                            "parameter": {
+                                "name": "Display Indoor Humidity",
+                                "pid": 5005,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "bool"
+                            },
+                            "id": 5
+                        },
+                        {
+                            "parameter": {
+                                "name": "Screen Saver",
+                                "format": "enum",
+                                "pid": 5006,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "4",
+                                    "texts": [
+                                        {
+                                            "text": "off",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "weather",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "power save",
+                                            "id": 2
+                                        },
+                                        {
+                                            "text": "logo",
+                                            "id": 3
+                                        }
+                                    ]
+                                }
+                            },
+                            "id": 6
+                        },
+                        {
+                            "id": 7
+                        },
+                        {
+                            "parameter": {
+                                "name": "Brightness Value",
+                                "format": "uint8",
+                                "pid": 5008,
+                                "defaultValue": "40",
+                                "enabled": true,
+                                "value": "5",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "100",
+                                    "min": "10",
+                                    "inc": "10"
+                                }
+                            },
+                            "id": 8
+                        },
+                        {
+                            "id": 9
+                        },
+                        {
+                            "parameter": {
+                                "name": "Wide Setpoint",
+                                "pid": 5010,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "bool"
+                            },
+                            "id": 10
+                        }
+                    ],
+                    "szFeatures": 5,
+                    "szParameters": 7,
+                    "deviceType": 500
+                },
+                "id": 0,
+                "publisher": {
+                    "publisherName": "unknown"
+                }
+            },
+            {
+                "id": 1
+            },
+            {
+                "id": 2
+            },
+            {
+                "id": 3
+            },
+            {
+                "device": {
+                    "szFeatures": 1,
+                    "szParameters": 0,
+                    "deviceType": 504,
+                    "features": [
+                        {
+                            "id": 0,
+                            "feature": {
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0
+                                    }
+                                ],
+                                "fid": 11
+                            }
+                        }
+                    ]
+                },
+                "id": 4
+            },
+            {
+                "device": {
+                    "szFeatures": 1,
+                    "szParameters": 0,
+                    "deviceType": 505,
+                    "features": [
+                        {
+                            "id": 0,
+                            "feature": {
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0
+                                    }
+                                ],
+                                "fid": 11
+                            }
+                        }
+                    ]
+                },
+                "id": 5
+            },
+            {
+                "device": {
+                    "szFeatures": 1,
+                    "szParameters": 4,
+                    "deviceType": 506,
+                    "features": [
+                        {
+                            "id": 0,
+                            "feature": {
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0
+                                    }
+                                ],
+                                "fid": 11
+                            }
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "parameter": {
+                                "format": "bool",
+                                "pid": 8000,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "bool"
+                            },
+                            "id": 0
+                        },
+                        {
+                            "parameter": {
+                                "format": "bool",
+                                "pid": 8001,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "bool"
+                            },
+                            "id": 1
+                        },
+                        {
+                            "parameter": {
+                                "format": "bool",
+                                "pid": 8002,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "bool"
+                            },
+                            "id": 2
+                        },
+                        {
+                            "parameter": {
+                                "format": "enum",
+                                "pid": 8003,
+                                "defaultValue": "none",
+                                "enabled": true,
+                                "value": "none",
+                                "descriptor": "string"
+                            },
+                            "id": 3
+                        }
+                    ]
+                },
+                "id": 6
+            }
+        ],
+        "equipments": [
+            {
+                "id": 0,
+                "equipment": {
+                    "szDiagnostics": 9,
+                    "features": [
+                        {
+                            "id": 0,
+                            "feature": {
+                                "name": "Subnet Controller Algorithms",
+                                "szValues": 16,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 1,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 2,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 3,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 4,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 5,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 6,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 7,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 8,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 9,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 10,
+                                        "value": "1"
+                                    },
+                                    {
+                                        "id": 11,
+                                        "value": "1"
+                                    },
+                                    {
+                                        "id": 12,
+                                        "value": "1"
+                                    },
+                                    {
+                                        "id": 13,
+                                        "value": "1"
+                                    },
+                                    {
+                                        "id": 14,
+                                        "value": "1"
+                                    },
+                                    {
+                                        "id": 15,
+                                        "value": "1"
+                                    }
+                                ],
+                                "fid": 32770,
+                                "unit": "",
+                                "format": "bool16"
+                            }
+                        },
+                        {
+                            "id": 1,
+                            "feature": {
+                                "name": "Product Type",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "M30"
+                                    }
+                                ],
+                                "fid": 32773,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 2,
+                            "feature": {
+                                "name": "Language Support",
+                                "format": "bool8",
+                                "szValues": 8,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 1,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 2,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 3,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 4,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 5,
+                                        "value": "1"
+                                    },
+                                    {
+                                        "id": 6,
+                                        "value": "1"
+                                    },
+                                    {
+                                        "id": 7,
+                                        "value": "1"
+                                    }
+                                ],
+                                "fid": 14,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 3,
+                            "feature": {
+                                "name": "Equipment Type Name",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "System"
+                                    }
+                                ],
+                                "fid": 15,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 4,
+                            "feature": {
+                                "name": "Control Software Revision",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "03.00.0384"
+                                    }
+                                ],
+                                "fid": 11,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 5,
+                            "feature": {
+                                "name": "Control Model Number",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "105144-01"
+                                    }
+                                ],
+                                "fid": 8,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 6,
+                            "feature": {
+                                "name": "Control Serial Number",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "A220K00436"
+                                    }
+                                ],
+                                "fid": 9,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 7,
+                            "feature": {
+                                "name": "Control Hardware Revision",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "0211"
+                                    }
+                                ],
+                                "fid": 10,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 8,
+                            "feature": {
+                                "name": "Protocol Revision Number",
+                                "format": "uint8",
+                                "szValues": 2,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "2"
+                                    },
+                                    {
+                                        "id": 1,
+                                        "value": "0"
+                                    }
+                                ],
+                                "fid": 12,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 9,
+                            "feature": {
+                                "name": "Device Product Level",
+                                "format": "uint8",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "190"
+                                    }
+                                ],
+                                "fid": 13,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 10,
+                            "feature": {
+                                "name": "24VAC Average Power Consumption",
+                                "format": "u16q8",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "10"
+                                    }
+                                ],
+                                "fid": 17,
+                                "unit": "W"
+                            }
+                        },
+                        {
+                            "id": 11,
+                            "feature": {
+                                "name": "24VAC Peak Power Consumption",
+                                "format": "u16q8",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "20"
+                                    }
+                                ],
+                                "fid": 16,
+                                "unit": "W"
+                            }
+                        },
+                        {
+                            "id": 12,
+                            "feature": {
+                                "name": "Compatible Devices List",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": ""
+                                    }
+                                ],
+                                "fid": 65534,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 13,
+                            "feature": {
+                                "name": "Application Code Memory Size",
+                                "format": "uint16",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "256"
+                                    }
+                                ],
+                                "fid": 65533,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 14,
+                            "feature": {
+                                "name": "Microcontroller Part Number",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "MCIMX6G2CVM05AA"
+                                    }
+                                ],
+                                "fid": 65532,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 15,
+                            "feature": {
+                                "name": "Manifest Feature Numbers",
+                                "format": "enum",
+                                "szValues": 15,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "32770"
+                                    },
+                                    {
+                                        "id": 1,
+                                        "value": "32773"
+                                    },
+                                    {
+                                        "id": 2,
+                                        "value": "14"
+                                    },
+                                    {
+                                        "id": 3,
+                                        "value": "15"
+                                    },
+                                    {
+                                        "id": 4,
+                                        "value": "11"
+                                    },
+                                    {
+                                        "id": 5,
+                                        "value": "8"
+                                    },
+                                    {
+                                        "id": 6,
+                                        "value": "9"
+                                    },
+                                    {
+                                        "id": 7,
+                                        "value": "10"
+                                    },
+                                    {
+                                        "id": 8,
+                                        "value": "12"
+                                    },
+                                    {
+                                        "id": 9,
+                                        "value": "13"
+                                    },
+                                    {
+                                        "id": 10,
+                                        "value": "17"
+                                    },
+                                    {
+                                        "id": 11,
+                                        "value": "16"
+                                    },
+                                    {
+                                        "id": 12,
+                                        "value": "65534"
+                                    },
+                                    {
+                                        "id": 13,
+                                        "value": "65533"
+                                    },
+                                    {
+                                        "id": 14,
+                                        "value": "65532"
+                                    }
+                                ],
+                                "fid": 65530,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 16,
+                            "feature": {
+                                "name": "Manifest Variable Numbers",
+                                "format": "enum",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "0"
+                                    }
+                                ],
+                                "fid": 65523,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 17,
+                            "feature": {
+                                "name": "Non-Communicating Parameter Numbers",
+                                "format": "uint32",
+                                "szValues": 60,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "72"
+                                    },
+                                    {
+                                        "id": 1,
+                                        "value": "73"
+                                    },
+                                    {
+                                        "id": 2,
+                                        "value": "102"
+                                    },
+                                    {
+                                        "id": 3,
+                                        "value": "103"
+                                    },
+                                    {
+                                        "id": 4,
+                                        "value": "107"
+                                    },
+                                    {
+                                        "id": 5,
+                                        "value": "108"
+                                    },
+                                    {
+                                        "id": 6,
+                                        "value": "166"
+                                    },
+                                    {
+                                        "id": 7,
+                                        "value": "130"
+                                    },
+                                    {
+                                        "id": 8,
+                                        "value": "523"
+                                    },
+                                    {
+                                        "id": 9,
+                                        "value": "524"
+                                    },
+                                    {
+                                        "id": 10,
+                                        "value": "146"
+                                    },
+                                    {
+                                        "id": 11,
+                                        "value": "124"
+                                    },
+                                    {
+                                        "id": 12,
+                                        "value": "125"
+                                    },
+                                    {
+                                        "id": 13,
+                                        "value": "126"
+                                    },
+                                    {
+                                        "id": 14,
+                                        "value": "147"
+                                    },
+                                    {
+                                        "id": 15,
+                                        "value": "164"
+                                    },
+                                    {
+                                        "id": 16,
+                                        "value": "149"
+                                    },
+                                    {
+                                        "id": 17,
+                                        "value": "150"
+                                    },
+                                    {
+                                        "id": 18,
+                                        "value": "151"
+                                    },
+                                    {
+                                        "id": 19,
+                                        "value": "104"
+                                    },
+                                    {
+                                        "id": 20,
+                                        "value": "163"
+                                    },
+                                    {
+                                        "id": 21,
+                                        "value": "128"
+                                    },
+                                    {
+                                        "id": 22,
+                                        "value": "129"
+                                    },
+                                    {
+                                        "id": 23,
+                                        "value": "112"
+                                    },
+                                    {
+                                        "id": 24,
+                                        "value": "219"
+                                    },
+                                    {
+                                        "id": 25,
+                                        "value": "193"
+                                    },
+                                    {
+                                        "id": 26,
+                                        "value": "194"
+                                    },
+                                    {
+                                        "id": 27,
+                                        "value": "195"
+                                    },
+                                    {
+                                        "id": 28,
+                                        "value": "205"
+                                    },
+                                    {
+                                        "id": 29,
+                                        "value": "32"
+                                    },
+                                    {
+                                        "id": 30,
+                                        "value": "320"
+                                    },
+                                    {
+                                        "id": 31,
+                                        "value": "321"
+                                    },
+                                    {
+                                        "id": 32,
+                                        "value": "322"
+                                    },
+                                    {
+                                        "id": 33,
+                                        "value": "323"
+                                    },
+                                    {
+                                        "id": 34,
+                                        "value": "324"
+                                    },
+                                    {
+                                        "id": 35,
+                                        "value": "333"
+                                    },
+                                    {
+                                        "id": 36,
+                                        "value": "325"
+                                    },
+                                    {
+                                        "id": 37,
+                                        "value": "326"
+                                    },
+                                    {
+                                        "id": 38,
+                                        "value": "327"
+                                    },
+                                    {
+                                        "id": 39,
+                                        "value": "328"
+                                    },
+                                    {
+                                        "id": 40,
+                                        "value": "329"
+                                    },
+                                    {
+                                        "id": 41,
+                                        "value": "330"
+                                    },
+                                    {
+                                        "id": 42,
+                                        "value": "331"
+                                    },
+                                    {
+                                        "id": 43,
+                                        "value": "332"
+                                    },
+                                    {
+                                        "id": 44,
+                                        "value": "34"
+                                    },
+                                    {
+                                        "id": 45,
+                                        "value": "35"
+                                    },
+                                    {
+                                        "id": 46,
+                                        "value": "36"
+                                    },
+                                    {
+                                        "id": 47,
+                                        "value": "37"
+                                    },
+                                    {
+                                        "id": 48,
+                                        "value": "38"
+                                    },
+                                    {
+                                        "id": 49,
+                                        "value": "70001"
+                                    },
+                                    {
+                                        "id": 50,
+                                        "value": "70002"
+                                    },
+                                    {
+                                        "id": 51,
+                                        "value": "70003"
+                                    },
+                                    {
+                                        "id": 52,
+                                        "value": "70005"
+                                    },
+                                    {
+                                        "id": 53,
+                                        "value": "70006"
+                                    },
+                                    {
+                                        "id": 54,
+                                        "value": "70007"
+                                    },
+                                    {
+                                        "id": 55,
+                                        "value": "70008"
+                                    },
+                                    {
+                                        "id": 56,
+                                        "value": "70009"
+                                    },
+                                    {
+                                        "id": 57,
+                                        "value": "70010"
+                                    },
+                                    {
+                                        "id": 58,
+                                        "value": "70011"
+                                    },
+                                    {
+                                        "id": 59,
+                                        "value": "0"
+                                    }
+                                ],
+                                "fid": 65525,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 18,
+                            "feature": {
+                                "name": "All Parameter Numbers",
+                                "format": "uint32",
+                                "szValues": 60,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "72"
+                                    },
+                                    {
+                                        "id": 1,
+                                        "value": "73"
+                                    },
+                                    {
+                                        "id": 2,
+                                        "value": "102"
+                                    },
+                                    {
+                                        "id": 3,
+                                        "value": "103"
+                                    },
+                                    {
+                                        "id": 4,
+                                        "value": "107"
+                                    },
+                                    {
+                                        "id": 5,
+                                        "value": "108"
+                                    },
+                                    {
+                                        "id": 6,
+                                        "value": "166"
+                                    },
+                                    {
+                                        "id": 7,
+                                        "value": "130"
+                                    },
+                                    {
+                                        "id": 8,
+                                        "value": "523"
+                                    },
+                                    {
+                                        "id": 9,
+                                        "value": "524"
+                                    },
+                                    {
+                                        "id": 10,
+                                        "value": "146"
+                                    },
+                                    {
+                                        "id": 11,
+                                        "value": "124"
+                                    },
+                                    {
+                                        "id": 12,
+                                        "value": "125"
+                                    },
+                                    {
+                                        "id": 13,
+                                        "value": "126"
+                                    },
+                                    {
+                                        "id": 14,
+                                        "value": "147"
+                                    },
+                                    {
+                                        "id": 15,
+                                        "value": "164"
+                                    },
+                                    {
+                                        "id": 16,
+                                        "value": "149"
+                                    },
+                                    {
+                                        "id": 17,
+                                        "value": "150"
+                                    },
+                                    {
+                                        "id": 18,
+                                        "value": "151"
+                                    },
+                                    {
+                                        "id": 19,
+                                        "value": "104"
+                                    },
+                                    {
+                                        "id": 20,
+                                        "value": "163"
+                                    },
+                                    {
+                                        "id": 21,
+                                        "value": "128"
+                                    },
+                                    {
+                                        "id": 22,
+                                        "value": "129"
+                                    },
+                                    {
+                                        "id": 23,
+                                        "value": "112"
+                                    },
+                                    {
+                                        "id": 24,
+                                        "value": "219"
+                                    },
+                                    {
+                                        "id": 25,
+                                        "value": "193"
+                                    },
+                                    {
+                                        "id": 26,
+                                        "value": "194"
+                                    },
+                                    {
+                                        "id": 27,
+                                        "value": "195"
+                                    },
+                                    {
+                                        "id": 28,
+                                        "value": "205"
+                                    },
+                                    {
+                                        "id": 29,
+                                        "value": "32"
+                                    },
+                                    {
+                                        "id": 30,
+                                        "value": "320"
+                                    },
+                                    {
+                                        "id": 31,
+                                        "value": "321"
+                                    },
+                                    {
+                                        "id": 32,
+                                        "value": "322"
+                                    },
+                                    {
+                                        "id": 33,
+                                        "value": "323"
+                                    },
+                                    {
+                                        "id": 34,
+                                        "value": "324"
+                                    },
+                                    {
+                                        "id": 35,
+                                        "value": "333"
+                                    },
+                                    {
+                                        "id": 36,
+                                        "value": "325"
+                                    },
+                                    {
+                                        "id": 37,
+                                        "value": "326"
+                                    },
+                                    {
+                                        "id": 38,
+                                        "value": "327"
+                                    },
+                                    {
+                                        "id": 39,
+                                        "value": "328"
+                                    },
+                                    {
+                                        "id": 40,
+                                        "value": "329"
+                                    },
+                                    {
+                                        "id": 41,
+                                        "value": "330"
+                                    },
+                                    {
+                                        "id": 42,
+                                        "value": "331"
+                                    },
+                                    {
+                                        "id": 43,
+                                        "value": "332"
+                                    },
+                                    {
+                                        "id": 44,
+                                        "value": "34"
+                                    },
+                                    {
+                                        "id": 45,
+                                        "value": "35"
+                                    },
+                                    {
+                                        "id": 46,
+                                        "value": "36"
+                                    },
+                                    {
+                                        "id": 47,
+                                        "value": "37"
+                                    },
+                                    {
+                                        "id": 48,
+                                        "value": "38"
+                                    },
+                                    {
+                                        "id": 49,
+                                        "value": "70001"
+                                    },
+                                    {
+                                        "id": 50,
+                                        "value": "70002"
+                                    },
+                                    {
+                                        "id": 51,
+                                        "value": "70003"
+                                    },
+                                    {
+                                        "id": 52,
+                                        "value": "70005"
+                                    },
+                                    {
+                                        "id": 53,
+                                        "value": "70006"
+                                    },
+                                    {
+                                        "id": 54,
+                                        "value": "70007"
+                                    },
+                                    {
+                                        "id": 55,
+                                        "value": "70008"
+                                    },
+                                    {
+                                        "id": 56,
+                                        "value": "70009"
+                                    },
+                                    {
+                                        "id": 57,
+                                        "value": "70010"
+                                    },
+                                    {
+                                        "id": 58,
+                                        "value": "70011"
+                                    },
+                                    {
+                                        "id": 59,
+                                        "value": "0"
+                                    }
+                                ],
+                                "fid": 65527,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 19,
+                            "feature": {
+                                "name": "Manifest Parameter Numbers",
+                                "format": "uint32",
+                                "szValues": 60,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "72"
+                                    },
+                                    {
+                                        "id": 1,
+                                        "value": "73"
+                                    },
+                                    {
+                                        "id": 2,
+                                        "value": "102"
+                                    },
+                                    {
+                                        "id": 3,
+                                        "value": "103"
+                                    },
+                                    {
+                                        "id": 4,
+                                        "value": "107"
+                                    },
+                                    {
+                                        "id": 5,
+                                        "value": "108"
+                                    },
+                                    {
+                                        "id": 6,
+                                        "value": "166"
+                                    },
+                                    {
+                                        "id": 7,
+                                        "value": "130"
+                                    },
+                                    {
+                                        "id": 8,
+                                        "value": "523"
+                                    },
+                                    {
+                                        "id": 9,
+                                        "value": "524"
+                                    },
+                                    {
+                                        "id": 10,
+                                        "value": "146"
+                                    },
+                                    {
+                                        "id": 11,
+                                        "value": "124"
+                                    },
+                                    {
+                                        "id": 12,
+                                        "value": "125"
+                                    },
+                                    {
+                                        "id": 13,
+                                        "value": "126"
+                                    },
+                                    {
+                                        "id": 14,
+                                        "value": "147"
+                                    },
+                                    {
+                                        "id": 15,
+                                        "value": "164"
+                                    },
+                                    {
+                                        "id": 16,
+                                        "value": "149"
+                                    },
+                                    {
+                                        "id": 17,
+                                        "value": "150"
+                                    },
+                                    {
+                                        "id": 18,
+                                        "value": "151"
+                                    },
+                                    {
+                                        "id": 19,
+                                        "value": "104"
+                                    },
+                                    {
+                                        "id": 20,
+                                        "value": "163"
+                                    },
+                                    {
+                                        "id": 21,
+                                        "value": "128"
+                                    },
+                                    {
+                                        "id": 22,
+                                        "value": "129"
+                                    },
+                                    {
+                                        "id": 23,
+                                        "value": "112"
+                                    },
+                                    {
+                                        "id": 24,
+                                        "value": "219"
+                                    },
+                                    {
+                                        "id": 25,
+                                        "value": "193"
+                                    },
+                                    {
+                                        "id": 26,
+                                        "value": "194"
+                                    },
+                                    {
+                                        "id": 27,
+                                        "value": "195"
+                                    },
+                                    {
+                                        "id": 28,
+                                        "value": "205"
+                                    },
+                                    {
+                                        "id": 29,
+                                        "value": "32"
+                                    },
+                                    {
+                                        "id": 30,
+                                        "value": "320"
+                                    },
+                                    {
+                                        "id": 31,
+                                        "value": "321"
+                                    },
+                                    {
+                                        "id": 32,
+                                        "value": "322"
+                                    },
+                                    {
+                                        "id": 33,
+                                        "value": "323"
+                                    },
+                                    {
+                                        "id": 34,
+                                        "value": "324"
+                                    },
+                                    {
+                                        "id": 35,
+                                        "value": "333"
+                                    },
+                                    {
+                                        "id": 36,
+                                        "value": "325"
+                                    },
+                                    {
+                                        "id": 37,
+                                        "value": "326"
+                                    },
+                                    {
+                                        "id": 38,
+                                        "value": "327"
+                                    },
+                                    {
+                                        "id": 39,
+                                        "value": "328"
+                                    },
+                                    {
+                                        "id": 40,
+                                        "value": "329"
+                                    },
+                                    {
+                                        "id": 41,
+                                        "value": "330"
+                                    },
+                                    {
+                                        "id": 42,
+                                        "value": "331"
+                                    },
+                                    {
+                                        "id": 43,
+                                        "value": "332"
+                                    },
+                                    {
+                                        "id": 44,
+                                        "value": "34"
+                                    },
+                                    {
+                                        "id": 45,
+                                        "value": "35"
+                                    },
+                                    {
+                                        "id": 46,
+                                        "value": "36"
+                                    },
+                                    {
+                                        "id": 47,
+                                        "value": "37"
+                                    },
+                                    {
+                                        "id": 48,
+                                        "value": "38"
+                                    },
+                                    {
+                                        "id": 49,
+                                        "value": "70001"
+                                    },
+                                    {
+                                        "id": 50,
+                                        "value": "70002"
+                                    },
+                                    {
+                                        "id": 51,
+                                        "value": "70003"
+                                    },
+                                    {
+                                        "id": 52,
+                                        "value": "70005"
+                                    },
+                                    {
+                                        "id": 53,
+                                        "value": "70006"
+                                    },
+                                    {
+                                        "id": 54,
+                                        "value": "70007"
+                                    },
+                                    {
+                                        "id": 55,
+                                        "value": "70008"
+                                    },
+                                    {
+                                        "id": 56,
+                                        "value": "70009"
+                                    },
+                                    {
+                                        "id": 57,
+                                        "value": "70010"
+                                    },
+                                    {
+                                        "id": 58,
+                                        "value": "70011"
+                                    },
+                                    {
+                                        "id": 59,
+                                        "value": "0"
+                                    }
+                                ],
+                                "fid": 65526,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 20,
+                            "feature": {
+                                "name": "All Feature Numbers",
+                                "format": "enum",
+                                "szValues": 21,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "32770"
+                                    },
+                                    {
+                                        "id": 1,
+                                        "value": "32773"
+                                    },
+                                    {
+                                        "id": 2,
+                                        "value": "14"
+                                    },
+                                    {
+                                        "id": 3,
+                                        "value": "15"
+                                    },
+                                    {
+                                        "id": 4,
+                                        "value": "11"
+                                    },
+                                    {
+                                        "id": 5,
+                                        "value": "8"
+                                    },
+                                    {
+                                        "id": 6,
+                                        "value": "9"
+                                    },
+                                    {
+                                        "id": 7,
+                                        "value": "10"
+                                    },
+                                    {
+                                        "id": 8,
+                                        "value": "12"
+                                    },
+                                    {
+                                        "id": 9,
+                                        "value": "13"
+                                    },
+                                    {
+                                        "id": 10,
+                                        "value": "17"
+                                    },
+                                    {
+                                        "id": 11,
+                                        "value": "16"
+                                    },
+                                    {
+                                        "id": 12,
+                                        "value": "65534"
+                                    },
+                                    {
+                                        "id": 13,
+                                        "value": "65533"
+                                    },
+                                    {
+                                        "id": 14,
+                                        "value": "65532"
+                                    },
+                                    {
+                                        "id": 15,
+                                        "value": "65530"
+                                    },
+                                    {
+                                        "id": 16,
+                                        "value": "65523"
+                                    },
+                                    {
+                                        "id": 17,
+                                        "value": "65525"
+                                    },
+                                    {
+                                        "id": 18,
+                                        "value": "65527"
+                                    },
+                                    {
+                                        "id": 19,
+                                        "value": "65526"
+                                    },
+                                    {
+                                        "id": 20,
+                                        "value": "65531"
+                                    }
+                                ],
+                                "fid": 65531,
+                                "unit": ""
+                            }
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "parameter": {
+                                "name": "Temp Reading Calibration",
+                                "pid": 72,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "range": {
+                                    "max": "5",
+                                    "min": "-5",
+                                    "inc": "0.5"
+                                },
+                                "radio": {
+                                    "max": "",
+                                    "texts": [
+                                        {
+                                            "text": "",
+                                            "id": 0
+                                        }
+                                    ]
+                                },
+                                "unit": "F",
+                                "string": {
+                                    "max": ""
+                                },
+                                "format": "16q4",
+                                "descriptor": "range"
+                            },
+                            "id": 0
+                        },
+                        {
+                            "parameter": {
+                                "name": "Humidity Reading Calibration",
+                                "format": "int8",
+                                "pid": 73,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "10",
+                                    "min": "-10",
+                                    "inc": "1"
+                                },
+                                "unit": "%"
+                            },
+                            "id": 1
+                        },
+                        {
+                            "parameter": {
+                                "name": "Max Humidification Setpoint",
+                                "format": "0p5",
+                                "pid": 102,
+                                "defaultValue": "45",
+                                "enabled": false,
+                                "value": "45",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "45",
+                                    "min": "15",
+                                    "inc": "1"
+                                },
+                                "unit": "%"
+                            },
+                            "id": 2
+                        },
+                        {
+                            "parameter": {
+                                "name": "Min Dehumidification Setpoint",
+                                "format": "0p5",
+                                "pid": 103,
+                                "defaultValue": "40",
+                                "enabled": false,
+                                "value": "40",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "60",
+                                    "min": "40",
+                                    "inc": "1"
+                                },
+                                "unit": "%"
+                            },
+                            "id": 3
+                        },
+                        {
+                            "parameter": {
+                                "name": "Dehumidification Control Mode",
+                                "format": "uint8",
+                                "pid": 107,
+                                "defaultValue": "0",
+                                "enabled": false,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "2",
+                                    "texts": [
+                                        {
+                                            "text": "Display Only",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Basic",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "Precision",
+                                            "id": 2
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 4
+                        },
+                        {
+                            "parameter": {
+                                "name": "Humidification Control Mode",
+                                "format": "uint8",
+                                "pid": 108,
+                                "defaultValue": "0",
+                                "enabled": false,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "4",
+                                    "texts": [
+                                        {
+                                            "text": "Display Only",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Basic",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "Precision",
+                                            "id": 2
+                                        },
+                                        {
+                                            "text": "Basic Dew Point Control",
+                                            "id": 3
+                                        },
+                                        {
+                                            "text": "Precision Dew Point Control",
+                                            "id": 4
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 5
+                        },
+                        {
+                            "parameter": {
+                                "name": "Dew Point Adjustment",
+                                "format": "int8",
+                                "pid": 166,
+                                "defaultValue": "0",
+                                "enabled": false,
+                                "value": "0",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "15",
+                                    "min": "-15",
+                                    "inc": "1"
+                                },
+                                "unit": "%"
+                            },
+                            "id": 6
+                        },
+                        {
+                            "parameter": {
+                                "name": "Smooth Setback Recovery",
+                                "format": "uint8",
+                                "pid": 130,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "1",
+                                    "texts": [
+                                        {
+                                            "text": "Disabled",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Enabled",
+                                            "id": 1
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 7
+                        },
+                        {
+                            "parameter": {
+                                "name": "Temperature Control Mode",
+                                "format": "uint8",
+                                "pid": 523,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "1",
+                                    "texts": [
+                                        {
+                                            "text": "Normal",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Comfort",
+                                            "id": 1
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 8
+                        },
+                        {
+                            "parameter": {
+                                "name": "Wall Insulation",
+                                "format": "uint8",
+                                "pid": 524,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "2",
+                                    "texts": [
+                                        {
+                                            "text": "Poor",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Average",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "Good",
+                                            "id": 2
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 9
+                        },
+                        {
+                            "parameter": {
+                                "name": "Heat Cool Stages Locked In",
+                                "format": "uint8",
+                                "pid": 146,
+                                "defaultValue": "1",
+                                "enabled": false,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "1",
+                                    "texts": [
+                                        {
+                                            "text": "Disabled",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Enabled",
+                                            "id": 1
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 10
+                        },
+                        {
+                            "parameter": {
+                                "name": "1st Stage Differential",
+                                "format": "0_5",
+                                "pid": 124,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "3",
+                                    "min": "0.5",
+                                    "inc": "0.5"
+                                },
+                                "unit": "F"
+                            },
+                            "id": 11
+                        },
+                        {
+                            "parameter": {
+                                "name": "2nd Stage Differential",
+                                "format": "0_5",
+                                "pid": 125,
+                                "defaultValue": "1",
+                                "enabled": false,
+                                "value": "1",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "8",
+                                    "min": "0.5",
+                                    "inc": "0.5"
+                                },
+                                "unit": "F"
+                            },
+                            "id": 12
+                        },
+                        {
+                            "parameter": {
+                                "name": "3rd Stage Differential",
+                                "format": "0_5",
+                                "pid": 126,
+                                "defaultValue": "0.5",
+                                "enabled": false,
+                                "value": "0.5",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "8",
+                                    "min": "0.5",
+                                    "inc": "0.5"
+                                },
+                                "unit": "F"
+                            },
+                            "id": 13
+                        },
+                        {
+                            "parameter": {
+                                "name": "4th Stage Differential",
+                                "format": "0_5",
+                                "pid": 147,
+                                "defaultValue": "0.5",
+                                "enabled": false,
+                                "value": "0.5",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "8",
+                                    "min": "0.5",
+                                    "inc": "0.5"
+                                },
+                                "unit": "F"
+                            },
+                            "id": 14
+                        },
+                        {
+                            "parameter": {
+                                "name": "Staged Delay Timers",
+                                "format": "uint8",
+                                "pid": 164,
+                                "defaultValue": "1",
+                                "enabled": false,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "1",
+                                    "texts": [
+                                        {
+                                            "text": "Disabled",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Enabled",
+                                            "id": 1
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 15
+                        },
+                        {
+                            "parameter": {
+                                "name": "2nd Stage Delay",
+                                "format": "uint8",
+                                "pid": 149,
+                                "defaultValue": "20",
+                                "enabled": false,
+                                "value": "20",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "120",
+                                    "min": "5",
+                                    "inc": "5"
+                                },
+                                "unit": "min"
+                            },
+                            "id": 16
+                        },
+                        {
+                            "parameter": {
+                                "name": "3rd Stage Delay",
+                                "format": "uint8",
+                                "pid": 150,
+                                "defaultValue": "20",
+                                "enabled": false,
+                                "value": "20",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "120",
+                                    "min": "5",
+                                    "inc": "5"
+                                },
+                                "unit": "min"
+                            },
+                            "id": 17
+                        },
+                        {
+                            "parameter": {
+                                "name": "4th Stage Delay",
+                                "format": "uint8",
+                                "pid": 151,
+                                "defaultValue": "20",
+                                "enabled": false,
+                                "value": "20",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "120",
+                                    "min": "5",
+                                    "inc": "5"
+                                },
+                                "unit": "min"
+                            },
+                            "id": 18
+                        },
+                        {
+                            "parameter": {
+                                "name": "Auto Changeover - Temp Deadband",
+                                "format": "uint8",
+                                "pid": 104,
+                                "defaultValue": "3",
+                                "enabled": true,
+                                "value": "3",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "9",
+                                    "min": "3",
+                                    "inc": "1"
+                                },
+                                "unit": "F"
+                            },
+                            "id": 19
+                        },
+                        {
+                            "parameter": {
+                                "name": "Balance Point Control",
+                                "format": "uint8",
+                                "pid": 163,
+                                "defaultValue": "0",
+                                "enabled": false,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "1",
+                                    "texts": [
+                                        {
+                                            "text": "Disabled",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Enabled",
+                                            "id": 1
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 20
+                        },
+                        {
+                            "parameter": {
+                                "name": "High Balance Point",
+                                "format": "int8",
+                                "pid": 128,
+                                "defaultValue": "50",
+                                "enabled": false,
+                                "value": "50",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "75",
+                                    "min": "-17",
+                                    "inc": "1"
+                                },
+                                "unit": "F"
+                            },
+                            "id": 21
+                        },
+                        {
+                            "parameter": {
+                                "name": "Low Balance Point",
+                                "format": "int8",
+                                "pid": 129,
+                                "defaultValue": "25",
+                                "enabled": false,
+                                "value": "25",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "72",
+                                    "min": "-20",
+                                    "inc": "1"
+                                },
+                                "unit": "F"
+                            },
+                            "id": 22
+                        },
+                        {
+                            "parameter": {
+                                "name": "Lock In 2nd stage HP by OutdoorTemp",
+                                "format": "uint8",
+                                "pid": 112,
+                                "defaultValue": "0",
+                                "enabled": false,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "4",
+                                    "texts": [
+                                        {
+                                            "text": "Off",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "40F (4C)",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "45F (7C)",
+                                            "id": 2
+                                        },
+                                        {
+                                            "text": "50F (10C)",
+                                            "id": 3
+                                        },
+                                        {
+                                            "text": "55F (13C)",
+                                            "id": 4
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 23
+                        },
+                        {
+                            "parameter": {
+                                "name": "Overcooling",
+                                "format": "0_5",
+                                "pid": 219,
+                                "defaultValue": "4",
+                                "enabled": false,
+                                "value": "4",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "10",
+                                    "min": "0",
+                                    "inc": "1"
+                                },
+                                "unit": "%"
+                            },
+                            "id": 24
+                        },
+                        {
+                            "parameter": {
+                                "name": "Severe Weather Protection",
+                                "format": "uint8",
+                                "pid": 193,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "1",
+                                    "texts": [
+                                        {
+                                            "text": "Disabled",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Enabled",
+                                            "id": 1
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 25
+                        },
+                        {
+                            "parameter": {
+                                "name": "Heat Alert Temperature",
+                                "format": "16q4",
+                                "pid": 194,
+                                "defaultValue": "90",
+                                "enabled": false,
+                                "value": "83",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "100",
+                                    "min": "80",
+                                    "inc": "1"
+                                },
+                                "unit": "F"
+                            },
+                            "id": 26
+                        },
+                        {
+                            "parameter": {
+                                "name": "Freezing Alert Temperature",
+                                "format": "16q4",
+                                "pid": 195,
+                                "defaultValue": "40",
+                                "enabled": false,
+                                "value": "50",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "50",
+                                    "min": "30",
+                                    "inc": "1"
+                                },
+                                "unit": "F"
+                            },
+                            "id": 27
+                        },
+                        {
+                            "parameter": {
+                                "name": "Smart Alert",
+                                "format": "uint8",
+                                "pid": 205,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "3",
+                                    "texts": [
+                                        {
+                                            "text": "Disabled",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Conservative",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "Medium",
+                                            "id": 2
+                                        },
+                                        {
+                                            "text": "Aggressive",
+                                            "id": 3
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 28
+                        },
+                        {
+                            "parameter": {
+                                "name": "Ventilator Type",
+                                "format": "uint8",
+                                "pid": 32,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "3",
+                                    "texts": [
+                                        {
+                                            "text": "None",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Fresh Air Damper",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "1 speed HRV",
+                                            "id": 2
+                                        },
+                                        {
+                                            "text": "1 speed ERV",
+                                            "id": 3
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 29
+                        },
+                        {
+                            "parameter": {
+                                "name": "Ventilation Control Mode",
+                                "format": "uint8",
+                                "pid": 320,
+                                "defaultValue": "1",
+                                "enabled": false,
+                                "value": "1",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "1",
+                                    "texts": [
+                                        {
+                                            "text": "timed",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "ASHRAE",
+                                            "id": 1
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 30
+                        },
+                        {
+                            "parameter": {
+                                "name": "Ventilation Minutes Per Hour",
+                                "format": "uint8",
+                                "pid": 321,
+                                "defaultValue": "20",
+                                "enabled": false,
+                                "value": "20",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "60",
+                                    "min": "0",
+                                    "inc": "1"
+                                },
+                                "unit": "min"
+                            },
+                            "id": 31
+                        },
+                        {
+                            "parameter": {
+                                "name": "Ventilation Rate for HRV/ERV",
+                                "format": "uint16",
+                                "pid": 322,
+                                "defaultValue": "130",
+                                "enabled": false,
+                                "value": "130",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "500",
+                                    "min": "20",
+                                    "inc": "1"
+                                },
+                                "unit": "CFM"
+                            },
+                            "id": 32
+                        },
+                        {
+                            "parameter": {
+                                "name": "Ventilation Rate for Low Speed HRV/ERV",
+                                "format": "uint16",
+                                "pid": 323,
+                                "defaultValue": "50",
+                                "enabled": false,
+                                "value": "50",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "200",
+                                    "min": "10",
+                                    "inc": "1"
+                                },
+                                "unit": "CFM"
+                            },
+                            "id": 33
+                        },
+                        {
+                            "parameter": {
+                                "name": "Ventilation Rate for High Speed HRV/ERV",
+                                "format": "uint16",
+                                "pid": 324,
+                                "defaultValue": "130",
+                                "enabled": false,
+                                "value": "130",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "500",
+                                    "min": "20",
+                                    "inc": "1"
+                                },
+                                "unit": "CFM"
+                            },
+                            "id": 34
+                        },
+                        {
+                            "parameter": {
+                                "name": "Fresh Air Damper Ventilation CFM",
+                                "format": "uint16",
+                                "pid": 333,
+                                "defaultValue": "75",
+                                "enabled": false,
+                                "value": "75",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "250",
+                                    "min": "20",
+                                    "inc": "1"
+                                },
+                                "unit": "CFM"
+                            },
+                            "id": 35
+                        },
+                        {
+                            "parameter": {
+                                "name": "Ventilation Outdoor Condition Override",
+                                "format": "uint8",
+                                "pid": 325,
+                                "defaultValue": "0",
+                                "enabled": false,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "1",
+                                    "texts": [
+                                        {
+                                            "text": "Disabled",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Enabled",
+                                            "id": 1
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 36
+                        },
+                        {
+                            "parameter": {
+                                "name": "Ventilation High Outdoor Temperature Limit",
+                                "format": "16q4",
+                                "pid": 326,
+                                "defaultValue": "100",
+                                "enabled": false,
+                                "value": "100",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "115",
+                                    "min": "60",
+                                    "inc": "5"
+                                },
+                                "unit": "F"
+                            },
+                            "id": 37
+                        },
+                        {
+                            "parameter": {
+                                "name": "Ventilation Low Outdoor Temperature Limit",
+                                "format": "16q4",
+                                "pid": 327,
+                                "defaultValue": "0",
+                                "enabled": false,
+                                "value": "0",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "55",
+                                    "min": "-20",
+                                    "inc": "5"
+                                },
+                                "unit": "F"
+                            },
+                            "id": 38
+                        },
+                        {
+                            "parameter": {
+                                "name": "Ventilation High Outdoor Dew Point Limit",
+                                "format": "16q4",
+                                "pid": 328,
+                                "defaultValue": "55",
+                                "enabled": false,
+                                "value": "55",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "80",
+                                    "min": "45",
+                                    "inc": "5"
+                                },
+                                "unit": "F"
+                            },
+                            "id": 39
+                        },
+                        {
+                            "parameter": {
+                                "name": "ASHRAE Compliance Check",
+                                "format": "nts",
+                                "pid": 329,
+                                "defaultValue": "no issue found",
+                                "enabled": false,
+                                "value": "no issue found",
+                                "descriptor": "string",
+                                "unit": "",
+                                "string": {
+                                    "max": "128"
+                                }
+                            },
+                            "id": 40
+                        },
+                        {
+                            "parameter": {
+                                "name": "ASHRAE Infiltration Credit",
+                                "format": "uint16",
+                                "pid": 330,
+                                "defaultValue": "0",
+                                "enabled": false,
+                                "value": "0",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "200",
+                                    "min": "0",
+                                    "inc": "1"
+                                },
+                                "unit": "CFM"
+                            },
+                            "id": 41
+                        },
+                        {
+                            "parameter": {
+                                "name": "ASHRAE House Floor Area Serviced by This Ventilator",
+                                "format": "uint16",
+                                "pid": 331,
+                                "defaultValue": "2500",
+                                "enabled": false,
+                                "value": "2500",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "5000",
+                                    "min": "500",
+                                    "inc": "100"
+                                },
+                                "unit": "sqft"
+                            },
+                            "id": 42
+                        },
+                        {
+                            "parameter": {
+                                "name": "ASHRAE Number of Bedrooms",
+                                "format": "uint8",
+                                "pid": 332,
+                                "defaultValue": "3",
+                                "enabled": false,
+                                "value": "3",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "10",
+                                    "min": "1",
+                                    "inc": "1"
+                                },
+                                "unit": ""
+                            },
+                            "id": 43
+                        },
+                        {
+                            "parameter": {
+                                "name": "Outdoor Unit Type",
+                                "format": "uint8",
+                                "pid": 34,
+                                "defaultValue": "3",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "4",
+                                    "texts": [
+                                        {
+                                            "text": "Not Installed",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "1 Stage A/C Unit",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "2 Stage A/C Unit",
+                                            "id": 2
+                                        },
+                                        {
+                                            "text": "1 Stage HP Unit",
+                                            "id": 3
+                                        },
+                                        {
+                                            "text": "2 Stage HP Unit",
+                                            "id": 4
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 44
+                        },
+                        {
+                            "parameter": {
+                                "name": "Outdoor Unit Capacity",
+                                "format": "u16q4",
+                                "pid": 35,
+                                "defaultValue": "36",
+                                "enabled": true,
+                                "value": "41",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "60",
+                                    "min": "18",
+                                    "inc": "1"
+                                },
+                                "unit": "kBTU"
+                            },
+                            "id": 45
+                        },
+                        {
+                            "parameter": {
+                                "name": "Outdoor Unit 1st Stage Capacity",
+                                "format": "0p5",
+                                "pid": 36,
+                                "defaultValue": "70",
+                                "enabled": false,
+                                "value": "70",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "100",
+                                    "min": "30",
+                                    "inc": "1"
+                                },
+                                "unit": "%"
+                            },
+                            "id": 46
+                        },
+                        {
+                            "parameter": {
+                                "name": "Humidifier",
+                                "format": "uint8",
+                                "pid": 37,
+                                "defaultValue": "0",
+                                "enabled": false,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "1",
+                                    "texts": [
+                                        {
+                                            "text": "Not Installed",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Humidification",
+                                            "id": 1
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 47
+                        },
+                        {
+                            "parameter": {
+                                "name": "Dehumidifier",
+                                "format": "uint8",
+                                "pid": 38,
+                                "defaultValue": "0",
+                                "enabled": false,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "4",
+                                    "texts": [
+                                        {
+                                            "text": "Not Installed",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Humiditrol - Min",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "Humiditrol - Mid",
+                                            "id": 2
+                                        },
+                                        {
+                                            "text": "Humiditrol - Max",
+                                            "id": 3
+                                        },
+                                        {
+                                            "text": "Auxiliary Dehumidifier",
+                                            "id": 4
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 48
+                        },
+                        {
+                            "parameter": {
+                                "name": "Outdoor Sensor",
+                                "format": "uint8",
+                                "pid": 70001,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "1",
+                                    "texts": [
+                                        {
+                                            "text": "No",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Yes",
+                                            "id": 1
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 49
+                        },
+                        {
+                            "parameter": {
+                                "name": "Country/Region",
+                                "format": "uint8",
+                                "pid": 70002,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "2",
+                                    "texts": [
+                                        {
+                                            "text": "United States",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Canada",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "Australia",
+                                            "id": 2
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 50
+                        },
+                        {
+                            "parameter": {
+                                "name": "Residual Cool",
+                                "format": "uint8",
+                                "pid": 70003,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "5",
+                                    "texts": [
+                                        {
+                                            "text": "0",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "30",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "60",
+                                            "id": 2
+                                        },
+                                        {
+                                            "text": "90",
+                                            "id": 3
+                                        },
+                                        {
+                                            "text": "120",
+                                            "id": 4
+                                        },
+                                        {
+                                            "text": "-300(5min delayed)",
+                                            "id": 5
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 51
+                        },
+                        {
+                            "parameter": {
+                                "name": "Compressor Protect",
+                                "format": "uint8",
+                                "pid": 70005,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "1",
+                                    "texts": [
+                                        {
+                                            "text": "Off",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "On",
+                                            "id": 1
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 52
+                        },
+                        {
+                            "parameter": {
+                                "name": "Performance Report",
+                                "format": "uint8",
+                                "pid": 70006,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "1",
+                                    "texts": [
+                                        {
+                                            "text": "Off",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "On",
+                                            "id": 1
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 53
+                        },
+                        {
+                            "parameter": {
+                                "name": "H/D(Humidification/Dehumidification)",
+                                "format": "uint8",
+                                "pid": 70007,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "2",
+                                    "texts": [
+                                        {
+                                            "text": "Off",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Humidify",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "Dehumidify",
+                                            "id": 2
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 54
+                        },
+                        {
+                            "parameter": {
+                                "name": "ACC(Accessory)",
+                                "format": "uint8",
+                                "pid": 70008,
+                                "defaultValue": "2",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "3",
+                                    "texts": [
+                                        {
+                                            "text": "Off",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Humidify",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "Dehumidify",
+                                            "id": 2
+                                        },
+                                        {
+                                            "text": "Ventilation",
+                                            "id": 3
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 55
+                        },
+                        {
+                            "parameter": {
+                                "name": "O/B(Cooling/Heating)",
+                                "format": "uint8",
+                                "pid": 70009,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "1",
+                                    "texts": [
+                                        {
+                                            "text": "O(Cooling)",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "B(Heating)",
+                                            "id": 1
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 56
+                        },
+                        {
+                            "parameter": {
+                                "name": "Indoor Unit Type",
+                                "format": "uint8",
+                                "pid": 70010,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "5",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "6",
+                                    "texts": [
+                                        {
+                                            "text": "Not Installed",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "1 Stage Electric",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "2 Stage Electric",
+                                            "id": 2
+                                        },
+                                        {
+                                            "text": "1 Stage Oil",
+                                            "id": 3
+                                        },
+                                        {
+                                            "text": "2 Stage Oil",
+                                            "id": 4
+                                        },
+                                        {
+                                            "text": "1 Stage Gas",
+                                            "id": 5
+                                        },
+                                        {
+                                            "text": "2 Stage Gas",
+                                            "id": 6
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 57
+                        },
+                        {
+                            "parameter": {
+                                "name": "relay setting to work Fresh Air Damper",
+                                "format": "uint8",
+                                "pid": 70011,
+                                "defaultValue": "0",
+                                "enabled": false,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "1",
+                                    "texts": [
+                                        {
+                                            "text": "Closed",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "Opened",
+                                            "id": 1
+                                        }
+                                    ]
+                                },
+                                "unit": ""
+                            },
+                            "id": 58
+                        }
+                    ],
+                    "szFeatures": 21,
+                    "szParameters": 59,
+                    "diagnostics": [
+                        {
+                            "id": 0,
+                            "diagnostic": {
+                                "name": "W1 Relay Status",
+                                "value": "waiting...",
+                                "valid": false,
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 1,
+                            "diagnostic": {
+                                "value": "waiting...",
+                                "name": "W2 Relay Status",
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 2,
+                            "diagnostic": {
+                                "value": "waiting...",
+                                "name": "Y1 Relay Status",
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 3,
+                            "diagnostic": {
+                                "value": "waiting...",
+                                "name": "Y2 Relay Status",
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 4,
+                            "diagnostic": {
+                                "value": "waiting...",
+                                "name": "O Relay Status",
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 5,
+                            "diagnostic": {
+                                "value": "waiting...",
+                                "name": "G Relay Status",
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 6,
+                            "diagnostic": {
+                                "value": "waiting...",
+                                "name": "Humidification Relay Status",
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 7,
+                            "diagnostic": {
+                                "value": "waiting...",
+                                "name": "Dehumidification Relay Status",
+                                "unit": ""
+                            }
+                        },
+                        {
+                            "id": 8,
+                            "diagnostic": {
+                                "value": "waiting...",
+                                "name": "Ventilation Relay Status",
+                                "unit": ""
+                            }
+                        }
+                    ],
+                    "equipType": 0
+                },
+                "publisher": {
+                    "publisherName": "unknown"
+                }
+            }
+        ],
+        "fwm": {
+            "fwmdownloadinfo": [
+                {
+                    "currentbytes": 0,
+                    "src": "",
+                    "Qid": 0,
+                    "dst": "",
+                    "percentagedownload": 0,
+                    "totalbytes": 0,
+                    "id": 0
+                }
+            ],
+            "fwmversiondetails": [
+                {
+                    "major": 0,
+                    "timeOfUpdate": 0,
+                    "description": "",
+                    "deviceModel": "",
+                    "build": 0,
+                    "id": 0,
+                    "minor": 0,
+                    "size": 0
+                }
+            ],
+            "fwmusbupdate": {
+                "fw_USB_available": false,
+                "packagedetails": [
+                    {
+                        "major": 0,
+                        "description": "",
+                        "deviceModel": "",
+                        "build": 0,
+                        "path": "",
+                        "id": 0,
+                        "minor": 0,
+                        "size": 0
+                    }
+                ],
+                "fw_USB_authorized": false
+            },
+            "fwminternal": {
+                "stop_dl": false,
+                "devPend": 0
+            },
+            "fwmalarminfo": {
+                "alarminfo": [
+                    {
+                        "id": 0,
+                        "tstat_alarm_msg": ""
+                    }
+                ]
+            },
+            "fwmdevimagesInt": [
+                {
+                    "major": 0,
+                    "description": "",
+                    "deviceModel": "",
+                    "build": 0,
+                    "path": "",
+                    "id": 0,
+                    "minor": 0,
+                    "size": 0
+                }
+            ],
+            "fwmdevimages": {
+                "binary": [
+                    {
+                        "id": 0,
+                        "path": "",
+                        "size": 0
+                    }
+                ]
+            },
+            "fwmAutoOn": {
+                "auto_on": true
+            },
+            "publisher": {
+                "publisherName": "unknown"
+            },
+            "fwmFiles": [
+                {
+                    "major": 0,
+                    "description": "",
+                    "deviceModel": "",
+                    "build": 0,
+                    "path": "",
+                    "id": 0,
+                    "minor": 0,
+                    "size": 0
+                }
+            ],
+            "fwmUsbDlInfo": {
+                "percentagedownload": 0
+            },
+            "fwmdevupdate": {
+                "path": "",
+                "progress": 0,
+                "id": 0
+            },
+            "fwmUI": {
+                "usb_updatereq": false,
+                "flashLED": false,
+                "check_fw": false
+            }
+        },
+        "ocst": {
+            "isPeakPriceEventsSupported": true,
+            "utilityDemands": {
+                "events": [
+                    {
+                        "id": 0,
+                        "event": {
+                            "eventID": "",
+                            "optType": "optIn",
+                            "signals": [
+                                {
+                                    "signal": {
+                                        "intervals": [
+                                            {
+                                                "interval": {
+                                                    "duration": 0,
+                                                    "signalValueIndex": 0,
+                                                    "signalValue": 0
+                                                },
+                                                "id": 0
+                                            }
+                                        ],
+                                        "signalType": "NONE",
+                                        "signalName": "NONE"
+                                    },
+                                    "id": 0
+                                }
+                            ],
+                            "eid": 0,
+                            "startTime": "",
+                            "duration": 0,
+                            "userOptOut": "",
+                            "eventStatus": "notStarted"
+                        }
+                    }
+                ],
+                "utilityActiveEventId": -1
+            },
+            "certificateManagement": {
+                "config": {
+                    "doCertificateDownload": "do",
+                    "clearErrorCode": false
+                },
+                "status": {
+                    "certFingerPrint": {
+                        "fingerPrintSha256": "",
+                        "fingerPrintSha1": ""
+                    },
+                    "exchangeCertificateInProgress": false,
+                    "isCertificatePresent": false,
+                    "isCertificateVerified": false,
+                    "dcwDiscovery": "unKnown",
+                    "certificateType": "unKnown",
+                    "certificateDownloadStatus": "unKnown"
+                }
+            },
+            "eventConfig": {
+                "priceEventSetPoint": {
+                    "eventSetPointOffset": 4,
+                    "eventSetPointOption": "peak_price_event_setpoint_option_offset",
+                    "eventSetPointOffsetC": 2,
+                    "defaultEventSp": {
+                        "defaultEventCspC": 27.5,
+                        "defaultEventCsp": 82,
+                        "defaultEventHsp": 60,
+                        "defaultEventHspC": 15.5
+                    },
+                    "peakPriceThresholdMin": 0,
+                    "peakPriceThreshold": 12,
+                    "peakPriceThresholdMax": 99.99,
+                    "customSetPoints": {
+                        "cspC": 28,
+                        "hsp": 60,
+                        "hspC": 16,
+                        "csp": 82
+                    }
+                },
+                "eventFilter": {
+                    "defaultEventFilterSp": {
+                        "defaultEventFilterHspC": 10,
+                        "defaultEventFilterCspC": 32,
+                        "defaultEventFilterCsp": 90,
+                        "defaultEventFilterHsp": 50
+                    },
+                    "rangeMaxC": 32,
+                    "rangeMin": 50,
+                    "rangeMax": 90,
+                    "rangeMinC": 10
+                },
+                "pendingEventThresholdTime": "86400",
+                "loadEventSetPoint": {
+                    "eventSetPointOffset": 4,
+                    "eventSetPointOption": "peak_load_event_setpoint_option_offset",
+                    "eventSetPointOffsetC": 2,
+                    "defaultEventSp": {
+                        "defaultEventCspC": 27.5,
+                        "defaultEventCsp": 82,
+                        "defaultEventHsp": 60,
+                        "defaultEventHspC": 15.5
+                    },
+                    "customSetPoints": {
+                        "cspC": 28,
+                        "hsp": 60,
+                        "hspC": 16,
+                        "csp": 82
+                    }
+                },
+                "zoneId": 0,
+                "eventSetPointOffsetSettings": {
+                    "eventSetPointOffsetIncrementC": 0.5,
+                    "eventSetPointOffsetMinC": 0.5,
+                    "eventSetPointOffsetMin": 1,
+                    "eventSetPointOffsetIncrement": 1,
+                    "eventSetPointOffsetDefaultC": 2,
+                    "eventSetPointOffsetDefault": 4,
+                    "eventSetPointOffsetMaxC": 4,
+                    "eventSetPointOffsetMax": 8
+                },
+                "isOptoutByUser": false
+            },
+            "enrollment": {
+                "status": {
+                    "registrationID": null,
+                    "vtnID": null,
+                    "retryRegistrationStatus": "unKnown",
+                    "venID": null,
+                    "pollFrequency": null,
+                    "regStatus": "unRegistered",
+                    "enrollmentStatus": "enrollment_not_enrolled",
+                    "result": 611
+                },
+                "config": {
+                    "url": null,
+                    "venID": null,
+                    "mode": "enrollment_mode_none",
+                    "venName": "",
+                    "clearResultCode": false
+                }
+            },
+            "schemaVer": null,
+            "synchronizer": {
+                "eventSynchronizer": {
+                    "subscriberReady": true,
+                    "eventManagerReady": false
+                }
+            },
+            "defaultEventSp": {
+                "defaultEventCspC": 27.5,
+                "defaultEventCsp": 82.0,
+                "defaultEventHsp": 60.0,
+                "defaultEventHspC": 15.5
+            },
+            "eventStatus": {
+                "utilityDemandZones": [
+                    {
+                        "UtilityDemandZone": {
+                            "showEventStatusPending": false,
+                            "prevailingNormalSps": {
+                                "period": {
+                                    "husp": 0,
+                                    "away": false,
+                                    "sp": 0,
+                                    "desp": 0,
+                                    "isCspChanged": false,
+                                    "hsp": 0,
+                                    "cspC": 0,
+                                    "hspC": 0,
+                                    "startTime": 0,
+                                    "isHspChanged": false,
+                                    "spC": 0,
+                                    "csp": 0
+                                }
+                            },
+                            "allowUserOptOut": false,
+                            "eventStartTime": "",
+                            "zoneEventStatus": "none",
+                            "showEventStatusActive": false,
+                            "prevailingActiveEventSps": {
+                                "period": {
+                                    "husp": 0,
+                                    "away": false,
+                                    "sp": 0,
+                                    "desp": 0,
+                                    "isCspChanged": false,
+                                    "hsp": 0,
+                                    "cspC": 0,
+                                    "hspC": 0,
+                                    "startTime": 0,
+                                    "isHspChanged": false,
+                                    "spC": 0,
+                                    "csp": 0
+                                }
+                            },
+                            "effectiveResponsiveSps": {
+                                "period": {
+                                    "husp": 0,
+                                    "away": false,
+                                    "sp": 0,
+                                    "desp": 0,
+                                    "isCspChanged": false,
+                                    "hsp": 0,
+                                    "cspC": 0,
+                                    "hspC": 0,
+                                    "startTime": 0,
+                                    "isHspChanged": false,
+                                    "spC": 0,
+                                    "csp": 0
+                                }
+                            },
+                            "eventEndTime": "",
+                            "performMERcheck": false
+                        },
+                        "id": 0
+                    },
+                    {
+                        "UtilityDemandZone": {
+                            "showEventStatusPending": false,
+                            "allowUserOptOut": false,
+                            "eventStartTime": "",
+                            "zoneEventStatus": "none",
+                            "showEventStatusActive": false,
+                            "eventEndTime": "",
+                            "performMERcheck": false
+                        },
+                        "id": 1
+                    },
+                    {
+                        "UtilityDemandZone": {
+                            "showEventStatusPending": false,
+                            "allowUserOptOut": false,
+                            "eventStartTime": "",
+                            "zoneEventStatus": "none",
+                            "showEventStatusActive": false,
+                            "eventEndTime": "",
+                            "performMERcheck": false
+                        },
+                        "id": 2
+                    },
+                    {
+                        "UtilityDemandZone": {
+                            "showEventStatusPending": false,
+                            "allowUserOptOut": false,
+                            "eventStartTime": "",
+                            "zoneEventStatus": "none",
+                            "showEventStatusActive": false,
+                            "eventEndTime": "",
+                            "performMERcheck": false
+                        },
+                        "id": 3
+                    },
+                    {
+                        "UtilityDemandZone": {
+                            "showEventStatusPending": false,
+                            "allowUserOptOut": false,
+                            "eventStartTime": "",
+                            "zoneEventStatus": "none",
+                            "showEventStatusActive": false,
+                            "eventEndTime": "",
+                            "performMERcheck": false
+                        },
+                        "id": 4
+                    },
+                    {
+                        "UtilityDemandZone": {
+                            "showEventStatusPending": false,
+                            "allowUserOptOut": false,
+                            "eventStartTime": "",
+                            "zoneEventStatus": "none",
+                            "showEventStatusActive": false,
+                            "eventEndTime": "",
+                            "performMERcheck": false
+                        },
+                        "id": 5
+                    },
+                    {
+                        "UtilityDemandZone": {
+                            "showEventStatusPending": false,
+                            "allowUserOptOut": false,
+                            "eventStartTime": "",
+                            "zoneEventStatus": "none",
+                            "showEventStatusActive": false,
+                            "eventEndTime": "",
+                            "performMERcheck": false
+                        },
+                        "id": 6
+                    },
+                    {
+                        "UtilityDemandZone": {
+                            "showEventStatusPending": false,
+                            "allowUserOptOut": false,
+                            "eventStartTime": "",
+                            "zoneEventStatus": "none",
+                            "showEventStatusActive": false,
+                            "eventEndTime": "",
+                            "performMERcheck": false
+                        },
+                        "id": 7
+                    }
+                ],
+                "oadrEventStatus": "none"
+            },
+            "novaSoftwareRevision": "1.0.4-0:1",
+            "isPeakLoadEventsSupported": true,
+            "status": {
+                "connectionStatus": "connection_status_not_connected",
+                "lastConnectedTime": "null",
+                "pollConsFailureCount": "0",
+                "oadrEnable": false,
+                "pollLossCount": "0"
+            },
+            "publisher": {
+                "publisherName": "unknown"
+            }
+        }
+    },
+    "AdditionalParameters": null
+}
