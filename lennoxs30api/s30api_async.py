@@ -846,7 +846,8 @@ class lennox_system(object):
         self.feelsLikeMode = None
         self.manualAwayMode: bool = None
         self.serialNumber: str = None
-        self.single_setpoint_mode: bool = None
+        # M30 does not send this info, so default to disabled.
+        self.single_setpoint_mode: bool = False   
         self.temperatureUnit: str = None
         self.dehumidificationMode = None
         self.indoorUnitType = None
