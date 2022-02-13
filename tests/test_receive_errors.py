@@ -36,13 +36,13 @@ def test_client_response_error(api: s30api_async, caplog):
         loop = asyncio.get_event_loop()
         with caplog.at_level(logging.DEBUG):
             caplog.clear()
-            result = loop.run_until_complete(api.messagePump())
-            assert result == False
-            assert len(caplog.records) == 2
-            log_msg = caplog.messages[0]
-            assert "unexpected content-length header" in log_msg
-            log_msg = caplog.messages[1]
-            assert "204" in log_msg
+            try:
+                result = loop.run_until_complete(api.messagePump())
+            except S30Exception as e:
+                assert e.error_code == EC_COMMS_ERROR
+                assert "unexpected content-length header" in e.message
+                error = True
+            assert error == True
 
     with patch.object(api, "get") as mock_get:
         mock_get.side_effect = aiohttp.ClientResponseError(
@@ -63,10 +63,7 @@ def test_client_response_error(api: s30api_async, caplog):
                 assert "some other error" in e.message
                 error = True
             assert error == True
-            assert result == False
-            assert len(caplog.records) == 1
-            log_msg = caplog.messages[0]
-            assert "some other error" in log_msg
+            assert len(caplog.records) == 0
 
     with patch.object(api, "get") as mock_get:
         mock_get.side_effect = aiohttp.ServerDisconnectedError()
@@ -81,7 +78,6 @@ def test_client_response_error(api: s30api_async, caplog):
                 assert "Server Disconnected" in e.message
                 error = True
             assert error == True
-            assert result == False
             assert len(caplog.records) == 0
 
 
@@ -155,3 +151,19 @@ def test_client_http_401(api: s30api_async, caplog):
             assert error == True
             assert len(caplog.records) == 1
             assert caplog.records[0].levelname == "INFO"
+
+
+def test_client_timeout_error(api: s30api_async, caplog):
+    with patch.object(api, "get") as mock_get:
+        mock_get.side_effect = asyncio.TimeoutError()
+        loop = asyncio.get_event_loop()
+        with caplog.at_level(logging.DEBUG):
+            caplog.clear()
+            ex: S30Exception = None
+            try:
+                result = loop.run_until_complete(api.messagePump())
+            except S30Exception as e:
+                ex = e
+            assert ex != None
+            assert ex.error_code == EC_COMMS_ERROR
+            assert "TimeoutError" in ex.message

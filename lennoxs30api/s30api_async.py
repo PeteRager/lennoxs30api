@@ -1,9 +1,7 @@
 """
-Lennox iComfort Wifi API.
+Lennox iComfort S30/E30/M30  API.
 
-Support added for AirEase MyComfortSync thermostats.
-
-By Pete Sage
+By Pete Rager
 
 Notes:
   This API currently only supports manual mode (no programs) on the thermostat.
@@ -19,6 +17,7 @@ v0.2.0 - Initial Release
 
 """
 
+from time import time
 from aiohttp.client import ClientSession
 
 from .s30exception import (
@@ -52,6 +51,7 @@ from .lennox_schedule import lennox_schedule
 from .lennox_home import lennox_home
 from .metrics import Metrics
 from .message_logger import MessageLogger
+from asyncio import TimeoutError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -148,6 +148,7 @@ class s30api_async(object):
         pii_message_logs=True,
         message_debug_logging=True,
         message_logging_file=None,
+        timeout: int = None,
     ):
         """Initialize the API interface.
         username: The user name to login with when using a cloud connection
@@ -166,6 +167,7 @@ class s30api_async(object):
         self.message_log = MessageLogger(
             _LOGGER, message_debug_logging, message_logging_file
         )
+        self.timeout: int = 300 if timeout is None else timeout
         # Generate a unique app id, following the existing formatting
         if app_id is None:
             dt = datetime.now()
@@ -190,7 +192,7 @@ class s30api_async(object):
         else:
             self.ip = ip_address
             self._isLANConnection = True
-            # The certicate on the S30 cannot be validated.  It is self issued by Lennox
+            # The certificate on the S30 cannot be validated.  It is self issued by Lennox
             self.ssl = False
             self.initialize_urls_local()
 
@@ -267,18 +269,24 @@ class s30api_async(object):
             raise S30Exception(errmsg, EC_LOGOUT, 1)
 
     async def _close_session(self) -> None:
+        _LOGGER.debug("Closing Session")
         if self._session != None:
             try:
                 await self._session.close()
-                self._sesssion = None
+                self._session = None
             except Exception as e:
                 _LOGGER.exception("serverConnect - failed to close session")
+
+    def _create_session(self) -> None:
+        _LOGGER.debug("Creating Session")
+        to = aiohttp.ClientTimeout(total=self.timeout)
+        self._session = aiohttp.ClientSession(timeout=to)
 
     async def serverConnect(self) -> None:
         # On a reconnect we will close down the old session and get a new one
         _LOGGER.debug("serverLogin - Entering")
         await self._close_session()
-        self._session = aiohttp.ClientSession()
+        self._create_session()
         await self.authenticate()
         await self.login()
         await self.negotiate()
@@ -298,7 +306,7 @@ class s30api_async(object):
         err_msg: str = None
         try:
             # I did see this fail due to an active directory error on Lennox side.  I saw the same failure in the Burp log for the App and saw that it repeatedly retried
-            # until success, so this must be a known / re-occuring issue that they have solved via retries.  When this occured the call hung for a while, hence there
+            # until success, so this must be a known / re-occuring issue that they have solved via retries.  When this occurred the call hung for a while, hence there
             # appears to be no reason to sleep between retries.
             for retry in range(1, self.AUTHENTICATE_RETRIES):
                 resp = await self.post(url, data=body)
@@ -538,7 +546,7 @@ class s30api_async(object):
     async def messagePump(self) -> None:
         # This method reads off the queue.
         # Observations:  the clientId is not passed in, they must be mapping the token to the clientId as part of negotiate
-        # TODO: The long polling is not working, I have tried adjusting the long polling delay.  Long polling seems to work from the IOS App, not sure
+        # TODO: The long polling is not working for cloud connections, I have tried adjusting the long polling delay.  Long polling seems to work from the IOS App, not sure
         # what the difference is.   https://gist.github.com/rcarmo/3f0772f2cbe0612b699dcbb839edabeb
         # Returns True if messages were received, False if no messages were found, and throws S30Exception for errors
         #        _LOGGER.debug("Request Data - Enter")
@@ -592,28 +600,28 @@ class s30api_async(object):
                 f"resp.request_info=[{e.request_info}], "
                 f"resp.headers=[{e.headers}]"
             )
-            # Logging this information is here for diagnostic purposes
-            _LOGGER.error(
-                "MessagePump clientResponse please report this information as an Issue - "
-                + msg
-            )
-            if resp_status == 400 and "unexpected content-length header" == e.message:
-                _LOGGER.info("Ignoring this ClientResponseError and returning 204")
-                return False
+            # When this is seen: "Content-Length can't be present with Transfer-Encoding"
+            # indicates that the client subscription needs to be re-established.
             raise S30Exception(f"ClientResponseError {msg}", EC_COMMS_ERROR, 2)
         except aiohttp.ServerDisconnectedError as e:
             self.metrics.inc_receive_message_error()
             err_msg = "messagePump  - Server Disconnected"
             raise S30Exception(err_msg, EC_COMMS_ERROR, 4)
+        except aiohttp.ClientConnectorError as e:
+            raise S30Exception(
+                f"messagePump - ClientConnectorError {e}",
+                EC_COMMS_ERROR,
+                4,
+            )
         except aiohttp.ClientConnectionError as e:
             self.metrics.inc_receive_message_error()
             err_msg = "messagePump - ClientConnectionError " + str(e)
             raise S30Exception(err_msg, EC_COMMS_ERROR, 3)
-        except aiohttp.ClientConnectorError as e:
+        except TimeoutError as e:
             raise S30Exception(
-                f"messagePump - ClienConnectorError {e}",
+                f"messagePump - Communication TimeoutError exceeded [{self.timeout}] seconds",
                 EC_COMMS_ERROR,
-                4,
+                5,
             )
         except S30Exception as e:
             raise e
