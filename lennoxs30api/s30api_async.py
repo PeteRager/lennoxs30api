@@ -412,22 +412,51 @@ class s30api_async(object):
                 self.process_login_response(resp_json)
         except S30Exception as e:
             raise e
-        except aiohttp.ClientConnectionError as e:
+        except aiohttp.ClientResponseError as e:
+            resp_status = e.status
+            msg = (
+                f"Error while executing request: [{e.message}]: "
+                f"error={type(e)}, resp.status=[{resp_status}], "
+                f"resp.request_info=[{e.request_info}], "
+                f"resp.headers=[{e.headers}]"
+            )
+            # When this is seen: "Content-Length can't be present with Transfer-Encoding"
+            # indicates that the client subscription needs to be re-established.
             raise S30Exception(
-                f"login failed due host not reachable url [{url}] {e}",
+                f"login failed due to client response error [{url}] ClientResponseError {msg}",
                 EC_COMMS_ERROR,
-                3,
+                2,
+            )
+        except aiohttp.ServerDisconnectedError as e:
+            raise S30Exception(
+                f"login failed due Server Disconnected [{url}]", EC_COMMS_ERROR, 3
+            )
+        except TimeoutError as e:
+            raise S30Exception(
+                f"login failed - Communication TimeoutError exceeded [{self.timeout}] [{url}]",
+                EC_COMMS_ERROR,
+                4,
             )
         except aiohttp.ClientConnectorError as e:
             raise S30Exception(
                 f"login failed due host not reachable url [{url}] {e}",
                 EC_COMMS_ERROR,
-                4,
+                5,
+            )
+        except aiohttp.ClientConnectionError as e:
+            raise S30Exception(
+                f"login failed due host not reachable url [{url}] {e}",
+                EC_COMMS_ERROR,
+                6,
             )
         except Exception as e:
             txt = str(e)
-            _LOGGER.exception("login - Exception")
-            raise S30Exception("login failed due to exception", EC_COMMS_ERROR, 2)
+            _LOGGER.exception(
+                "login - unexpected exception - please raise an issue to track"
+            )
+            raise S30Exception(
+                "login failed due to unexpect exception", EC_COMMS_ERROR, 7
+            )
         _LOGGER.info(
             f"login Success homes [{len(self._homeList)}] systems [{len(self._systemList)}]"
         )
@@ -593,6 +622,7 @@ class s30api_async(object):
             return True
         except aiohttp.ClientResponseError as e:
             self.metrics.inc_receive_message_error()
+            self.metrics.inc_client_response_errors()
             resp_status = e.status
             msg = (
                 f"Error while executing request: [{e.message}]: "
@@ -605,9 +635,12 @@ class s30api_async(object):
             raise S30Exception(f"ClientResponseError {msg}", EC_COMMS_ERROR, 2)
         except aiohttp.ServerDisconnectedError as e:
             self.metrics.inc_receive_message_error()
+            self.metrics.inc_server_disconnect()
             err_msg = "messagePump  - Server Disconnected"
             raise S30Exception(err_msg, EC_COMMS_ERROR, 4)
         except aiohttp.ClientConnectorError as e:
+            self.metrics.inc_receive_message_error()
+            self.metrics.inc_client_response_errors()
             raise S30Exception(
                 f"messagePump - ClientConnectorError {e}",
                 EC_COMMS_ERROR,
@@ -615,9 +648,12 @@ class s30api_async(object):
             )
         except aiohttp.ClientConnectionError as e:
             self.metrics.inc_receive_message_error()
+            self.metrics.inc_client_response_errors()
             err_msg = "messagePump - ClientConnectionError " + str(e)
             raise S30Exception(err_msg, EC_COMMS_ERROR, 3)
         except TimeoutError as e:
+            self.metrics.inc_receive_message_error()
+            self.metrics.inc_timeout()
             raise S30Exception(
                 f"messagePump - Communication TimeoutError exceeded [{self.timeout}] seconds",
                 EC_COMMS_ERROR,

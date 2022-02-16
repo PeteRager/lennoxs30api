@@ -4,6 +4,9 @@ import pytz
 
 class Metrics:
     def __init__(self):
+        self.reset()
+
+    def reset(self) -> None:
         self.error_count: int = 0
 
         self.message_count: int = 0
@@ -14,6 +17,9 @@ class Metrics:
         self.http_4xx_cnt: int = 0
         self.http_5xx_cnt: int = 0
         self.exceptions: int = 0
+        self.timeouts: int = 0
+        self.server_disconnects: int = 0
+        self.client_response_errors: int = 0
 
         self.last_receive_time: datetime = None
         self.last_send_time: datetime = None
@@ -40,6 +46,9 @@ class Metrics:
             "http_2xx_cnt": self.http_2xx_cnt,
             "http_4xx_cnt": self.http_4xx_cnt,
             "http_5xx_cnt": self.http_5xx_cnt,
+            "timeouts": self.timeouts,
+            "client_respone_errors": self.client_response_errors,
+            "server_disconnects": self.server_disconnects,
             "last_receive_time": self.last_receive_time,
             "last_error_time": self.last_error_time,
             "last_reconnect_time": self.last_reconnect_time,
@@ -71,6 +80,15 @@ class Metrics:
         self.last_metric_time = self.now()
         self.error_count += 1
         self.exceptions += 1
+
+    def inc_timeout(self) -> None:
+        self.timeouts += 1
+
+    def inc_server_disconnect(self) -> None:
+        self.server_disconnects += 1
+
+    def inc_client_response_errors(self) -> None:
+        self.client_response_errors += 1
 
     def process_http_code(self, http_code: int) -> None:
         self.last_metric_time = self.now()
