@@ -38,7 +38,6 @@ def test_client_response_error(api: s30api_async, caplog):
                 error = True
             assert error == True
             assert api.metrics.client_response_errors == 1
-            assert api.metrics.exceptions == 1
             assert api.metrics.error_count == 1
             assert api.metrics.last_error_time is not None
 
@@ -65,7 +64,6 @@ def test_client_response_error(api: s30api_async, caplog):
             assert error == True
             assert len(caplog.records) == 0
             assert api.metrics.client_response_errors == 1
-            assert api.metrics.exceptions == 1
             assert api.metrics.error_count == 1
             assert api.metrics.last_error_time is not None
 
@@ -87,7 +85,6 @@ def test_client_response_error(api: s30api_async, caplog):
             assert len(caplog.records) == 0
             assert api.metrics.client_response_errors == 0
             assert api.metrics.server_disconnects == 1
-            assert api.metrics.exceptions == 1
             assert api.metrics.error_count == 1
             assert api.metrics.last_error_time is not None
 
@@ -111,7 +108,6 @@ def test_client_connection_error(api: s30api_async, caplog):
         assert len(caplog.records) == 0
         assert api.metrics.client_response_errors == 1
         assert api.metrics.server_disconnects == 0
-        assert api.metrics.exceptions == 1
         assert api.metrics.error_count == 1
         assert api.metrics.last_error_time is not None
 
@@ -187,6 +183,5 @@ def test_client_timeout_error(api: s30api_async, caplog):
             assert api.metrics.client_response_errors == 0
             assert api.metrics.server_disconnects == 0
             assert api.metrics.timeouts == 1
-            assert api.metrics.exceptions == 1
             assert api.metrics.error_count == 1
             assert api.metrics.last_error_time is not None

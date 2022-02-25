@@ -16,17 +16,16 @@ class Metrics:
         self.http_2xx_cnt: int = 0
         self.http_4xx_cnt: int = 0
         self.http_5xx_cnt: int = 0
-        self.exceptions: int = 0
         self.timeouts: int = 0
         self.server_disconnects: int = 0
         self.client_response_errors: int = 0
+        self.connection_errors: int = 0
 
         self.last_receive_time: datetime = None
         self.last_send_time: datetime = None
         self.last_error_time: datetime = None
         self.last_reconnect_time: datetime = None
         self.last_message_time: datetime = None
-        self.last_metric_time: datetime = None
 
         self.bytes_in: int = 0
         self.bytes_out: int = 0
@@ -42,13 +41,13 @@ class Metrics:
             "bytes_in": self.bytes_in,
             "bytes_out": self.bytes_out,
             "error_count": self.error_count,
-            "exceptions": self.exceptions,
             "http_2xx_cnt": self.http_2xx_cnt,
             "http_4xx_cnt": self.http_4xx_cnt,
             "http_5xx_cnt": self.http_5xx_cnt,
             "timeouts": self.timeouts,
             "client_respone_errors": self.client_response_errors,
             "server_disconnects": self.server_disconnects,
+            "connection_errors": self.connection_errors,
             "last_receive_time": self.last_receive_time,
             "last_error_time": self.last_error_time,
             "last_reconnect_time": self.last_reconnect_time,
@@ -63,13 +62,11 @@ class Metrics:
     def inc_send_count(self, bytes: int) -> None:
         self.send_count += 1
         self.last_send_time = self.now()
-        self.last_metric_time = self.now()
         self.bytes_out += bytes
 
     def inc_receive_count(self) -> None:
         self.receive_count += 1
         self.last_receive_time = self.now()
-        self.last_metric_time = self.now()
 
     def inc_receive_bytes(self, bytes: int) -> None:
         if bytes != None:
@@ -77,21 +74,25 @@ class Metrics:
 
     def inc_receive_message_error(self) -> None:
         self.last_error_time = self.now()
-        self.last_metric_time = self.now()
         self.error_count += 1
-        self.exceptions += 1
 
     def inc_timeout(self) -> None:
         self.timeouts += 1
+        self.last_error_time = self.now()
+
+    def inc_connection_errors(self) -> None:
+        self.connection_errors += 1
+        self.last_error_time = self.now()
 
     def inc_server_disconnect(self) -> None:
         self.server_disconnects += 1
+        self.last_error_time = self.now()
 
     def inc_client_response_errors(self) -> None:
         self.client_response_errors += 1
+        self.last_error_time = self.now()
 
     def process_http_code(self, http_code: int) -> None:
-        self.last_metric_time = self.now()
         if http_code >= 200 and http_code <= 299:
             self.http_2xx_cnt += 1
             return

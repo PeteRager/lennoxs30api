@@ -1,3 +1,4 @@
+from lennoxs30api.metrics import Metrics
 from lennoxs30api.s30api_async import (
     LENNOX_HVAC_EMERGENCY_HEAT,
     lennox_zone,
@@ -21,6 +22,11 @@ def loadfile(name) -> json:
     with open(file_path) as f:
         data = json.load(f)
     return data
+
+
+@pytest.fixture
+def metrics() -> Metrics:
+    return Metrics()
 
 
 @pytest.fixture
