@@ -67,6 +67,7 @@ def test_authenticate_cloud_200():
 def test_authenticate_cloud_400(caplog):
     api = s30api_async(username=None, password=None, app_id="app_id", ip_address=None)
     with patch.object(api, "post") as mock_post:
+        caplog.clear()
         with caplog.at_level(logging.WARNING):
             mock_post.return_value = GoodResponse(400)
             loop = asyncio.get_event_loop()
@@ -109,6 +110,7 @@ class BadResponse:
 def test_authenticate_cloud_bad_response(caplog):
     api = s30api_async(username=None, password=None, app_id="app_id", ip_address=None)
     with patch.object(api, "post") as mock_post:
+        caplog.clear()
         with caplog.at_level(logging.WARNING):
             mock_post.return_value = BadResponse(200)
             loop = asyncio.get_event_loop()
@@ -131,6 +133,7 @@ def test_authenticate_cloud_bad_response(caplog):
 def test_authenticate_cloud_comm_exception(caplog):
     api = s30api_async(username=None, password=None, app_id="app_id", ip_address=None)
     with patch.object(api, "post") as mock_post:
+        caplog.clear()
         with caplog.at_level(logging.WARNING):
             mock_post.side_effect = aiohttp.ClientResponseError(
                 status=400,

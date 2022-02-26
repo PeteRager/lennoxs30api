@@ -64,6 +64,7 @@ def test_logout_local_400(caplog):
     )
     with patch.object(api, "post") as mock_post:
         mock_post.return_value = GoodResponse(400)
+        caplog.clear()
         with caplog.at_level(logging.WARNING):
             loop = asyncio.get_event_loop()
             error = False
@@ -88,6 +89,7 @@ def test_logout_local_400(caplog):
 def test_logout_cloud_comm_exception(caplog):
     api = s30api_async(username=None, password=None, app_id="app_id", ip_address=None)
     with patch.object(api, "post") as mock_post:
+        caplog.clear()
         with caplog.at_level(logging.WARNING):
             mock_post.side_effect = aiohttp.ClientResponseError(
                 status=400,
