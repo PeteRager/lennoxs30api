@@ -69,9 +69,10 @@ class Simulator(object):
 
     async def retrieve(self, request):
         app_id = request.match_info["app_id"]
+        delay = 15
         if app_id in self.appList:
             app: AppConnection = self.appList[app_id]
-            for i in range(15):
+            for i in range(delay):
                 if len(app.queue) != 0:
                     message = app.queue.pop()
                     data = '{ "messages": [' + json.dumps(message) + "]}"

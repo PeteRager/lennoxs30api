@@ -1,9 +1,7 @@
 """
-Lennox iComfort Wifi API.
+Lennox iComfort S30/E30/M30  API.
 
-Support added for AirEase MyComfortSync thermostats.
-
-By Pete Sage
+By Pete Rager
 
 Notes:
   This API currently only supports manual mode (no programs) on the thermostat.
@@ -18,9 +16,6 @@ Change log:
 v0.2.0 - Initial Release
 
 """
-
-from aiohttp.client import ClientSession
-
 from .s30exception import (
     EC_AUTHENTICATE,
     EC_BAD_PARAMETERS,
@@ -30,24 +25,22 @@ from .s30exception import (
     EC_LOGOUT,
     EC_NEGOTIATE,
     EC_NO_SCHEDULE,
-    EC_PROCESS_MESSAGE,
     EC_PUBLISH_MESSAGE,
     EC_REQUEST_DATA_HELPER,
-    EC_RETRIEVE,
     EC_SETMODE_HELPER,
     EC_SUBSCRIBE,
     EC_UNAUTHORIZED,
     S30Exception,
+    s30exception_from_comm_exception,
 )
 from datetime import datetime
 import logging
 import json
 import uuid
-import aiohttp
+from aiohttp import ClientTimeout, ClientSession
 
 from urllib.parse import quote
 from typing import Final, List
-from .lennox_period import lennox_period
 from .lennox_schedule import lennox_schedule
 from .lennox_home import lennox_home
 from .metrics import Metrics
@@ -148,6 +141,7 @@ class s30api_async(object):
         pii_message_logs=True,
         message_debug_logging=True,
         message_logging_file=None,
+        timeout: int = None,
     ):
         """Initialize the API interface.
         username: The user name to login with when using a cloud connection
@@ -166,6 +160,7 @@ class s30api_async(object):
         self.message_log = MessageLogger(
             _LOGGER, message_debug_logging, message_logging_file
         )
+        self.timeout: int = 300 if timeout is None else timeout
         # Generate a unique app id, following the existing formatting
         if app_id is None:
             dt = datetime.now()
@@ -174,14 +169,12 @@ class s30api_async(object):
             app_id = appPrefix + epoch_time
             self._applicationid: str = app_id
             _LOGGER.info(
-                "__init__  generating unique applicationId ["
-                + self._applicationid
-                + "]"
+                f"__init__  generating unique applicationId [{self._applicationid}]"
             )
         else:
             self._applicationid: str = app_id
             _LOGGER.info(
-                "__init__ using provided applicationId [" + self._applicationid + "]"
+                f"__init__ using provided applicationId [{self._applicationid}]"
             )
         if ip_address == None:
             self._isLANConnection = False
@@ -190,7 +183,7 @@ class s30api_async(object):
         else:
             self.ip = ip_address
             self._isLANConnection = True
-            # The certicate on the S30 cannot be validated.  It is self issued by Lennox
+            # The certificate on the S30 cannot be validated.  It is self issued by Lennox
             self.ssl = False
             self.initialize_urls_local()
 
@@ -250,7 +243,7 @@ class s30api_async(object):
         await self._close_session()
 
     async def logout(self) -> None:
-        _LOGGER.info("logout - Entering")
+        _LOGGER.info(f"logout - Entering - [{self.url_logout}]")
         url: str = self.url_logout
         headers = {
             "Authorization": self.loginBearerToken,
@@ -260,25 +253,42 @@ class s30api_async(object):
             "Accept-Encoding": "gzip, deflate",
             "Content-Type": "application/json",
         }
-        resp = await self.post(url, headers=headers, data=None)
-        if resp.status != 200 and resp.status != 204:
-            errmsg = f"Logout failed response code [{resp.status}]"
-            _LOGGER.error(errmsg)
-            raise S30Exception(errmsg, EC_LOGOUT, 1)
+        try:
+            resp = await self.post(url, headers=headers, data=None)
+            if resp.status != 200 and resp.status != 204:
+                errmsg = f"logout failed response code [{resp.status}] url [{url}]"
+                _LOGGER.error(errmsg)
+                raise S30Exception(errmsg, EC_LOGOUT, 1)
+        except S30Exception as e:
+            raise e
+        except Exception as e:
+            s30e = s30exception_from_comm_exception(
+                e, operation="logout", url=url, metrics=self.metrics
+            )
+            if s30e != None:
+                raise s30e
+            _LOGGER.exception("logout exception - please raise as issue")
+            raise S30Exception("logout failed", EC_AUTHENTICATE, 2)
 
     async def _close_session(self) -> None:
+        _LOGGER.debug("Closing Session")
         if self._session != None:
             try:
                 await self._session.close()
-                self._sesssion = None
+                self._session = None
             except Exception as e:
                 _LOGGER.exception("serverConnect - failed to close session")
+
+    def _create_session(self) -> None:
+        _LOGGER.debug("Creating Session")
+        to = ClientTimeout(total=self.timeout)
+        self._session = ClientSession(timeout=to)
 
     async def serverConnect(self) -> None:
         # On a reconnect we will close down the old session and get a new one
         _LOGGER.debug("serverLogin - Entering")
         await self._close_session()
-        self._session = aiohttp.ClientSession()
+        self._create_session()
         await self.authenticate()
         await self.login()
         await self.negotiate()
@@ -298,9 +308,9 @@ class s30api_async(object):
         err_msg: str = None
         try:
             # I did see this fail due to an active directory error on Lennox side.  I saw the same failure in the Burp log for the App and saw that it repeatedly retried
-            # until success, so this must be a known / re-occuring issue that they have solved via retries.  When this occured the call hung for a while, hence there
+            # until success, so this must be a known / re-occuring issue that they have solved via retries.  When this occurred the call hung for a while, hence there
             # appears to be no reason to sleep between retries.
-            for retry in range(1, self.AUTHENTICATE_RETRIES):
+            for retry in range(0, self.AUTHENTICATE_RETRIES):
                 resp = await self.post(url, data=body)
                 if resp.status == 200:
                     resp_json = await resp.json()
@@ -314,12 +324,25 @@ class s30api_async(object):
                 else:
                     # There is often useful diag information in the txt, so grab it and log it
                     txt = await resp.text()
-                    err_msg = f"authenticate failed  - retrying [{retry}] of [{self.AUTHENTICATE_RETRIES}] response code [{resp.status}] text [{txt}]"
+                    err_msg = f"authenticate failed  - retrying [{retry}] of [{self.AUTHENTICATE_RETRIES - 1}] response code [{resp.status}] text [{txt}]"
                     _LOGGER.warning(err_msg)
             raise S30Exception(err_msg, EC_AUTHENTICATE, 1)
+        except S30Exception as e:
+            raise e
+        except KeyError as e:
+            raise S30Exception(
+                f"authenticate failed - unexpected response - unable to find [{e}] in msg [{resp_json}]",
+                EC_AUTHENTICATE,
+                2,
+            )
         except Exception as e:
-            _LOGGER.exception("authenticate exception ")
-            raise S30Exception("Authentication Failed", EC_AUTHENTICATE, 2)
+            s30e = s30exception_from_comm_exception(
+                e, operation="authenticate", url=url, metrics=self.metrics
+            )
+            if s30e != None:
+                raise s30e
+            _LOGGER.exception("authenticate exception - please raise as issue ")
+            raise S30Exception("authenticate failed", EC_AUTHENTICATE, 2)
 
     def getHomeByHomeId(self, homeId) -> lennox_home:
         for home in self._homeList:
@@ -374,9 +397,11 @@ class s30api_async(object):
             if self._isLANConnection == True:
                 resp = await self.post(url)
                 if resp.status != 200 and resp.status != 204:
-                    errmsg = f"Local connection failed url [{url}] response code [{resp.status}]"
-                    _LOGGER.error(errmsg)
-                    raise S30Exception(errmsg, EC_LOGIN, 2)
+                    raise S30Exception(
+                        f"login local connection failed url [{url}] response code [{resp.status}]",
+                        EC_LOGIN,
+                        2,
+                    )
                 self.setup_local_homes()
             else:
                 body: str = (
@@ -397,29 +422,41 @@ class s30api_async(object):
                 if resp.status != 200:
                     txt = await resp.text()
                     errmsg = f"login failed response code [{resp.status}] text [{txt}]"
-                    _LOGGER.error(errmsg)
-                    raise S30Exception(errmsg, EC_LOGIN, 1)
+                    raise S30Exception(
+                        f"login failed response code [{resp.status}] url [{url}] text [{txt}]",
+                        EC_LOGIN,
+                        1,
+                    )
                 resp_json = await resp.json()
                 self.message_logger(resp_json)
                 self.process_login_response(resp_json)
         except S30Exception as e:
+            _LOGGER.error(e.message)
             raise e
-        except aiohttp.ClientConnectionError as e:
+        except json.JSONDecodeError as e:
             raise S30Exception(
-                f"login failed due host not reachable url [{url}] {e}",
-                EC_COMMS_ERROR,
+                f"login - JSONDecodeError unable to decode json response [{e}]",
+                EC_LOGIN,
                 3,
             )
-        except aiohttp.ClientConnectorError as e:
+        except KeyError as e:
             raise S30Exception(
-                f"login failed due host not reachable url [{url}] {e}",
-                EC_COMMS_ERROR,
-                4,
+                f"login failed - unexpected response - unable to find [{e}] in msg [{resp_json}]",
+                EC_LOGIN,
+                2,
             )
         except Exception as e:
-            txt = str(e)
-            _LOGGER.exception("login - Exception")
-            raise S30Exception("login failed due to exception", EC_COMMS_ERROR, 2)
+            s30e = s30exception_from_comm_exception(
+                e, operation="login", url=url, metrics=self.metrics
+            )
+            if s30e != None:
+                raise s30e
+            _LOGGER.exception(
+                f"login - unexpected exception - please raise an issue to track [{e}]"
+            )
+            raise S30Exception(
+                f"login failed due to unexpected exception [{e}]", EC_LOGIN, 7
+            )
         _LOGGER.info(
             f"login Success homes [{len(self._homeList)}] systems [{len(self._systemList)}]"
         )
@@ -463,7 +500,7 @@ class s30api_async(object):
             resp = await self.get(url)
             if resp.status != 200:
                 txt = await resp.text()
-                err_msg = f"Negotiate failed response code [{resp.status}] text [{txt}]"
+                err_msg = f"negotiate failed response code [{resp.status}] text [{txt}] url [{url}]"
                 _LOGGER.error(err_msg)
                 raise S30Exception(err_msg, EC_NEGOTIATE, 1)
             resp_json = await resp.json()
@@ -482,10 +519,26 @@ class s30api_async(object):
                 + self._streamURL
                 + "]"
             )
+        except S30Exception as e:
+            raise e
+        except KeyError as e:
+            raise S30Exception(
+                f"negotiate failed - unexpected response - unable to find [{e}] in msg [{resp_json}]",
+                EC_NEGOTIATE,
+                2,
+            )
         except Exception as e:
-            err_msg = "Negotiate - Failed - Exception"
-            _LOGGER.exception(err_msg)
-            raise S30Exception(err_msg, EC_NEGOTIATE, 2)
+            s30e = s30exception_from_comm_exception(
+                e, operation="negotiate", url=url, metrics=self.metrics
+            )
+            if s30e != None:
+                raise s30e
+            _LOGGER.exception(
+                "negotiate - unexpected exception - please raise an issue to track"
+            )
+            raise S30Exception(
+                "negotiate failed due to unexpected exception", EC_COMMS_ERROR, 7
+            )
 
     # The topics subscribed to here are based on the topics that the WebApp subscribes to.  We likely don't need to subscribe to all of them
     # These appear to be JSON topics that correspond to the returned JSON.  For now we will do what the web app does.
@@ -538,7 +591,7 @@ class s30api_async(object):
     async def messagePump(self) -> None:
         # This method reads off the queue.
         # Observations:  the clientId is not passed in, they must be mapping the token to the clientId as part of negotiate
-        # TODO: The long polling is not working, I have tried adjusting the long polling delay.  Long polling seems to work from the IOS App, not sure
+        # TODO: The long polling is not working for cloud connections, I have tried adjusting the long polling delay.  Long polling seems to work from the IOS App, not sure
         # what the difference is.   https://gist.github.com/rcarmo/3f0772f2cbe0612b699dcbb839edabeb
         # Returns True if messages were received, False if no messages were found, and throws S30Exception for errors
         #        _LOGGER.debug("Request Data - Enter")
@@ -583,46 +636,23 @@ class s30api_async(object):
                     err_code = EC_UNAUTHORIZED
                 raise S30Exception(err_msg, err_code, resp.status)
             return True
-        except aiohttp.ClientResponseError as e:
-            self.metrics.inc_receive_message_error()
-            resp_status = e.status
-            msg = (
-                f"Error while executing request: [{e.message}]: "
-                f"error={type(e)}, resp.status=[{resp_status}], "
-                f"resp.request_info=[{e.request_info}], "
-                f"resp.headers=[{e.headers}]"
-            )
-            # Logging this information is here for diagnostic purposes
-            _LOGGER.error(
-                "MessagePump clientResponse please report this information as an Issue - "
-                + msg
-            )
-            if resp_status == 400 and "unexpected content-length header" == e.message:
-                _LOGGER.info("Ignoring this ClientResponseError and returning 204")
-                return False
-            raise S30Exception(f"ClientResponseError {msg}", EC_COMMS_ERROR, 2)
-        except aiohttp.ServerDisconnectedError as e:
-            self.metrics.inc_receive_message_error()
-            err_msg = "messagePump  - Server Disconnected"
-            raise S30Exception(err_msg, EC_COMMS_ERROR, 4)
-        except aiohttp.ClientConnectionError as e:
-            self.metrics.inc_receive_message_error()
-            err_msg = "messagePump - ClientConnectionError " + str(e)
-            raise S30Exception(err_msg, EC_COMMS_ERROR, 3)
-        except aiohttp.ClientConnectorError as e:
-            raise S30Exception(
-                f"messagePump - ClienConnectorError {e}",
-                EC_COMMS_ERROR,
-                4,
-            )
         except S30Exception as e:
+            self.metrics.inc_receive_message_error()
             raise e
-        # should not be here, these are unexpected exceptions that should be handled better
         except Exception as e:
             self.metrics.inc_receive_message_error()
-            err_msg = "messagePump exception"
-            _LOGGER.exception(err_msg)
-            raise S30Exception(err_msg, EC_RETRIEVE, 5)
+            s30e = s30exception_from_comm_exception(
+                e, operation="messagePump", url=url, metrics=self.metrics
+            )
+            if s30e != None:
+                raise s30e
+            # should not be here, these are unexpected exceptions that should be handled better
+            _LOGGER.exception(
+                "messagePump - unexpected exception - please raise an issue to track"
+            )
+            raise S30Exception(
+                "messagePump failed due to unexpected exception", EC_COMMS_ERROR, 7
+            )
 
     def processMessage(self, message):
         self.metrics.inc_message_count()
@@ -654,18 +684,17 @@ class s30api_async(object):
                 "Accept-Encoding": "gzip, deflate",
             }
 
-            payload = "{"
-            payload += '"MessageType":"RequestData",'
-            payload += '"SenderID":"' + self.getClientId() + '",'
-            payload += '"MessageID":"' + self.getNewMessageID() + '",'
-            payload += '"TargetID":"' + sysId + '",'
-            payload += additionalParameters
-            payload += "}"
+            body = "{"
+            body += '"MessageType":"RequestData",'
+            body += '"SenderID":"' + self.getClientId() + '",'
+            body += '"MessageID":"' + self.getNewMessageID() + '",'
+            body += '"TargetID":"' + sysId + '",'
+            body += additionalParameters
+            body += "}"
 
-            p_json = json.loads(payload)
-            self.message_logger(p_json)
-            resp = await self.post(url, headers=headers, data=payload)
-
+            jsbody = json.loads(body)
+            self.message_logger(jsbody)
+            resp = await self.post(url, headers=headers, data=body)
             if resp.status == 200:
                 # TODO we should be inspecting the return body?
                 if self._isLANConnection == True:
@@ -673,14 +702,32 @@ class s30api_async(object):
                 else:
                     self.message_logger(await resp.json())
             else:
-                txt = resp.text()
+                txt = await resp.text()
                 err_msg = f"requestDataHelper failed response code [{resp.status}] text [{txt}]"
                 _LOGGER.error(err_msg)
                 raise S30Exception(err_msg, EC_REQUEST_DATA_HELPER, 1)
+        except S30Exception as e:
+            raise e
+        except json.JSONDecodeError as e:
+            raise S30Exception(
+                f"requestDataHelper failed - JSONDecodeError [{e}] in msg",
+                EC_REQUEST_DATA_HELPER,
+                3,
+            )
         except Exception as e:
-            err_msg = "requestDataHelper - Exception "
-            _LOGGER.exception(err_msg)
-            raise S30Exception(err_msg, EC_REQUEST_DATA_HELPER, 2)
+            s30e = s30exception_from_comm_exception(
+                e, operation="requestDataHelper", url=url, metrics=self.metrics
+            )
+            if s30e != None:
+                raise s30e
+            _LOGGER.exception(
+                "requestDataHelper - unexpected exception - please raise an issue to track"
+            )
+            raise S30Exception(
+                "requestDataHelper failed due to unexpected exception",
+                EC_COMMS_ERROR,
+                7,
+            )
 
     def getSystems(self) -> List["lennox_system"]:
         return self._systemList
@@ -739,6 +786,16 @@ class s30api_async(object):
     async def publishMessageHelper(self, sysId: str, data: str) -> None:
         _LOGGER.debug(f"publishMessageHelper sysId [{sysId}] data [{data}]")
         try:
+            url = self.url_publish
+            headers = {
+                "Authorization": self.loginBearerToken,
+                "User-Agent": USER_AGENT,
+                "Accept": "*.*",
+                "Content-Type": "application/json",
+                "Accept-Language": "en-US;q=1",
+                "Accept-Encoding": "gzip, deflate",
+            }
+
             body = "{"
             body += '"MessageType":"Command",'
             body += '"SenderID":"' + self.getClientId() + '",'
@@ -750,28 +807,52 @@ class s30api_async(object):
             # See if we can parse the JSON, if we can't error will be thrown, no point in sending lennox bad data
             jsbody = json.loads(body)
             self.message_logger(jsbody)
-
-            url = self.url_publish
-            headers = {
-                "Authorization": self.loginBearerToken,
-                "User-Agent": USER_AGENT,
-                "Accept": "*.*",
-                "Content-Type": "application/json",
-                "Accept-Language": "en-US;q=1",
-                "Accept-Encoding": "gzip, deflate",
-            }
             resp = await self.post(url, headers=headers, data=body)
-            if resp.status != 200:
-                txt = await resp.text()
-                err_msg = f"publishMessageHelper failed response code [{resp.status}] text [{txt}]"
-                _LOGGER.error(err_msg)
-                raise S30Exception(err_msg, EC_PUBLISH_MESSAGE, 1)
             resp_txt = await resp.text()
+            if resp.status != 200:
+                raise S30Exception(
+                    f"publishMessageHelper failed response code [{resp.status}] text [{resp_txt}]",
+                    EC_PUBLISH_MESSAGE,
+                    1,
+                )
             resp_json = json.loads(resp_txt)
             _LOGGER.debug(json.dumps(resp_json, indent=4))
+            code = resp_json["code"]
+            if code != 1:
+                raise S30Exception(
+                    f"publishMessageHelper failed server returned code [{code}] msg [{resp_txt}]",
+                    EC_PUBLISH_MESSAGE,
+                    2,
+                )
+        except json.JSONDecodeError as e:
+            raise S30Exception(
+                f"publishMessageHelper failed - JSONDecodeError [{e}] in msg [{resp_txt}]",
+                EC_PUBLISH_MESSAGE,
+                3,
+            )
+        except KeyError as e:
+            raise S30Exception(
+                f"publishMessageHelper failed - unexpected response - unable to find [{e}] in msg [{resp_txt}]",
+                EC_PUBLISH_MESSAGE,
+                4,
+            )
+        except S30Exception as e:
+            _LOGGER.error(e.message)
+            raise e
         except Exception as e:
-            _LOGGER.exception("publishMessageHelper - Exception ")
-            raise S30Exception(str(e), EC_PUBLISH_MESSAGE, 2)
+            s30e = s30exception_from_comm_exception(
+                e, operation="publishMessageHelper", url=url, metrics=self.metrics
+            )
+            if s30e != None:
+                raise s30e
+            _LOGGER.exception(
+                "publishMessageHelper - unexpected exception - please raise an issue to track"
+            )
+            raise S30Exception(
+                "publishMessageHelper failed due to unexpected exception",
+                EC_COMMS_ERROR,
+                5,
+            )
         _LOGGER.info("publishMessageHelper success sysId [" + str(sysId) + "]")
 
     async def setHVACMode(self, sysId: str, mode: str, scheduleId: int) -> None:
@@ -847,7 +928,7 @@ class lennox_system(object):
         self.manualAwayMode: bool = None
         self.serialNumber: str = None
         # M30 does not send this info, so default to disabled.
-        self.single_setpoint_mode: bool = False   
+        self.single_setpoint_mode: bool = False
         self.temperatureUnit: str = None
         self.dehumidificationMode = None
         self.indoorUnitType = None
@@ -1233,6 +1314,23 @@ class lennox_system(object):
         sp=None,
         spC=None,
     ) -> None:
+        _LOGGER.debug(
+            f"lennox_system:perform_schedule_setpoint  sysid [{self.sysId}] zoneid [{zoneId}] schedule_id [{scheduleId}] hsp [{hsp}] hspC [{hspC}] csp [{csp}] cspC [{cspC}] sp [{sp}] spC [{spC}] single_setpoint_mode [{self.single_setpoint_mode}]"
+        )
+        if (
+            hsp == None
+            and hspC == None
+            and csp == None
+            and cspC == None
+            and sp == None
+            and spC == None
+        ):
+            raise S30Exception(
+                f"lennox_system:perform_schedule_setpoint  sysid [{self.sysId}] no setpoints provided - must specify one or more setpoints",
+                EC_BAD_PARAMETERS,
+                1,
+            )
+
         ### No data validation in this routine, make sure you know what you are setting.
         ### Use the zone.perform_setpoint for error checking
         command = {
@@ -1723,7 +1821,7 @@ class lennox_zone(object):
         self, r_hsp=None, r_hspC=None, r_csp=None, r_cspC=None, r_sp=None, r_spC=None
     ):
         _LOGGER.debug(
-            f"lennox_zone:setpoint_helper  id [{self.id}] hsp [{r_hsp}] hspC [{r_hspC}] csp [{r_csp}] cspC [{r_cspC}] sp [{r_sp}] spC [{r_spC}]"
+            f"lennox_zone:perform_setpoint  id [{self.id}] hsp [{r_hsp}] hspC [{r_hspC}] csp [{r_csp}] cspC [{r_cspC}] sp [{r_sp}] spC [{r_spC}] single_setpoint_mode [{self._system.single_setpoint_mode}]"
         )
 
         self.validate_setpoints(

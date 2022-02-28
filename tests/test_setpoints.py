@@ -9,6 +9,8 @@ import asyncio
 
 from unittest.mock import patch
 
+from lennoxs30api.s30exception import EC_BAD_PARAMETERS, S30Exception
+
 
 def loadfile(name) -> json:
     script_dir = os.path.dirname(__file__) + "/messages/"
@@ -332,3 +334,20 @@ def test_override():
         assert tPeriod["hsp"] == zone.hsp
         assert tPeriod["hspC"] == zone.hspC
         assert len(tPeriod) == 4
+
+
+def test_perform_schedule_setpoint_no_values():
+    api = setup_load_configuration()
+    lsystem: lennox_system = api.getSystems()[0]
+    assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
+    assert lsystem.single_setpoint_mode == False
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        loop = asyncio.get_event_loop()
+        try:
+            result = loop.run_until_complete(lsystem.perform_schedule_setpoint(0, 16))
+        except S30Exception as e:
+            error = True
+            ec = e.error_code
+        assert error == True
+        assert ec == EC_BAD_PARAMETERS
+        assert mock_message_helper.call_count == 0
