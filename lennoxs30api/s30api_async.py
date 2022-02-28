@@ -16,8 +16,6 @@ Change log:
 v0.2.0 - Initial Release
 
 """
-from time import time
-
 from .s30exception import (
     EC_AUTHENTICATE,
     EC_BAD_PARAMETERS,
@@ -27,10 +25,8 @@ from .s30exception import (
     EC_LOGOUT,
     EC_NEGOTIATE,
     EC_NO_SCHEDULE,
-    EC_PROCESS_MESSAGE,
     EC_PUBLISH_MESSAGE,
     EC_REQUEST_DATA_HELPER,
-    EC_RETRIEVE,
     EC_SETMODE_HELPER,
     EC_SUBSCRIBE,
     EC_UNAUTHORIZED,
@@ -45,7 +41,6 @@ from aiohttp import ClientTimeout, ClientSession
 
 from urllib.parse import quote
 from typing import Final, List
-from .lennox_period import lennox_period
 from .lennox_schedule import lennox_schedule
 from .lennox_home import lennox_home
 from .metrics import Metrics
