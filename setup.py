@@ -5,13 +5,13 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="lennoxs30api",
-    version="0.1.6",
+    version="0.1.7",
     description="API Wrapper for Lennox S30 Cloud and LAN API",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/PeteRager/lennoxs30api",
     author="Pete Rage",
-    author_email="pete.saged@icloud.com",
+    author_email="pete.rager@x.com",
     license="MIT",
     classifiers=[
         "Programming Language :: Python :: 3",
