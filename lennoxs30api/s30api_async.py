@@ -905,6 +905,13 @@ class s30api_async(object):
 
 
 class lennox_system(object):
+
+    def nested_dict(n, type):
+        if n == 1:
+            return defaultdict(type)
+        else:
+            return defaultdict(lambda: nested_dict(n-1, type))
+
     def __init__(self, sysId: str):
         self.sysId: str = sysId
         self.api: s30api_async = None
@@ -963,6 +970,9 @@ class lennox_system(object):
             "equipments": self._processEquipments,
             "systemControl": self._processSystemControl,
         }
+        
+        self.diagnostics = nested_dict(3, str)
+        
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
         _LOGGER.info(f"Running Diag Branch")
 
@@ -1186,7 +1196,12 @@ class lennox_system(object):
                         "value",
                         self.diagnosticPaths[diagnostic_path],
                     )
+                
+                diagnostics[equipment_id][diagnostic_id][diagnostic_name] = diagnostic_data
 
+    def getDiagnostics(self):
+        return nested_dict
+        
     def has_emergency_heat(self) -> bool:
         """Returns True is the system has emergency heat"""
         # Emergency heat is defined as a system with a heat pump that also has an indoor furnace
