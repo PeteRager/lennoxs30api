@@ -974,7 +974,7 @@ class lennox_system(object):
         self.diagnostics = nested_dict(3, str)
         
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
-        _LOGGER.info(f"Running Diag Branch")
+        _LOGGER.info(f"Running Diag Branch 2")
 
     def update(self, api: s30api_async, home: lennox_home, idx: int):
         self.api = api
