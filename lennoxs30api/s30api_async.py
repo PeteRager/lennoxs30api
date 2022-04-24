@@ -1197,6 +1197,7 @@ class lennox_system(object):
                         self.diagnosticPaths[diagnostic_path],
                     )
                 
+                _LOGGER.info(f"Found [{equipment_id}] [{diagnostic_id}] [{diagnostic_name}] [{diagnostic_data}]")
                 diagnostics[equipment_id][diagnostic_id][diagnostic_name] = diagnostic_data
 
     def getDiagnostics(self):
