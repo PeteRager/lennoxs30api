@@ -964,6 +964,7 @@ class lennox_system(object):
             "systemControl": self._processSystemControl,
         }
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
+        _LOGGER.info(f"Running Diag Branch")
 
     def update(self, api: s30api_async, home: lennox_home, idx: int):
         self.api = api
