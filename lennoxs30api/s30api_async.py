@@ -16,6 +16,7 @@ Change log:
 v0.2.0 - Initial Release
 
 """
+import string
 from .s30exception import (
     EC_AUTHENTICATE,
     EC_BAD_PARAMETERS,
@@ -77,6 +78,16 @@ HVAC_MODES: Final = {
     LENNOX_HVAC_EMERGENCY_HEAT,
 }
 
+LENNOX_HUMIDITY_MODE_OFF: Final = "off"
+LENNOX_HUMIDITY_MODE_HUMIDIFY: Final = "humidify"
+LENNOX_HUMIDITY_MODE_DEHUMIDIFY: Final = "dehumidify"
+
+HUMIDITY_MODES: Final = {
+    LENNOX_HUMIDITY_MODE_OFF,
+    LENNOX_HUMIDITY_MODE_HUMIDIFY,
+    LENNOX_HUMIDITY_MODE_DEHUMIDIFY,
+}
+
 
 LENNOX_HUMID_OPERATION_DEHUMID: Final = "dehumidifying"  # validated
 LENNOX_HUMID_OPERATION_HUMID: Final = "humidifying"  # a guess
@@ -84,7 +95,7 @@ LENNOX_HUMID_OPERATION_WAITING: Final = "waiting"
 
 
 FAN_MODES: Final = {"on", "auto", "circulate"}
-HVAC_MODE_TARGETS: Final = {"fanMode", "systemMode"}
+HVAC_MODE_TARGETS: Final = {"fanMode", "systemMode", "humidityMode"}
 
 LENNOX_MANUAL_MODE_SCHEDULE_START_INDEX: int = 16
 
@@ -860,11 +871,18 @@ class s30api_async(object):
             f"setHVACMode mode [{mode}] scheduleId [{scheduleId}] sysId [{sysId}]"
         )
         if mode not in HVAC_MODES:
-            err_msg = (
-                f"setMode - invalide mode [{mode}] requested, must be in [{HVAC_MODES}]"
-            )
+            err_msg = f"setHVACMode - invalide mode [{mode}] requested, must be in [{HVAC_MODES}]"
             raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
         await self.setModeHelper(sysId, "systemMode", mode, scheduleId)
+
+    async def setHumidityMode(self, sysId: str, mode: str, scheduleId: int):
+        _LOGGER.info(
+            f"setHumidityMode mode [{mode}] scheduleId [{scheduleId}] sysId [{sysId}]"
+        )
+        if mode not in HUMIDITY_MODES:
+            err_msg = f"setHumidityMode - invalide mode [{mode}] requested, must be in [{HUMIDITY_MODES}]"
+            raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
+        await self.setModeHelper(sysId, "humidityMode", mode, scheduleId)
 
     async def setFanMode(self, sysId: str, mode: str, scheduleId: int) -> None:
         _LOGGER.info(
@@ -1272,6 +1290,9 @@ class lennox_system(object):
     async def setHVACMode(self, mode, scheduleId):
         return await self.api.setHVACMode(self.sysId, mode, scheduleId)
 
+    async def setHumidityMode(self, mode, scheduleId):
+        return await self.api.setHumidityMode(self.sysId, mode, scheduleId)
+
     async def setFanMode(self, mode, scheduleId):
         return await self.api.setFanMode(self.sysId, mode, scheduleId)
 
@@ -1313,9 +1334,11 @@ class lennox_system(object):
         cspC=None,
         sp=None,
         spC=None,
+        husp=None,
+        desp=None,
     ) -> None:
         _LOGGER.debug(
-            f"lennox_system:perform_schedule_setpoint  sysid [{self.sysId}] zoneid [{zoneId}] schedule_id [{scheduleId}] hsp [{hsp}] hspC [{hspC}] csp [{csp}] cspC [{cspC}] sp [{sp}] spC [{spC}] single_setpoint_mode [{self.single_setpoint_mode}]"
+            f"lennox_system:perform_schedule_setpoint  sysid [{self.sysId}] zoneid [{zoneId}] schedule_id [{scheduleId}] hsp [{hsp}] hspC [{hspC}] csp [{csp}] cspC [{cspC}] sp [{sp}] spC [{spC}] single_setpoint_mode [{self.single_setpoint_mode}] husp [{husp}] desp [{desp}]"
         )
         if (
             hsp == None
@@ -1324,6 +1347,8 @@ class lennox_system(object):
             and cspC == None
             and sp == None
             and spC == None
+            and husp == None
+            and desp == None
         ):
             raise S30Exception(
                 f"lennox_system:perform_schedule_setpoint  sysid [{self.sysId}] no setpoints provided - must specify one or more setpoints",
@@ -1352,6 +1377,10 @@ class lennox_system(object):
             period["sp"] = int(sp)
         if spC != None:
             period["spC"] = float(spC)
+        if husp != None:
+            period["husp"] = int(husp)
+        if desp != None:
+            period["desp"] = int(desp)
 
         data = '"Data":' + json.dumps(command).replace(" ", "")
         await self.api.publishMessageHelper(self.sysId, data)
@@ -1480,6 +1509,7 @@ class lennox_zone(object):
         self.minHspC = None
 
         self.maxHumSp = None
+        self.minHumSp = None
         self.maxDehumSp = None
         self.minDehumSp = None
 
@@ -1490,14 +1520,14 @@ class lennox_zone(object):
         self.systemMode = None
         self.fanMode = None
         self.humidityMode = None
-        self.csp = None
-        self.cspC = None
-        self.hsp = None
-        self.hspC = None
-        self.desp = None
-        self.sp = None
-        self.spC = None
-        self.husp = None
+        self.csp = None  # Cool Setpoint F
+        self.cspC = None  # Cool Setpoint C
+        self.hsp = None  # Heat Setpoint F
+        self.hspC = None  # Heat Setpoint C
+        self.desp = None  # Dehumidify Setpoint %
+        self.sp = None  # Perfect Mode Setpoint F
+        self.spC = None  # Perfect Mode Setpoint C
+        self.husp = None  # Humidity Setpoint
         self.startTime = None
         self.overrideActive = None
 
@@ -1568,9 +1598,10 @@ class lennox_zone(object):
             self.attr_updater(config, "minCsp")
             self.attr_updater(config, "minCspC")
             self.attr_updater(config, "humidificationOption")
-            self.attr_updater(config, "maxHumSp")
             self.attr_updater(config, "emergencyHeatingOption")
             self.attr_updater(config, "dehumidificationOption")
+            self.attr_updater(config, "maxHumSp")
+            self.attr_updater(config, "minHumSp")
             self.attr_updater(config, "maxDehumSp")
             self.attr_updater(config, "minDehumSp")
             self.attr_updater(config, "scheduleId")
@@ -1647,7 +1678,7 @@ class lennox_zone(object):
     def getFanMode(self):
         return self.fanMode
 
-    def getHumidityMode(self):
+    def getHumidityMode(self) -> string:
         return self.humidityMode
 
     def getCoolSP(self):
@@ -1694,6 +1725,9 @@ class lennox_zone(object):
             return self.cspC
         else:
             return None
+
+    def getHumidifySetpoint(self):
+        return self.husp
 
     def getManualModeScheduleId(self) -> int:
         return 16 + self.id
@@ -1880,10 +1914,27 @@ class lennox_zone(object):
             elif r_sp != None:
                 spC = self._system.convertFtoC(r_sp)
 
+        await self._execute_setpoints(
+            hsp=hsp, hspC=hspC, csp=csp, cspC=cspC, sp=sp, spC=spC
+        )
+
+    async def _execute_setpoints(
+        self,
+        hsp=None,
+        hspC=None,
+        csp=None,
+        cspC=None,
+        sp=None,
+        spC=None,
+        husp: int = None,
+        desp: int = None,
+    ):
+        info_str = f"zone [{self.id}] hsp [{hsp}] hspC [{hspC}] csp [{csp}] cspC [{cspC}] sp [{sp}] spC [{spC}] husp [{husp}] desp [{desp}]"
+        _LOGGER.debug(f"_execute_setpoints {info_str}")
         # If the zone is in manual mode, the temperature can just be set.
         if self.isZoneManualMode() == True:
             _LOGGER.info(
-                f"lennox_zone:setHeatCoolSPF zone already in manual mode id [{self.id}]"
+                f"lennox_zone:_execute_setpoints zone already in manual mode id [{self.id}]"
             )
             await self._system.perform_schedule_setpoint(
                 zoneId=self.id,
@@ -1894,6 +1945,8 @@ class lennox_zone(object):
                 cspC=cspC,
                 sp=sp,
                 spC=spC,
+                husp=husp,
+                desp=desp,
             )
             return
 
@@ -1901,7 +1954,7 @@ class lennox_zone(object):
         # the override schedule and we can just set the temperature
         if self.isZoneOveride() == True:
             _LOGGER.info(
-                f"lennox_zone:setHeatCoolSPF zone already in overridemode id [{self.id}]"
+                f"lennox_zone:_execute_setpoints zone already in overridemode id [{self.id}]"
             )
             await self._system.perform_schedule_setpoint(
                 zoneId=self.id,
@@ -1912,6 +1965,8 @@ class lennox_zone(object):
                 cspC=cspC,
                 sp=sp,
                 spC=spC,
+                husp=husp,
+                desp=desp,
             )
             return
 
@@ -1919,7 +1974,7 @@ class lennox_zone(object):
         # Copy all the data over from the current executing period
         _LOGGER.info(
             _LOGGER.info(
-                f"lennox_zone:setHeatCoolSPF creating zone override [{self.id}]"
+                f"lennox_zone:_execute_setpoints creating zone override [{self.id}]"
             )
         )
 
@@ -1935,13 +1990,17 @@ class lennox_zone(object):
             sp = self.sp
         if spC is None:
             spC = self.spC
+        if husp is None:
+            husp = self.husp
+        if desp is None:
+            desp = self.desp
 
         data = '"Data":{"schedules":[{"schedule":{"periods":[{"id":0,"period":'
-        data += '{"desp":' + str(self.desp) + ","
+        data += '{"desp":' + str(desp) + ","
         data += '"hsp":' + str(hsp) + ","
         data += '"cspC":' + str(cspC) + ","
         data += '"sp":' + str(sp) + ","
-        data += '"husp":' + str(self.husp) + ","
+        data += '"husp":' + str(husp) + ","
         data += '"humidityMode":"' + str(self.humidityMode) + '",'
         data += '"systemMode":"' + str(self.systemMode) + '",'
         data += '"spC":' + str(spC) + ","
@@ -1955,39 +2014,55 @@ class lennox_zone(object):
             await self._system.api.publishMessageHelper(self._system.sysId, data)
         except S30Exception as e:
             _LOGGER.error(
-                "lennox_zone:setHeatCoolSPF failed to create override - zone ["
-                + str(self.id)
-                + "] hsp ["
-                + str(r_hsp)
-                + "] csp ["
-                + str(r_csp)
-                + "]"
+                f"lennox_zone:_execute_setpoints failed to create override {info_str}"
             )
             raise e
 
         _LOGGER.info(
-            "lennox_zone:setHeatCoolSPF placing zone in override hold - zone ["
-            + str(self.id)
-            + "] hsp ["
-            + str(r_hsp)
-            + "] csp ["
-            + str(r_csp)
-            + "]"
+            f"lennox_zone:_execute_setpoints placing zone in override hold {info_str}"
         )
 
         try:
             await self.setScheduleHold(True)
         except S30Exception as e:
             _LOGGER.error(
-                "lennox_zone:setHeatCoolSPF failed to create schedule hold - zone ["
-                + str(self.id)
-                + "] hsp ["
-                + str(r_hsp)
-                + "] csp ["
-                + str(r_csp)
-                + "]"
+                "lennox_zone:_execute_setpoints failed to create schedule hold {info_str}"
             )
             raise e
+
+    async def perform_humidify_setpoint(self, r_husp: int = None, r_desp: int = None):
+        _LOGGER.debug(
+            f"lennox_zone:perform_humidify_setpoint id [{self.id}] husp [{r_husp}] desp [{r_desp}]"
+        )
+
+        husp: int = None
+        desp: int = None
+
+        if r_husp is None and r_desp is None:
+            raise S30Exception(
+                f"perform_humidify_setpoint: r_husp or r_desp must be specified - values [{r_husp}] [{r_desp}]",
+                EC_BAD_PARAMETERS,
+                1,
+            )
+
+        if r_husp != None:
+            husp = int(r_husp)
+            if husp > self.maxHumSp or husp < self.minHumSp:
+                raise S30Exception(
+                    f"perform_humidify_setpoint: r_husp invalid value [{r_husp}] must be between [{self.minHumSp}] and [{self.maxHumSp}]",
+                    EC_BAD_PARAMETERS,
+                    2,
+                )
+
+        if r_desp != None:
+            desp = int(r_desp)
+            if desp > self.maxDehumSp or desp < self.minDehumSp:
+                raise S30Exception(
+                    f"perform_humidify_setpoint: r_desp invalid value [{r_desp}] must be between [{self.minDehumSp}] and [{self.maxDehumSp}]",
+                    EC_BAD_PARAMETERS,
+                    2,
+                )
+        await self._execute_setpoints(husp=husp, desp=desp)
 
     async def setScheduleHold(self, hold: bool) -> bool:
         if hold == True:
@@ -2109,3 +2184,32 @@ class lennox_zone(object):
         if self.isZoneManualMode() == False:
             await self._system.setSchedule(self.id, self.getManualModeScheduleId())
         await self._system.setHVACMode(hvac_mode, self.getManualModeScheduleId())
+
+    async def setHumidityMode(self, mode: str) -> None:
+        # We want to be careful passing modes to the controller that it does not support.  We don't want to brick the controller.
+        if mode == LENNOX_HUMIDITY_MODE_HUMIDIFY:
+            if self.humidificationOption == False:
+                raise S30Exception(
+                    f"setHumidityMode - invalid mode - zone [{self.id}]  does not support [{mode}]",
+                    EC_BAD_PARAMETERS,
+                    1,
+                )
+        elif mode == LENNOX_HUMIDITY_MODE_DEHUMIDIFY:
+            if self.dehumidificationOption == False:
+                raise S30Exception(
+                    f"setHumidityMode - invalid mode - zone [{self.id}]  does not support [{mode}]",
+                    EC_BAD_PARAMETERS,
+                    2,
+                )
+        elif mode == LENNOX_HUMIDITY_MODE_OFF:
+            pass
+        else:
+            raise S30Exception(
+                f"setHumidityMode - invalidate mode - zone [{self.id}]  does not recognize [{mode}]",
+                EC_BAD_PARAMETERS,
+                4,
+            )
+
+        if self.isZoneManualMode() == False:
+            await self._system.setSchedule(self.id, self.getManualModeScheduleId())
+        await self._system.setHumidityMode(mode, self.getManualModeScheduleId())

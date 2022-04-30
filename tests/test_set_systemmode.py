@@ -28,7 +28,7 @@ def test_set_systemMode_emergency_heat(api):
         except S30Exception as e:
             error = True
         assert error == True
-        mock_message_helper.call_count == 0
+        assert mock_message_helper.call_count == 0
 
     lsystem: lennox_system = api.getSystems()[2]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000003"

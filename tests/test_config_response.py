@@ -116,7 +116,7 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_1.humidificationOption == False
     assert zone_1.humidity == 28 == zone_1.getHumidity()
     assert zone_1.humidityMode == "dehumidify"
-    assert zone_1.husp == 40
+    assert zone_1.husp == 40 == zone_1.getHumidifySetpoint()
     assert zone_1.maxCsp == 99
     assert zone_1.maxCspC == 37
     assert zone_1.minCsp == 60
@@ -192,10 +192,11 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_2.humidificationOption == False
     assert zone_2.humidity == 28 == zone_2.getHumidity()
     assert zone_2.humidityMode == "dehumidify"
-    assert zone_2.husp == 40
+    assert zone_2.husp == 40 == zone_2.getHumidifySetpoint()
     assert zone_2.maxCsp == 99
     assert zone_2.maxDehumSp == 60
     assert zone_2.maxHsp == 90
+    assert zone_2.minHumSp == 15
     assert zone_2.maxHumSp == 45
     assert zone_2.minCsp == 60
     assert zone_2.minHsp == 40
@@ -224,10 +225,11 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_3.humidificationOption == False
     assert zone_3.humidity == 28 == zone_3.getHumidity()
     assert zone_3.humidityMode == "dehumidify"
-    assert zone_3.husp == 40
+    assert zone_3.husp == 40 == zone_3.getHumidifySetpoint()
     assert zone_3.maxCsp == 99
     assert zone_3.maxDehumSp == 60
     assert zone_3.maxHsp == 90
+    assert zone_3.minHumSp == 15
     assert zone_3.maxHumSp == 45
     assert zone_3.minCsp == 60
     assert zone_3.minHsp == 40
@@ -254,10 +256,11 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_4.humidificationOption == False
     assert zone_4.humidity == 28 == zone_4.getHumidity()
     assert zone_4.humidityMode == "dehumidify"
-    assert zone_4.husp == 40
+    assert zone_4.husp == 40 == zone_4.getHumidifySetpoint()
     assert zone_4.maxCsp == 99
     assert zone_4.maxDehumSp == 60
     assert zone_4.maxHsp == 90
+    assert zone_4.minHumSp == 15
     assert zone_4.maxHumSp == 45
     assert zone_4.minCsp == 60
     assert zone_4.minHsp == 40
@@ -318,10 +321,11 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_5.humidificationOption == False
     assert zone_5.humidity == 30 == zone_5.getHumidity()
     assert zone_5.humidityMode == "off"
-    assert zone_5.husp == 40
+    assert zone_5.husp == 40 == zone_5.getHumidifySetpoint()
     assert zone_5.maxCsp == 99
     assert zone_5.maxDehumSp == 60
     assert zone_5.maxHsp == 90
+    assert zone_5.minHumSp == 15
     assert zone_5.maxHumSp == 45
     assert zone_5.minCsp == 60
     assert zone_5.minHsp == 40

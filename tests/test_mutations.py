@@ -1,4 +1,8 @@
 from lennoxs30api.s30api_async import (
+    LENNOX_HUMID_OPERATION_HUMID,
+    LENNOX_HUMIDITY_MODE_DEHUMIDIFY,
+    LENNOX_HUMIDITY_MODE_HUMIDIFY,
+    LENNOX_HUMIDITY_MODE_OFF,
     LENNOX_SA_SETPOINT_STATE_HOME,
     LENNOX_SA_STATE_ENABLED_CANCELLED,
     lennox_zone,
@@ -98,10 +102,11 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.humidificationOption == False
     assert zone_5.humidity == 30 == zone_5.getHumidity()
     assert zone_5.humidityMode == "off"
-    assert zone_5.husp == 40
+    assert zone_5.husp == 40 == zone_5.getHumidifySetpoint()
     assert zone_5.maxCsp == 99
     assert zone_5.maxDehumSp == 60
     assert zone_5.maxHsp == 90
+    assert zone_5.minHumSp == 15
     assert zone_5.maxHumSp == 45
     assert zone_5.minCsp == 60
     assert zone_5.minHsp == 40
@@ -137,10 +142,11 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.humidificationOption == False
     assert zone_5.humidity == 30 == zone_5.getHumidity()
     assert zone_5.humidityMode == "off"
-    assert zone_5.husp == 40
+    assert zone_5.husp == 40 == zone_5.getHumidifySetpoint()
     assert zone_5.maxCsp == 99
     assert zone_5.maxDehumSp == 60
     assert zone_5.maxHsp == 90
+    assert zone_5.minHumSp == 15
     assert zone_5.maxHumSp == 45
     assert zone_5.minCsp == 60
     assert zone_5.minHsp == 40
@@ -177,10 +183,11 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.humidificationOption == False
     assert zone_5.humidity == 30 == zone_5.getHumidity()
     assert zone_5.humidityMode == "off"
-    assert zone_5.husp == 40
+    assert zone_5.husp == 40 == zone_5.getHumidifySetpoint()
     assert zone_5.maxCsp == 99
     assert zone_5.maxDehumSp == 60
     assert zone_5.maxHsp == 90
+    assert zone_5.minHumSp == 15
     assert zone_5.maxHumSp == 45
     assert zone_5.minCsp == 60
     assert zone_5.minHsp == 40
@@ -232,10 +239,11 @@ def test_hvac_mode_change_zone_2():
     assert zone_2.humidificationOption == False
     assert zone_2.humidity == 28 == zone_2.getHumidity()
     assert zone_2.humidityMode == "dehumidify"
-    assert zone_2.husp == 40
+    assert zone_2.husp == 40 == zone_2.getHumidifySetpoint()
     assert zone_2.maxCsp == 99
     assert zone_2.maxDehumSp == 60
     assert zone_2.maxHsp == 90
+    assert zone_2.minHumSp == 15
     assert zone_2.maxHumSp == 45
     assert zone_2.minCsp == 60
     assert zone_2.minHsp == 40
@@ -279,10 +287,11 @@ def test_data_before_config() -> s30api_async:
     assert zone_5.humidificationOption == False
     assert zone_5.humidity == None == zone_5.getHumidity()
     assert zone_5.humidityMode == None
-    assert zone_5.husp == None
+    assert zone_5.husp == None == zone_5.getHumidifySetpoint()
     assert zone_5.maxCsp == None
     assert zone_5.maxDehumSp == None
     assert zone_5.maxHsp == None
+    assert zone_5.minHumSp == None
     assert zone_5.maxHumSp == None
     assert zone_5.minCsp == None
     assert zone_5.minHsp == None
@@ -310,10 +319,11 @@ def test_data_before_config() -> s30api_async:
     assert zone_5.humidificationOption == False
     assert zone_5.humidity == 30 == zone_5.getHumidity()
     assert zone_5.humidityMode == "off"
-    assert zone_5.husp == 40
+    assert zone_5.husp == 40 == zone_5.getHumidifySetpoint()
     assert zone_5.maxCsp == 99
     assert zone_5.maxDehumSp == 60
     assert zone_5.maxHsp == 90
+    assert zone_5.minHumSp == 15
     assert zone_5.maxHumSp == 45
     assert zone_5.minCsp == 60
     assert zone_5.minHsp == 40
@@ -443,3 +453,15 @@ def test_smart_away_mutations():
     assert system.sa_cancel == False
     assert system.sa_state == LENNOX_SA_STATE_ENABLED_CANCELLED
     assert system.sa_setpointState == LENNOX_SA_SETPOINT_STATE_HOME
+
+
+def test_humidity_setpoint_mutations():
+    api = setup_load_configuration()
+    zone_5 = api.getSystem("0000000-0000-0000-0000-000000000001").getZone(0)
+    assert zone_5.getHumidityMode() == LENNOX_HUMIDITY_MODE_DEHUMIDIFY
+    assert zone_5.getHumidifySetpoint() == 40
+    data = loadfile("humidity_setpoint_35.json")
+    api.processMessage(data)
+    assert zone_5.getHumidityMode() == LENNOX_HUMIDITY_MODE_HUMIDIFY
+    assert zone_5.getHumidifySetpoint() == 35
+    assert zone_5.humOperation == LENNOX_HUMID_OPERATION_HUMID

@@ -132,7 +132,7 @@ def test_process_configuration_message(api_m30):
     assert zone_1.humidificationOption == False
     assert zone_1.humidity == 27 == zone_1.getHumidity()
     assert zone_1.humidityMode == "off"
-    assert zone_1.husp == 40
+    assert zone_1.husp == 40 == zone_1.getHumidifySetpoint()
     assert zone_1.maxCsp == 99
     assert zone_1.maxCspC == 37
     assert zone_1.minCsp == 60
