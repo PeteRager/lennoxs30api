@@ -1,6 +1,5 @@
 from unittest import mock
 
-from regex import E
 from lennoxs30api.s30api_async import lennox_zone, s30api_async, lennox_system
 from lennoxs30api.lennox_home import lennox_home
 
