@@ -1220,16 +1220,12 @@ class lennox_system(object):
                         "value",
                         self.diagnosticPaths[diagnostic_path],
                     )
-                
-                #_LOGGER.info(f"Found [{equipment_id}] [{diagnostic_id}] [{diagnostic_name}] [{diagnostic_data}]")
-                #self.diagnostics[equipment_id][diagnostic_id][diagnostic_name] = diagnostic_data
-                
+                                
             eid = equipment_id
             #equipType = equipment["equipType"]                            
             for diagnostic_data in equipment.get("equipment", {}).get("diagnostics", []):
                 did = diagnostic_data["id"]
-                for diag in diagnostic_data["diagnostic"]:
-                    key = diag
+                for key in diagnostic_data["diagnostic"]:
                     value = diagnostic_data["diagnostic"].get(key)
                     #_LOGGER.info(f"Diag: {eid} {did} {key} {value} ") 
                     self.diagnostics[eid][did][key] = value
