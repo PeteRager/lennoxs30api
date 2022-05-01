@@ -920,6 +920,7 @@ class lennox_system(object):
         self._zoneList: List["lennox_zone"] = []
         self._schedules: List[lennox_schedule] = []
         self._callbacks = []
+        self._diagcallbacks = []
         self.outdoorTemperature = None
         self.name: str = None
         self.allergenDefender = None
@@ -1089,6 +1090,29 @@ class lennox_system(object):
         self._dirty = False
         self._dirtyList = []
 
+    def registerOnUpdateCallbackDiag(self, callbackfunc, match=None):
+        self._diagcallbacks.append({"func": callbackfunc, "match": match})
+
+    def executeOnUpdateCallbacksDiag(self, id, newval):
+        if True:
+            for callback in self._diagcallbacks:
+                callbackfunc = callback["func"]
+                match = callback["match"]
+                matches = False
+                if match is None:
+                    matches = True
+                else:
+                    for m in match:
+                        if m == id:
+                            matches = True
+                            break
+                try:
+                    if matches == True:
+                        callbackfunc(newval)
+                except Exception as e:
+                    # Log and eat this exception so we can process other callbacks
+                    _LOGGER.exception("executeOnUpdateCallback - failed ")
+
     def attr_updater(self, set, attr: str, propertyName: str = None) -> bool:
         if attr in set:
             attr_val = set[attr]
@@ -1209,6 +1233,7 @@ class lennox_system(object):
                     value = diagnostic_data["diagnostic"].get(key)
                     #_LOGGER.info(f"Diag: {eid} {did} {key} {value} ") 
                     self.diagnostics[eid][did][key] = value
+                    self.executeOnUpdateCallbacksDiag(f"{eid}_{did}", value)
                             
     def getDiagnostics(self):
         return self.diagnostics
