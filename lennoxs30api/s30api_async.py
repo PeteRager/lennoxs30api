@@ -38,6 +38,7 @@ import logging
 import json
 import uuid
 from aiohttp import ClientTimeout, ClientSession
+from collections import defaultdict
 
 from urllib.parse import quote
 from typing import Final, List
@@ -1196,11 +1197,21 @@ class lennox_system(object):
                         self.diagnosticPaths[diagnostic_path],
                     )
                 
-                _LOGGER.info(f"Found [{equipment_id}] [{diagnostic_id}] [{diagnostic_name}] [{diagnostic_data}]")
-                diagnostics[equipment_id][diagnostic_id][diagnostic_name] = diagnostic_data
-
+                #_LOGGER.info(f"Found [{equipment_id}] [{diagnostic_id}] [{diagnostic_name}] [{diagnostic_data}]")
+                #self.diagnostics[equipment_id][diagnostic_id][diagnostic_name] = diagnostic_data
+                
+            eid = equipment_id
+            #equipType = equipment["equipType"]                            
+            for diagnostic_data in equipment.get("equipment", {}).get("diagnostics", []):
+                did = diagnostic_data["id"]
+                for diag in diagnostic_data["diagnostic"]:
+                    key = diag
+                    value = diagnostic_data["diagnostic"].get(key)
+                    #_LOGGER.info(f"Diag: {eid} {did} {key} {value} ") 
+                    self.diagnostics[eid][did][key] = value
+                            
     def getDiagnostics(self):
-        return nested_dict
+        return self.diagnostics
         
     def has_emergency_heat(self) -> bool:
         """Returns True is the system has emergency heat"""
