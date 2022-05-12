@@ -113,7 +113,7 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_1.hsp == 64 == zone_1.getHeatSP()
     assert zone_1.hspC == 18
     assert zone_1.humOperation == "off"
-    assert zone_1.humidificationOption == False
+    assert zone_1.humidificationOption == True
     assert zone_1.humidity == 28 == zone_1.getHumidity()
     assert zone_1.humidityMode == "dehumidify"
     assert zone_1.husp == 40 == zone_1.getHumidifySetpoint()
