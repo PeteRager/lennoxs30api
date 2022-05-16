@@ -16,7 +16,6 @@ Change log:
 v0.2.0 - Initial Release
 
 """
-import string
 from .s30exception import (
     EC_AUTHENTICATE,
     EC_BAD_PARAMETERS,
@@ -1694,7 +1693,7 @@ class lennox_zone(object):
     def getFanMode(self):
         return self.fanMode
 
-    def getHumidityMode(self) -> string:
+    def getHumidityMode(self) -> str:
         return self.humidityMode
 
     def getCoolSP(self):
