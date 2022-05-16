@@ -1,7 +1,6 @@
 import json
 import os
 import asyncio
-from unittest import async_case
 
 from aiohttp import web
 from aiohttp.typedefs import JSONDecoder
