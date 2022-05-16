@@ -5,6 +5,9 @@ from lennoxs30api.s30api_async import (
     LENNOX_HUMIDITY_MODE_OFF,
     LENNOX_SA_SETPOINT_STATE_HOME,
     LENNOX_SA_STATE_ENABLED_CANCELLED,
+    LENNOX_STATUS_GOOD,
+    LENNOX_STATUS_NOT_AVAILABLE,
+    LENNOX_STATUS_NOT_EXIST,
     lennox_zone,
     s30api_async,
     lennox_system,
@@ -101,6 +104,8 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.humOperation == "off"
     assert zone_5.humidificationOption == False
     assert zone_5.humidity == 30 == zone_5.getHumidity()
+    assert zone_5.humidityStatus == LENNOX_STATUS_GOOD
+
     assert zone_5.humidityMode == "off"
     assert zone_5.husp == 40 == zone_5.getHumidifySetpoint()
     assert zone_5.maxCsp == 99
@@ -116,6 +121,8 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.tempOperation == "off"
     assert zone_5.temperature == 79 == zone_5.getTemperature()
     assert zone_5.temperatureC == 26 == zone_5.getTemperatureC()
+    assert zone_5.temperatureStatus == LENNOX_STATUS_GOOD
+
     assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
 
     # This file does not change anything.  Sometimes this message is not received.
@@ -141,6 +148,8 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.humOperation == "off"
     assert zone_5.humidificationOption == False
     assert zone_5.humidity == 30 == zone_5.getHumidity()
+    assert zone_5.humidityStatus == LENNOX_STATUS_GOOD
+
     assert zone_5.humidityMode == "off"
     assert zone_5.husp == 40 == zone_5.getHumidifySetpoint()
     assert zone_5.maxCsp == 99
@@ -157,6 +166,7 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.tempOperation == "off"
     assert zone_5.temperature == 79 == zone_5.getTemperature()
     assert zone_5.temperatureC == 26 == zone_5.getTemperatureC()
+    assert zone_5.temperatureStatus == LENNOX_STATUS_GOOD
     assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
 
     # The system now goes into cooling mode
@@ -182,6 +192,8 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.humOperation == "off"
     assert zone_5.humidificationOption == False
     assert zone_5.humidity == 30 == zone_5.getHumidity()
+    assert zone_5.humidityStatus == LENNOX_STATUS_GOOD
+
     assert zone_5.humidityMode == "off"
     assert zone_5.husp == 40 == zone_5.getHumidifySetpoint()
     assert zone_5.maxCsp == 99
@@ -196,6 +208,7 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.getSystemMode() == "cool"
     assert zone_5.temperature == 79 == zone_5.getTemperature()
     assert zone_5.temperatureC == 26 == zone_5.getTemperatureC()
+    assert zone_5.temperatureStatus == LENNOX_STATUS_GOOD
     assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
 
 
@@ -238,6 +251,8 @@ def test_hvac_mode_change_zone_2():
     assert zone_2.humOperation == "off"
     assert zone_2.humidificationOption == False
     assert zone_2.humidity == 28 == zone_2.getHumidity()
+    assert zone_2.humidityStatus == LENNOX_STATUS_GOOD
+
     assert zone_2.humidityMode == "dehumidify"
     assert zone_2.husp == 40 == zone_2.getHumidifySetpoint()
     assert zone_2.maxCsp == 99
@@ -252,6 +267,7 @@ def test_hvac_mode_change_zone_2():
     assert zone_2.systemMode == "cool" == zone_2.getSystemMode()
     assert zone_2.tempOperation == "off"
     assert zone_2.temperature == 78 == zone_2.getTemperature()
+    assert zone_2.temperatureStatus == LENNOX_STATUS_GOOD
     assert zone_2._system.sysId == "0000000-0000-0000-0000-000000000001"
 
 
@@ -286,6 +302,8 @@ def test_data_before_config() -> s30api_async:
     assert zone_5.humOperation == None
     assert zone_5.humidificationOption == False
     assert zone_5.humidity == None == zone_5.getHumidity()
+    assert zone_5.humidityStatus == None
+
     assert zone_5.humidityMode == None
     assert zone_5.husp == None == zone_5.getHumidifySetpoint()
     assert zone_5.maxCsp == None
@@ -300,6 +318,7 @@ def test_data_before_config() -> s30api_async:
     assert zone_5.tempOperation == None
     assert zone_5.temperature == None == zone_5.getTemperature()
     assert zone_5.temperatureC == None == zone_5.getTemperatureC()
+    assert zone_5.temperatureStatus == None
     assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
 
     data = loadfile("config_response_system_02.json")
@@ -318,6 +337,8 @@ def test_data_before_config() -> s30api_async:
     assert zone_5.humOperation == "off"
     assert zone_5.humidificationOption == False
     assert zone_5.humidity == 30 == zone_5.getHumidity()
+    assert zone_5.humidityStatus == LENNOX_STATUS_GOOD
+
     assert zone_5.humidityMode == "off"
     assert zone_5.husp == 40 == zone_5.getHumidifySetpoint()
     assert zone_5.maxCsp == 99
@@ -332,6 +353,7 @@ def test_data_before_config() -> s30api_async:
     assert zone_5.systemMode == "off" == zone_5.getSystemMode()
     assert zone_5.tempOperation == "off"
     assert zone_5.temperature == 79 == zone_5.getTemperature()
+    assert zone_5.temperatureStatus == LENNOX_STATUS_GOOD
     assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
 
 
@@ -465,3 +487,45 @@ def test_humidity_setpoint_mutations():
     assert zone_5.getHumidityMode() == LENNOX_HUMIDITY_MODE_HUMIDIFY
     assert zone_5.getHumidifySetpoint() == 35
     assert zone_5.humOperation == LENNOX_HUMID_OPERATION_HUMID
+
+
+def test_humidity_status():
+    api = setup_load_configuration()
+    zone_1 = api.getSystem("0000000-0000-0000-0000-000000000002").getZone(0)
+    assert zone_1.humidityStatus == LENNOX_STATUS_GOOD
+
+    data = loadfile("mut_sys1_zone_1_humidity_status_not_available.json")
+    api.processMessage(data)
+    assert zone_1.humidityStatus == LENNOX_STATUS_NOT_AVAILABLE
+
+    data = loadfile("mut_sys1_zone_1_humidity_status_not_exist.json")
+    api.processMessage(data)
+    assert zone_1.humidityStatus == LENNOX_STATUS_NOT_EXIST
+
+
+def test_temperature_status():
+    api = setup_load_configuration()
+    zone_1 = api.getSystem("0000000-0000-0000-0000-000000000002").getZone(0)
+    assert zone_1.temperatureStatus == LENNOX_STATUS_GOOD
+
+    data = loadfile("mut_sys1_zone_1_temperature_status_not_available.json")
+    api.processMessage(data)
+    assert zone_1.temperatureStatus == LENNOX_STATUS_NOT_AVAILABLE
+
+    data = loadfile("mut_sys1_zone_1_temperature_status_not_exist.json")
+    api.processMessage(data)
+    assert zone_1.temperatureStatus == LENNOX_STATUS_NOT_EXIST
+
+
+def test_outdoorTemperature_status():
+    api = setup_load_configuration()
+    lsystem = api.getSystem("0000000-0000-0000-0000-000000000002")
+    assert lsystem.outdoorTemperatureStatus == LENNOX_STATUS_GOOD
+
+    data = loadfile("mut_sys1_zone_1_outdoorTemperature_status_not_available.json")
+    api.processMessage(data)
+    assert lsystem.outdoorTemperatureStatus == LENNOX_STATUS_NOT_AVAILABLE
+
+    data = loadfile("mut_sys1_zone_1_outdoorTemperature_status_not_exist.json")
+    api.processMessage(data)
+    assert lsystem.outdoorTemperatureStatus == LENNOX_STATUS_NOT_EXIST

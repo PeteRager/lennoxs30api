@@ -1,0 +1,18 @@
+{
+    "MessageId": "637594500464320381|95a6cacebd94459dbe7538161628bdb6",
+    "SenderId": "0000000-0000-0000-0000-000000000002",
+    "TargetID": "mapp079372367644467046827098_myemail@email.com",
+    "MessageType": "PropertyChange",
+    "Data": {
+        "system": {
+            "status": {
+                "outdoorTemperatureStatus": "not_available",
+                "outdoorTemperature": 57,
+                "outdoorTemperatureC": 13.5
+            },
+            "publisher": {
+                "publisherName": "lcc"
+            }
+        }
+    }
+}

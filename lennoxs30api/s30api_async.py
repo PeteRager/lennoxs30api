@@ -113,6 +113,16 @@ LENNOX_SA_SETPOINT_STATE_HOME = "home"
 LENNOX_SA_SETPOINT_STATE_TRANSITION = "transition"
 LENNOX_SA_SETPOINT_STATE_AWAY = "away"
 
+LENNOX_STATUS_GOOD: Final = "good"
+LENNOX_STATUS_NOT_EXIST: Final = "not_exist"
+LENNOX_STATUS_NOT_AVAILABLE: Final = "not_available"
+
+LENNOX_STATUS: Final = {
+    LENNOX_STATUS_GOOD,
+    LENNOX_STATUS_NOT_EXIST,
+    LENNOX_STATUS_NOT_AVAILABLE,
+}
+
 # String in lennox JSON representing no value.
 LENNOX_NONE_STR: Final = "none"
 
@@ -956,6 +966,7 @@ class lennox_system(object):
         self.dehumidifierType = None
         self.outdoorTemperatureC = None
         self.outdoorTemperature = None
+        self.outdoorTemperatureStatus = None
         self.numberOfZones = None
         self.sysUpTime = None
         self.diagLevel = None
@@ -1138,6 +1149,7 @@ class lennox_system(object):
             status = message["status"]
             self.attr_updater(status, "outdoorTemperature")
             self.attr_updater(status, "outdoorTemperatureC")
+            self.attr_updater(status, "outdoorTemperatureStatus")
             self.attr_updater(status, "diagRuntime")
             self.attr_updater(status, "diagPoweredHours")
             self.attr_updater(status, "numberOfZones")
@@ -1467,7 +1479,9 @@ class lennox_zone(object):
 
         self.temperature = None
         self.temperatureC = None
+        self.temperatureStatus = None
         self.humidity = None
+        self.humidityStatus = None
         self.systemMode = None
         self.tempOperation = None
 
@@ -1623,7 +1637,9 @@ class lennox_zone(object):
             status = zoneMessage["status"]
             self.attr_updater(status, "temperature")
             self.attr_updater(status, "temperatureC")
+            self.attr_updater(status, "temperatureStatus")
             self.attr_updater(status, "humidity")
+            self.attr_updater(status, "humidityStatus")
             self.attr_updater(status, "tempOperation")
             self.attr_updater(status, "humOperation")
             self.attr_updater(status, "allergenDefender")

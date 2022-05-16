@@ -9,6 +9,7 @@ from lennoxs30api.s30api_async import (
     LENNOX_SA_SETPOINT_STATE_TRANSITION,
     LENNOX_SA_STATE_DISABLED,
     LENNOX_SA_STATE_ENABLED_CANCELLED,
+    LENNOX_STATUS_GOOD,
     lennox_zone,
     s30api_async,
     lennox_system,
@@ -57,6 +58,7 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.numberOfZones == 4
     assert lsystem.outdoorTemperature == 80
     assert lsystem.outdoorTemperatureC == 27
+    assert lsystem.outdoorTemperatureStatus == LENNOX_STATUS_GOOD
     assert lsystem.temperatureUnit == "F"
 
     assert lsystem.indoorUnitType == "furnace"
@@ -115,6 +117,7 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_1.humOperation == "off"
     assert zone_1.humidificationOption == True
     assert zone_1.humidity == 28 == zone_1.getHumidity()
+    assert zone_1.humidityStatus == LENNOX_STATUS_GOOD
     assert zone_1.humidityMode == "dehumidify"
     assert zone_1.husp == 40 == zone_1.getHumidifySetpoint()
     assert zone_1.maxCsp == 99
@@ -134,6 +137,7 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_1.tempOperation == "off"
     assert zone_1.temperature == 79 == zone_1.getTemperature()
     assert zone_1.temperatureC == 26 == zone_1.getTemperatureC()
+    assert zone_1.temperatureStatus == LENNOX_STATUS_GOOD
     assert zone_1.heatCoast == False
     assert zone_1.defrost == False
     assert zone_1.balancePoint == "none"
@@ -191,6 +195,8 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_2.humOperation == "off"
     assert zone_2.humidificationOption == False
     assert zone_2.humidity == 28 == zone_2.getHumidity()
+    assert zone_2.humidityStatus == LENNOX_STATUS_GOOD
+
     assert zone_2.humidityMode == "dehumidify"
     assert zone_2.husp == 40 == zone_2.getHumidifySetpoint()
     assert zone_2.maxCsp == 99
@@ -207,6 +213,7 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_2.tempOperation == "off"
     assert zone_2.temperature == 78 == zone_2.getTemperature()
     assert zone_2.temperatureC == 25.5 == zone_2.getTemperatureC()
+    assert zone_2.temperatureStatus == LENNOX_STATUS_GOOD
     assert zone_2._system.sysId == "0000000-0000-0000-0000-000000000001"
 
     zone_3: lennox_zone = zones[2]
@@ -224,6 +231,7 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_3.humOperation == "off"
     assert zone_3.humidificationOption == False
     assert zone_3.humidity == 28 == zone_3.getHumidity()
+    assert zone_3.humidityStatus == LENNOX_STATUS_GOOD
     assert zone_3.humidityMode == "dehumidify"
     assert zone_3.husp == 40 == zone_3.getHumidifySetpoint()
     assert zone_3.maxCsp == 99
@@ -239,6 +247,7 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_3.systemMode == "cool" == zone_3.getSystemMode()
     assert zone_3.tempOperation == "cooling"
     assert zone_3.temperature == 71 == zone_3.getTemperature()
+    assert zone_3.temperatureStatus == LENNOX_STATUS_GOOD
     assert zone_3._system.sysId == "0000000-0000-0000-0000-000000000001"
 
     zone_4: lennox_zone = zones[3]
@@ -256,6 +265,7 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_4.humidificationOption == False
     assert zone_4.humidity == 28 == zone_4.getHumidity()
     assert zone_4.humidityMode == "dehumidify"
+    assert zone_4.humidityStatus == LENNOX_STATUS_GOOD
     assert zone_4.husp == 40 == zone_4.getHumidifySetpoint()
     assert zone_4.maxCsp == 99
     assert zone_4.maxDehumSp == 60
@@ -270,6 +280,8 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_4.systemMode == "off" == zone_4.getSystemMode()
     assert zone_4.tempOperation == "off"
     assert zone_4.temperature == 76 == zone_4.getTemperature()
+    assert zone_4.temperatureStatus == LENNOX_STATUS_GOOD
+
     assert zone_4._system.sysId == "0000000-0000-0000-0000-000000000001"
 
     lsystem: lennox_system = api.getSystems()[1]
@@ -279,6 +291,7 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.numberOfZones == 1
     assert lsystem.outdoorTemperature == 97
     assert lsystem.outdoorTemperatureC == 36
+    assert lsystem.outdoorTemperatureStatus == LENNOX_STATUS_GOOD
     assert lsystem.temperatureUnit == "F"
     assert lsystem.indoorUnitType == "furnace"
     assert lsystem.outdoorUnitType == "air conditioner"
@@ -320,6 +333,8 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_5.humOperation == "off"
     assert zone_5.humidificationOption == False
     assert zone_5.humidity == 30 == zone_5.getHumidity()
+    assert zone_5.humidityStatus == LENNOX_STATUS_GOOD
+
     assert zone_5.humidityMode == "off"
     assert zone_5.husp == 40 == zone_5.getHumidifySetpoint()
     assert zone_5.maxCsp == 99
@@ -335,6 +350,7 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_5.systemMode == "off" == zone_5.getSystemMode()
     assert zone_5.tempOperation == "off"
     assert zone_5.temperature == 79 == zone_5.getTemperature()
+    assert zone_5.temperatureStatus == LENNOX_STATUS_GOOD
     assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
 
 
