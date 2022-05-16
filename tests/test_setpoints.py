@@ -1,4 +1,5 @@
 from unittest import mock
+
 from lennoxs30api.s30api_async import lennox_zone, s30api_async, lennox_system
 from lennoxs30api.lennox_home import lennox_home
 
@@ -351,3 +352,111 @@ def test_perform_schedule_setpoint_no_values():
         assert error == True
         assert ec == EC_BAD_PARAMETERS
         assert mock_message_helper.call_count == 0
+
+
+def test_set_humidify_setpoint():
+    api = setup_load_configuration(True)
+    lsystem: lennox_system = api.getSystems()[0]
+    assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
+    assert lsystem.single_setpoint_mode == True
+    zone: lennox_zone = lsystem.getZone(0)
+    loop = asyncio.get_event_loop()
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        result = loop.run_until_complete(zone.perform_humidify_setpoint(r_husp=40))
+        mock_message_helper.assert_called_once()
+        arg0 = mock_message_helper.await_args[0][0]
+        assert arg0 == lsystem.sysId
+        arg1 = mock_message_helper.await_args[0][1]
+        jsbody = json.loads("{" + arg1 + "}")
+
+        tSchedule = jsbody["Data"]["schedules"][0]
+        assert tSchedule["id"] == zone.getManualModeScheduleId()
+        tPeriod = tSchedule["schedule"]["periods"][0]["period"]
+        assert tPeriod["husp"] == 40
+
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        ex = None
+        try:
+            result = loop.run_until_complete(zone.perform_humidify_setpoint(r_husp=400))
+        except S30Exception as e:
+            ex = e
+        assert ex != None
+        assert ex.error_code == EC_BAD_PARAMETERS
+        assert "400" in ex.message
+        assert str(zone.maxHumSp) in ex.message
+        assert str(zone.minHumSp) in ex.message
+        assert mock_message_helper.call_count == 0
+
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        ex = None
+        try:
+            result = loop.run_until_complete(zone.perform_humidify_setpoint(r_husp=4))
+        except S30Exception as e:
+            ex = e
+        assert ex != None
+        assert ex.error_code == EC_BAD_PARAMETERS
+        assert "4" in ex.message
+        assert str(zone.maxHumSp) in ex.message
+        assert str(zone.minHumSp) in ex.message
+        assert mock_message_helper.call_count == 0
+
+    loop.close()
+
+
+def test_set_dehumidify_setpoint():
+    api = setup_load_configuration(True)
+    lsystem: lennox_system = api.getSystems()[0]
+    assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
+    assert lsystem.single_setpoint_mode == True
+    zone: lennox_zone = lsystem.getZone(0)
+    loop = asyncio.get_event_loop()
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        result = loop.run_until_complete(zone.perform_humidify_setpoint(r_desp=60))
+        mock_message_helper.assert_called_once()
+        arg0 = mock_message_helper.await_args[0][0]
+        assert arg0 == lsystem.sysId
+        arg1 = mock_message_helper.await_args[0][1]
+        jsbody = json.loads("{" + arg1 + "}")
+
+        tSchedule = jsbody["Data"]["schedules"][0]
+        assert tSchedule["id"] == zone.getManualModeScheduleId()
+        tPeriod = tSchedule["schedule"]["periods"][0]["period"]
+        assert tPeriod["desp"] == 60
+
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        ex = None
+        try:
+            result = loop.run_until_complete(zone.perform_humidify_setpoint(r_desp=400))
+        except S30Exception as e:
+            ex = e
+        assert ex != None
+        assert ex.error_code == EC_BAD_PARAMETERS
+        assert "400" in ex.message
+        assert str(zone.maxDehumSp) in ex.message
+        assert str(zone.minDehumSp) in ex.message
+        assert mock_message_helper.call_count == 0
+
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        ex = None
+        try:
+            result = loop.run_until_complete(zone.perform_humidify_setpoint(r_desp=4))
+        except S30Exception as e:
+            ex = e
+        assert ex != None
+        assert ex.error_code == EC_BAD_PARAMETERS
+        assert "4" in ex.message
+        assert str(zone.maxDehumSp) in ex.message
+        assert str(zone.minDehumSp) in ex.message
+        assert mock_message_helper.call_count == 0
+
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        ex = None
+        try:
+            result = loop.run_until_complete(zone.perform_humidify_setpoint())
+        except S30Exception as e:
+            ex = e
+        assert ex != None
+        assert ex.error_code == EC_BAD_PARAMETERS
+        assert mock_message_helper.call_count == 0
+
+    loop.close()
