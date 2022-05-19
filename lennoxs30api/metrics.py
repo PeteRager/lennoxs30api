@@ -27,6 +27,9 @@ class Metrics:
         self.last_reconnect_time: datetime = None
         self.last_message_time: datetime = None
 
+        self.sibling_message_drop: int = 0
+        self.sender_message_drop: int = 0
+
         self.bytes_in: int = 0
         self.bytes_out: int = 0
 
@@ -91,6 +94,12 @@ class Metrics:
     def inc_client_response_errors(self) -> None:
         self.client_response_errors += 1
         self.last_error_time = self.now()
+
+    def inc_sibling_message_drop(self) -> None:
+        self.sibling_message_drop += 1
+
+    def inc_sender_message_drop(self) -> None:
+        self.sender_message_drop += 1
 
     def process_http_code(self, http_code: int) -> None:
         if http_code >= 200 and http_code <= 299:

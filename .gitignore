@@ -9,5 +9,6 @@ eggs
 parts
 log.txt.log
 *.egg-info
+*.tmp
 lib
 lib64
