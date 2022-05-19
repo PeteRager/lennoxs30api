@@ -124,8 +124,8 @@ def test_logger_instances_separate(caplog):
     assert mlog1.logger != mlog2.logger
 
     # Message Loggers are unique per file.  So when specifying different files we should get the same logger
-    mlog1 = MessageLogger(enabled=True, message_logging_file="s30_log_file_1.tmp")
-    mlog2 = MessageLogger(enabled=True, message_logging_file="s30_log_file_1.tmp")
+    mlog1 = MessageLogger(enabled=True, message_logging_file="s30_log file_1.tmp")
+    mlog2 = MessageLogger(enabled=True, message_logging_file="s30_log file_1.tmp")
     assert mlog1.logger == mlog2.logger
     # There should only be one handler for the loggers.
     assert len(mlog1.logger.handlers) == 1
