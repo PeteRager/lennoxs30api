@@ -48,13 +48,15 @@ class Metrics:
             "http_4xx_cnt": self.http_4xx_cnt,
             "http_5xx_cnt": self.http_5xx_cnt,
             "timeouts": self.timeouts,
-            "client_respone_errors": self.client_response_errors,
+            "client_response_errors": self.client_response_errors,
             "server_disconnects": self.server_disconnects,
             "connection_errors": self.connection_errors,
             "last_receive_time": self.last_receive_time,
             "last_error_time": self.last_error_time,
             "last_reconnect_time": self.last_reconnect_time,
             "last_message_time": self.last_message_time,
+            "sender_message_drop": self.sender_message_drop,
+            "sibling_message_drop": self.sibling_message_drop,
         }
 
     def inc_message_count(self) -> None:
