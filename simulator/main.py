@@ -21,6 +21,7 @@ class Simulator(object):
         self.appList = {}
         self.zoneSimRunning = False
         self.outdoorTempSimRunning = False
+        self.siblingSimRunning = False
         with open(configfile) as f:
             self.config_data = json.load(f)
 
@@ -105,6 +106,67 @@ class Simulator(object):
                 humidity = humidity + 1
             await asyncio.sleep(5.0)
 
+    async def siblingSimulator(self):
+        if self.siblingSimRunning == True:
+            return
+        self.siblingSimRunning = True
+        message = {
+            "MessageId": 0,
+            "SenderID": "LCC",
+            "TargetID": "homeassistant",
+            "MessageType": "PropertyChange",
+            "Data": {
+                "siblings": [
+                    {
+                        "publisher": {"publisherName": "lcc"},
+                        "id": 0,
+                        "selfIdentifier": "KL21J00001",
+                        "sibling": {
+                            "identifier": "KL21J00002",
+                            "systemName": '"Bedrooms"',
+                            "nodePresent": True,
+                            "portNumber": 443,
+                            "groupCountTracker": True,
+                            "ipAddress": "10.0.0.2",
+                        },
+                    }
+                ]
+            },
+        }
+        for appName, appObject in self.appList.items():
+            appObject.queue.append(message)
+        await asyncio.sleep(15.0)
+
+        temperature = 100
+        while True:
+            if temperature == 100:
+                status = LENNOX_STATUS_NOT_AVAILABLE
+            else:
+                status = LENNOX_STATUS_GOOD
+            message = {
+                "MessageId": "637594500464320381|95a6cacebd94459dbe7538161628bdb6",
+                "SenderId": "KL21J00002",
+                "TargetID": "mapp079372367644467046827098_myemail@email.com",
+                "MessageType": "PropertyChange",
+                "Data": {
+                    "system": {
+                        "status": {
+                            "outdoorTemperatureStatus": status,
+                            "outdoorTemperature": temperature,
+                            "outdoorTemperatureC": 13.5,
+                        },
+                        "publisher": {"publisherName": "lcc"},
+                    }
+                },
+            }
+            for appName, appObject in self.appList.items():
+                appObject.queue.append(message)
+            if temperature == 200:
+                temperature = 100
+            else:
+                temperature = temperature + 10
+            await asyncio.sleep(5.0)
+
     def loadfile(self, name) -> json:
         script_dir = os.path.dirname(__file__)
         file_path = os.path.join(script_dir, "../" + name)
@@ -142,6 +204,7 @@ class Simulator(object):
                 app.queue.append(data)
                 asyncio.create_task(self.outdoorTempSimulator())
                 asyncio.create_task(self.zoneSimulator())
+                asyncio.create_task(self.siblingSimulator())
                 return web.Response(text="Simulator Success")
         return web.Response(status=404, text="Simulator Failuer")
 
