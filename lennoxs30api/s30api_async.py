@@ -691,9 +691,14 @@ class s30api_async(object):
                 _LOGGER.error(f"processMessage unknown SenderId/SystemId [{sysId}]")
             else:
                 self.metrics.inc_sibling_message_drop()
-                _LOGGER.debug(
-                    f"processMessage dropping message from sibling [{sysId}] for system [{system.sysId}]"
-                )
+                if self.metrics.sibling_message_drop == 1:
+                    _LOGGER.warning(
+                        f"processMessage dropping message from sibling [{sysId}] for system [{system.sysId}] - please consult https://github.com/PeteRager/lennoxs30/blob/master/docs/sibling.md for configuration assistance"
+                    )
+                else:
+                    _LOGGER.debug(
+                        f"processMessage dropping message from sibling [{sysId}] for system [{system.sysId}]"
+                    )
 
     # Messages seem to use unique GUIDS, here we create one
     def getNewMessageID(self):

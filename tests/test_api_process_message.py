@@ -25,8 +25,15 @@ def test_api_process_sibling_message(api: s30api_async, caplog):
         api.processMessage(message)
         assert len(caplog.records) == 1
         assert "KL21J00002" in caplog.messages[0]
-        assert caplog.records[0].levelname == "DEBUG"
+        assert caplog.records[0].levelname == "WARNING"
         assert api.metrics.sibling_message_drop == 1
+        assert api.metrics.sender_message_drop == 0
+
+        api.processMessage(message)
+        assert len(caplog.records) == 2
+        assert "KL21J00002" in caplog.messages[1]
+        assert caplog.records[1].levelname == "DEBUG"
+        assert api.metrics.sibling_message_drop == 2
         assert api.metrics.sender_message_drop == 0
 
 
