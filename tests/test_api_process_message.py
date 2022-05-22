@@ -1,0 +1,53 @@
+import logging
+from lennoxs30api.s30api_async import (
+    lennox_system,
+    s30api_async,
+)
+
+from tests.conftest import loadfile
+
+
+def test_api_process_sibling_message(api: s30api_async, caplog):
+    lsystem: lennox_system = api.getSystems()[1]
+    assert lsystem.sysId == "0000000-0000-0000-0000-000000000002"
+
+    message = loadfile("sibling.json")
+    api.processMessage(message)
+
+    assert lsystem.sibling_self_identifier == "KL21J00001"
+    assert lsystem.sibling_identifier == "KL21J00002"
+    assert api.metrics.sibling_message_drop == 0
+    message = loadfile("mut_sys1_zone1_status.json")
+    message["SenderId"] = "KL21J00002"
+    caplog.clear()
+    api.metrics.reset()
+    with caplog.at_level(logging.DEBUG):
+        api.processMessage(message)
+        assert len(caplog.records) == 1
+        assert "KL21J00002" in caplog.messages[0]
+        assert caplog.records[0].levelname == "WARNING"
+        assert api.metrics.sibling_message_drop == 1
+        assert api.metrics.sender_message_drop == 0
+
+        api.processMessage(message)
+        assert len(caplog.records) == 2
+        assert "KL21J00002" in caplog.messages[1]
+        assert caplog.records[1].levelname == "DEBUG"
+        assert api.metrics.sibling_message_drop == 2
+        assert api.metrics.sender_message_drop == 0
+
+
+def test_api_process_unknown_sender(api: s30api_async, caplog):
+    lsystem: lennox_system = api.getSystems()[1]
+    assert lsystem.sysId == "0000000-0000-0000-0000-000000000002"
+    message = loadfile("mut_sys1_zone1_status.json")
+    message["SenderId"] = "KL21J00002"
+    caplog.clear()
+    api.metrics.reset()
+    with caplog.at_level(logging.DEBUG):
+        api.processMessage(message)
+        assert len(caplog.records) == 1
+        assert "KL21J00002" in caplog.messages[0]
+        assert caplog.records[0].levelname == "ERROR"
+        assert api.metrics.sibling_message_drop == 0
+        assert api.metrics.sender_message_drop == 1

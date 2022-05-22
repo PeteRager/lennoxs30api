@@ -685,7 +685,20 @@ class s30api_async(object):
         if system != None:
             system.processMessage(message)
         else:
-            _LOGGER.error("messagePump unknown SenderId/SystemId [" + str(sysId) + "]")
+            system: lennox_system = self.getSystemSibling(sysId)
+            if system == None:
+                self.metrics.inc_sender_message_drop()
+                _LOGGER.error(f"processMessage unknown SenderId/SystemId [{sysId}]")
+            else:
+                self.metrics.inc_sibling_message_drop()
+                if self.metrics.sibling_message_drop == 1:
+                    _LOGGER.warning(
+                        f"processMessage dropping message from sibling [{sysId}] for system [{system.sysId}] - please consult https://github.com/PeteRager/lennoxs30/blob/master/docs/sibling.md for configuration assistance"
+                    )
+                else:
+                    _LOGGER.debug(
+                        f"processMessage dropping message from sibling [{sysId}] for system [{system.sysId}]"
+                    )
 
     # Messages seem to use unique GUIDS, here we create one
     def getNewMessageID(self):
@@ -755,6 +768,12 @@ class s30api_async(object):
     def getSystem(self, sysId) -> "lennox_system":
         for system in self._systemList:
             if system.sysId == sysId:
+                return system
+        return None
+
+    def getSystemSibling(self, sysId: str) -> "lennox_system":
+        for system in self._systemList:
+            if system.sibling_identifier == sysId:
                 return system
         return None
 
@@ -979,6 +998,13 @@ class lennox_system(object):
         self.sa_cancel: bool = None
         self.sa_state: str = None
         self.sa_setpointState: str = None
+        # Sibling data
+        self.sibling_self_identifier: str = None
+        self.sibling_identifier: str = None
+        self.sibling_systemName: str = None
+        self.sibling_nodePresent: str = None
+        self.sibling_portNumber: str = None
+        self.sibling_ipAddress: str = None
 
         self._dirty = False
         self._dirtyList = []
@@ -990,6 +1016,7 @@ class lennox_system(object):
             "devices": self._processDevices,
             "equipments": self._processEquipments,
             "systemControl": self._processSystemControl,
+            "siblings": self._processSiblings,
         }
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
 
@@ -1051,6 +1078,24 @@ class lennox_system(object):
     def _processSystemControl(self, systemControl):
         if "diagControl" in systemControl:
             self.attr_updater(systemControl["diagControl"], "level", "diagLevel")
+
+    def _processSiblings(self, siblings):
+        i = len(siblings)
+        if i == 0:
+            return
+        if i > 1:
+            _LOGGER.error(
+                f"Encountered system with more than one sibling, please open an issue.  Message: {siblings}"
+            )
+        # It appears there could be more than one of these, for now lets only process the first one.
+        sibling = siblings[0]
+        self.attr_updater(sibling, "selfIdentifier", "sibling_self_identifier")
+        if "sibling" in sibling:
+            self.attr_updater(sibling["sibling"], "identifier", "sibling_identifier")
+            self.attr_updater(sibling["sibling"], "systemName", "sibling_systemName")
+            self.attr_updater(sibling["sibling"], "portNumber", "sibling_portNumber")
+            self.attr_updater(sibling["sibling"], "nodePresent", "sibling_nodePresent")
+            self.attr_updater(sibling["sibling"], "ipAddress", "sibling_ipAddress")
 
     def _processSchedules(self, schedules):
         """Processes the schedule messages, throws base exceptions if a problem is encoutered"""

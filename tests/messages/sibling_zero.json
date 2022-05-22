@@ -1,0 +1,11 @@
+{
+    "_comment" : "This is not a real messages that was captured, it's purpose is to test error handling",
+    "MessageId": 0,
+    "SenderID": "0000000-0000-0000-0000-000000000002",
+    "TargetID": "homeassistant",
+    "MessageType": "PropertyChange",
+    "Data": {
+        "siblings": [
+        ]
+    }
+}

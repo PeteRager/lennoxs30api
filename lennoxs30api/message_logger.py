@@ -10,16 +10,18 @@ class MessageLogger(object):
         self, logger=None, enabled: bool = True, message_logging_file: str = None
     ):
         if message_logging_file != None:
-            self.logger = logging.getLogger(__name__)
+            self.loggerName = __name__ + "." + message_logging_file
+            self.logger = logging.getLogger(self.loggerName)
             self.logger.setLevel(level=logging.DEBUG)
             logFormatter = logging.Formatter(
                 "%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s"
             )
-
-            fileHandler = logging.FileHandler(message_logging_file)
-            fileHandler.setFormatter(logFormatter)
-            fileHandler.setLevel(logging.DEBUG)
-            self.logger.addHandler(fileHandler)
+            ## If the logger already exists and has a handler to write to the file then do not add another one.
+            if len(self.logger.handlers) == 0:
+                fileHandler = logging.FileHandler(message_logging_file)
+                fileHandler.setFormatter(logFormatter)
+                fileHandler.setLevel(logging.DEBUG)
+                self.logger.addHandler(fileHandler)
             # When running in this mode, message should only appear in the message log and not also the default log.
             self.logger.propagate = False
         else:

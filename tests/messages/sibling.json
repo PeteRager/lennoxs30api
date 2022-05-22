@@ -1,0 +1,25 @@
+{
+    "MessageId": 0,
+    "SenderID": "0000000-0000-0000-0000-000000000002",
+    "TargetID": "homeassistant",
+    "MessageType": "PropertyChange",
+    "Data": {
+        "siblings": [
+            {
+                "publisher": {
+                    "publisherName": "lcc"
+                },
+                "id": 0,
+                "selfIdentifier": "KL21J00001",
+                "sibling": {
+                    "identifier": "KL21J00002",
+                    "systemName": "\"Bedrooms\"",
+                    "nodePresent": true,
+                    "portNumber": 443,
+                    "groupCountTracker": true,
+                    "ipAddress": "10.0.0.2"
+                }
+            }
+        ]
+    }
+}
