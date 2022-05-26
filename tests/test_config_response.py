@@ -1,4 +1,6 @@
 from lennoxs30api.s30api_async import (
+    LENNOX_DEHUMIDIFICATION_MODE_AUTO,
+    LENNOX_HUMIDIFICATION_MODE_BASIC,
     LENNOX_HVAC_COOL,
     LENNOX_HVAC_HEAT,
     LENNOX_HVAC_HEAT_COOL,
@@ -10,6 +12,8 @@ from lennoxs30api.s30api_async import (
     LENNOX_SA_STATE_DISABLED,
     LENNOX_SA_STATE_ENABLED_CANCELLED,
     LENNOX_STATUS_GOOD,
+    LENNOX_ZONING_MODE_CENTRAL,
+    LENNOX_ZONING_MODE_ZONED,
     lennox_zone,
     s30api_async,
     lennox_system,
@@ -97,6 +101,20 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.sa_setpointState == LENNOX_SA_SETPOINT_STATE_HOME
     assert lsystem.get_smart_away_mode() == False
     assert lsystem.get_away_mode() == False
+
+    assert lsystem.centralMode == False
+    assert lsystem.zoningMode == LENNOX_ZONING_MODE_ZONED
+    assert lsystem.dehumidificationMode == LENNOX_DEHUMIDIFICATION_MODE_AUTO
+    assert lsystem.humidificationMode == LENNOX_HUMIDIFICATION_MODE_BASIC
+    assert lsystem.circulateTime == 25
+    assert lsystem.enhancedDehumidificationOvercoolingC == 1
+    assert lsystem.enhancedDehumidificationOvercoolingF == 2
+    assert lsystem.enhancedDehumidificationOvercoolingC_inc == 0.5
+    assert lsystem.enhancedDehumidificationOvercoolingC_max == 2
+    assert lsystem.enhancedDehumidificationOvercoolingC_min == 0
+    assert lsystem.enhancedDehumidificationOvercoolingF_inc == 1
+    assert lsystem.enhancedDehumidificationOvercoolingF_max == 4
+    assert lsystem.enhancedDehumidificationOvercoolingF_min == 0
 
     zones = lsystem.getZoneList()
     assert len(zones) == 4
@@ -318,6 +336,20 @@ def test_process_configuration_message(api_with_configuration):
     lsystem.sa_setpointState = LENNOX_SA_SETPOINT_STATE_TRANSITION
     assert lsystem.get_smart_away_mode() == True
     assert lsystem.get_away_mode() == True
+
+    assert lsystem.centralMode == False
+    assert lsystem.zoningMode == LENNOX_ZONING_MODE_CENTRAL
+    assert lsystem.dehumidificationMode == LENNOX_DEHUMIDIFICATION_MODE_AUTO
+    assert lsystem.humidificationMode == LENNOX_HUMIDIFICATION_MODE_BASIC
+    assert lsystem.circulateTime == 15
+    assert lsystem.enhancedDehumidificationOvercoolingC == 1
+    assert lsystem.enhancedDehumidificationOvercoolingF == 2
+    assert lsystem.enhancedDehumidificationOvercoolingC_inc == 0.5
+    assert lsystem.enhancedDehumidificationOvercoolingC_max == 2
+    assert lsystem.enhancedDehumidificationOvercoolingC_min == 0
+    assert lsystem.enhancedDehumidificationOvercoolingF_inc == 1
+    assert lsystem.enhancedDehumidificationOvercoolingF_max == 4
+    assert lsystem.enhancedDehumidificationOvercoolingF_min == 0
 
     zone_5: lennox_zone = lsystem.getZoneList()[0]
     assert zone_5.name == "Zone 1"

@@ -93,6 +93,12 @@ LENNOX_HUMID_OPERATION_HUMID: Final = "humidifying"  # a guess
 LENNOX_HUMID_OPERATION_WAITING: Final = "waiting"
 
 
+LENNOX_DEHUMIDIFICATION_MODE_AUTO: Final = "auto"
+LENNOX_HUMIDIFICATION_MODE_BASIC: Final = "basic"
+
+LENNOX_ZONING_MODE_ZONED: Final = "zoned"
+LENNOX_ZONING_MODE_CENTRAL: Final = "central"
+
 FAN_MODES: Final = {"on", "auto", "circulate"}
 HVAC_MODE_TARGETS: Final = {"fanMode", "systemMode", "humidityMode"}
 
@@ -976,7 +982,6 @@ class lennox_system(object):
         # M30 does not send this info, so default to disabled.
         self.single_setpoint_mode: bool = False
         self.temperatureUnit: str = None
-        self.dehumidificationMode = None
         self.indoorUnitType = None
         self.productType = None
         self.outdoorUnitType = None
@@ -1005,6 +1010,23 @@ class lennox_system(object):
         self.sibling_nodePresent: str = None
         self.sibling_portNumber: str = None
         self.sibling_ipAddress: str = None
+        # iHarmony Zoning Mode
+        self.centralMode: bool = None
+        self.zoningMode: str = None
+
+        self.circulateTime: int = None  # circulation time
+        # dehumidification
+        self.enhancedDehumidificationOvercoolingC: float = None
+        self.enhancedDehumidificationOvercoolingF: float = None
+        self.enhancedDehumidificationOvercoolingF_min: int = None
+        self.enhancedDehumidificationOvercoolingF_max: int = None
+        self.enhancedDehumidificationOvercoolingF_inc: float = None
+        self.enhancedDehumidificationOvercoolingC_min: int = None
+        self.enhancedDehumidificationOvercoolingC_max: int = None
+        self.enhancedDehumidificationOvercoolingC_inc: float = None
+        self.dehumidificationMode: str = None
+        # humidification
+        self.humidificationMode: str = None
 
         self._dirty = False
         self._dirtyList = []
@@ -1175,6 +1197,11 @@ class lennox_system(object):
             self.attr_updater(config, "name")
             self.attr_updater(config, "allergenDefender")
             self.attr_updater(config, "ventilationMode")
+            self.attr_updater(config, "centralMode")
+            self.attr_updater(config, "circulateTime")
+            self.attr_updater(config, "humidificationMode")
+            self.attr_updater(config, "enhancedDehumidificationOvercoolingC")
+            self.attr_updater(config, "enhancedDehumidificationOvercoolingF")
             if "options" in config:
                 options = config["options"]
                 self.attr_updater(options, "indoorUnitType")
@@ -1188,6 +1215,33 @@ class lennox_system(object):
                     self.attr_updater(
                         ventilation, "controlMode", "ventilationControlMode"
                     )
+                if "enhancedDehumidificationOvercoolingF" in options:
+                    eoc = options["enhancedDehumidificationOvercoolingF"]
+                    if "range" in eoc:
+                        range = eoc["range"]
+                        self.attr_updater(
+                            range, "min", "enhancedDehumidificationOvercoolingF_min"
+                        )
+                        self.attr_updater(
+                            range, "max", "enhancedDehumidificationOvercoolingF_max"
+                        )
+                        self.attr_updater(
+                            range, "inc", "enhancedDehumidificationOvercoolingF_inc"
+                        )
+
+                if "enhancedDehumidificationOvercoolingC" in options:
+                    eoc = options["enhancedDehumidificationOvercoolingC"]
+                    if "range" in eoc:
+                        range = eoc["range"]
+                        self.attr_updater(
+                            range, "min", "enhancedDehumidificationOvercoolingC_min"
+                        )
+                        self.attr_updater(
+                            range, "max", "enhancedDehumidificationOvercoolingC_max"
+                        )
+                        self.attr_updater(
+                            range, "inc", "enhancedDehumidificationOvercoolingC_inc"
+                        )
 
         if "status" in message:
             status = message["status"]
@@ -1196,6 +1250,7 @@ class lennox_system(object):
             self.attr_updater(status, "outdoorTemperatureStatus")
             self.attr_updater(status, "diagRuntime")
             self.attr_updater(status, "diagPoweredHours")
+            self.attr_updater(status, "zoningMode")
             self.attr_updater(status, "numberOfZones")
             self.attr_updater(status, "diagVentilationRuntime")
             self.attr_updater(status, "ventilationRemainingTime")
@@ -1484,6 +1539,28 @@ class lennox_system(object):
     async def allergenDefender_off(self) -> None:
         _LOGGER.debug(f"allergenDefender_on sysid [{self.sysId}] ")
         data = '"Data":{"system":{"config":{"allergenDefender":false} } }'
+        await self.api.publishMessageHelper(self.sysId, data)
+
+    async def centralMode_on(self) -> None:
+        _LOGGER.debug(f"centralMode_on sysid [{self.sysId}] ")
+        if self.numberOfZones == 1:
+            raise S30Exception(
+                f"Central Mode is not configurable for a system with only one zone",
+                EC_BAD_PARAMETERS,
+                1,
+            )
+        data = '"Data":{"system":{"config":{"centralMode":true} } }'
+        await self.api.publishMessageHelper(self.sysId, data)
+
+    async def centralMode_off(self) -> None:
+        _LOGGER.debug(f"centralMode_off sysid [{self.sysId}] ")
+        if self.numberOfZones == 1:
+            raise S30Exception(
+                f"Central Mode is not configurable for a system with only one zone",
+                EC_BAD_PARAMETERS,
+                1,
+            )
+        data = '"Data":{"system":{"config":{"centralMode":false} } }'
         await self.api.publishMessageHelper(self.sysId, data)
 
     async def set_diagnostic_level(self, level: int) -> None:
