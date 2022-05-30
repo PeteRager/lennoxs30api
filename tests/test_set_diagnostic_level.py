@@ -23,7 +23,7 @@ def test_set_diagnostic_level(api):
             ec = e.error_code
         assert error == True
         assert ec == EC_BAD_PARAMETERS
-        mock_message_helper.call_count == 0
+        assert mock_message_helper.call_count == 0
 
     for test_level in (0, 1, 2):
         with patch.object(api, "requestDataHelper") as mock_request_data_helper:
@@ -32,7 +32,7 @@ def test_set_diagnostic_level(api):
                 result = loop.run_until_complete(
                     lsystem.set_diagnostic_level(test_level)
                 )
-                mock_message_helper.call_count == 1
+                assert mock_message_helper.call_count == 1
                 arg0 = mock_message_helper.await_args[0][0]
                 assert arg0 == lsystem.sysId
                 arg1 = mock_message_helper.await_args[0][1]
@@ -52,7 +52,7 @@ def test_set_diagnostic_level(api):
         with patch.object(api, "publishMessageHelper") as mock_message_helper:
             loop = asyncio.get_event_loop()
             result = loop.run_until_complete(lsystem.set_diagnostic_level(1.0))
-            mock_message_helper.call_count == 2
+            assert mock_message_helper.call_count == 1
             arg0 = mock_message_helper.await_args[0][0]
             assert arg0 == lsystem.sysId
             arg1 = mock_message_helper.await_args[0][1]

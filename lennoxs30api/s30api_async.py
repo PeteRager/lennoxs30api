@@ -128,6 +128,16 @@ LENNOX_STATUS: Final = {
     LENNOX_STATUS_NOT_AVAILABLE,
 }
 
+LENNOX_CIRCULATE_TIME_MIN: Final = 10  # TODO theses are incorrect
+LENNOX_CIRCULATE_TIME_MAX: Final = 30  # TODO thes are incorrect
+
+LENNOX_DEHUMIDIFICATION_MODE_HIGH: Final = "high"
+# TODO this list is incomplete
+LENNOX_DEHUMIDIFICATION_MODES: Final = {
+    LENNOX_DEHUMIDIFICATION_MODE_HIGH,
+}
+
+
 # String in lennox JSON representing no value.
 LENNOX_NONE_STR: Final = "none"
 
@@ -1561,6 +1571,37 @@ class lennox_system(object):
                 1,
             )
         data = '"Data":{"system":{"config":{"centralMode":false} } }'
+        await self.api.publishMessageHelper(self.sysId, data)
+
+    async def set_circulateTime(self, min: int) -> None:
+        _LOGGER.debug(f"set_circulateTime sysid [{self.sysId}] min [{min}]")
+        try:
+            r_min = int(min)
+        except ValueError as e:
+            raise S30Exception(
+                f"Circulate Time [{min}] must be an integer between [{LENNOX_CIRCULATE_TIME_MIN}] and [{LENNOX_CIRCULATE_TIME_MAX}]",
+                EC_BAD_PARAMETERS,
+                1,
+            )
+
+        if r_min < LENNOX_CIRCULATE_TIME_MIN or r_min > LENNOX_CIRCULATE_TIME_MAX:
+            raise S30Exception(
+                f"Circulate Time [{min}] must be between [{LENNOX_CIRCULATE_TIME_MIN}] and [{LENNOX_CIRCULATE_TIME_MAX}]",
+                EC_BAD_PARAMETERS,
+                2,
+            )
+        data = '"Data":{"system":{"config":{"circulateTime":' + str(r_min) + " } } }"
+        await self.api.publishMessageHelper(self.sysId, data)
+
+    async def set_dehumidificationMode(self, mode: str) -> None:
+        _LOGGER.debug(f"set_dehumificationMode sysid [{self.sysId}] mode [{mode}]")
+        if mode not in LENNOX_DEHUMIDIFICATION_MODES:
+            raise S30Exception(
+                f"Dehumidification Mode [{mode}] not a valid value, must be in [{LENNOX_DEHUMIDIFICATION_MODES}]",
+                EC_BAD_PARAMETERS,
+                1,
+            )
+        data = '"Data":{"system":{"config":{"dehumidificationMode":"' + mode + '" } } }'
         await self.api.publishMessageHelper(self.sysId, data)
 
     async def set_diagnostic_level(self, level: int) -> None:
