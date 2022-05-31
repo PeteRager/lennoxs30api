@@ -11,13 +11,13 @@ import asyncio
 
 from unittest.mock import patch
 
-from lennoxs30api.s30exception import EC_BAD_PARAMETERS, S30Exception
+from lennoxs30api.s30exception import EC_BAD_PARAMETERS, EC_EQUIPMENT_DNS, S30Exception
 
 
 def test_set_dehumidification_mode(api):
     lsystem: lennox_system = api.getSystems()[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
-    assert lsystem.numberOfZones > 1
+    assert lsystem.dehumidifierType != None
     for mode in LENNOX_DEHUMIDIFICATION_MODES:
         with patch.object(api, "publishMessageHelper") as mock_message_helper:
             loop = asyncio.get_event_loop()
@@ -50,3 +50,17 @@ def test_set_dehumidification_mode(api):
         assert ex.error_code == EC_BAD_PARAMETERS
         assert "INVALID_MODE" in ex.message
         assert str(LENNOX_DEHUMIDIFICATION_MODES) in ex.message
+
+    lsystem.dehumidifierType = None
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        loop = asyncio.get_event_loop()
+        ex = None
+        try:
+            result = loop.run_until_complete(
+                lsystem.set_dehumidificationMode("LENNOX_DEHUMIDIFICATION_MODE_HIGH")
+            )
+        except S30Exception as e:
+            ex = e
+        assert ex != None
+        assert mock_message_helper.call_count == 0
+        assert ex.error_code == EC_EQUIPMENT_DNS

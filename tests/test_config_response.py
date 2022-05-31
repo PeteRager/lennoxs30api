@@ -115,6 +115,8 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.enhancedDehumidificationOvercoolingF_inc == 1
     assert lsystem.enhancedDehumidificationOvercoolingF_max == 4
     assert lsystem.enhancedDehumidificationOvercoolingF_min == 0
+    assert lsystem.enhancedDehumidificationOvercoolingF_enable == True
+    assert lsystem.enhancedDehumidificationOvercoolingC_enable == True
 
     zones = lsystem.getZoneList()
     assert len(zones) == 4

@@ -20,6 +20,7 @@ from .s30exception import (
     EC_AUTHENTICATE,
     EC_BAD_PARAMETERS,
     EC_COMMS_ERROR,
+    EC_EQUIPMENT_DNS,
     EC_HTTP_ERR,
     EC_LOGIN,
     EC_LOGOUT,
@@ -1026,6 +1027,8 @@ class lennox_system(object):
 
         self.circulateTime: int = None  # circulation time
         # dehumidification
+        self.enhancedDehumidificationOvercoolingC_enable: bool = None
+        self.enhancedDehumidificationOvercoolingF_enable: bool = None
         self.enhancedDehumidificationOvercoolingC: float = None
         self.enhancedDehumidificationOvercoolingF: float = None
         self.enhancedDehumidificationOvercoolingF_min: int = None
@@ -1238,6 +1241,11 @@ class lennox_system(object):
                         self.attr_updater(
                             range, "inc", "enhancedDehumidificationOvercoolingF_inc"
                         )
+                        self.attr_updater(
+                            range,
+                            "enable",
+                            "enhancedDehumidificationOvercoolingF_enable",
+                        )
 
                 if "enhancedDehumidificationOvercoolingC" in options:
                     eoc = options["enhancedDehumidificationOvercoolingC"]
@@ -1251,6 +1259,11 @@ class lennox_system(object):
                         )
                         self.attr_updater(
                             range, "inc", "enhancedDehumidificationOvercoolingC_inc"
+                        )
+                        self.attr_updater(
+                            range,
+                            "enable",
+                            "enhancedDehumidificationOvercoolingC_enable",
                         )
 
         if "status" in message:
@@ -1417,14 +1430,20 @@ class lennox_system(object):
     async def setFanMode(self, mode, scheduleId):
         return await self.api.setFanMode(self.sysId, mode, scheduleId)
 
-    def convertFtoC(self, tempF: float) -> float:
+    def convertFtoC(self, tempF: float, noOffset=False) -> float:
         # Lennox allows Celsius to be specified only in 0.5 degree increments
-        float_TempC = (float(tempF) - 32.0) * (5.0 / 9.0)
+        if noOffset == False:
+            float_TempC = (float(tempF) - 32.0) * (5.0 / 9.0)
+        else:
+            float_TempC = (float(tempF)) * (5.0 / 9.0)
         return self.celsius_round(float_TempC)
 
-    def convertCtoF(self, tempC: float) -> int:
+    def convertCtoF(self, tempC: float, noOffset=False) -> int:
         # Lennox allows Faren to be specified only in 1 degree increments
-        float_TempF = (float(tempC) * (9.0 / 5.0)) + 32.0
+        if noOffset == False:
+            float_TempF = (float(tempC) * (9.0 / 5.0)) + 32.0
+        else:
+            float_TempF = float(tempC) * (9.0 / 5.0)
         return self.faren_round(float_TempF)
 
     def celsius_round(self, c: float) -> float:
@@ -1595,13 +1614,105 @@ class lennox_system(object):
 
     async def set_dehumidificationMode(self, mode: str) -> None:
         _LOGGER.debug(f"set_dehumificationMode sysid [{self.sysId}] mode [{mode}]")
+        if self.dehumidifierType == None:
+            raise S30Exception(
+                f"System does not have a dehumidifier, cannot set dehumidification mode[{mode}]",
+                EC_EQUIPMENT_DNS,
+                1,
+            )
         if mode not in LENNOX_DEHUMIDIFICATION_MODES:
             raise S30Exception(
                 f"Dehumidification Mode [{mode}] not a valid value, must be in [{LENNOX_DEHUMIDIFICATION_MODES}]",
                 EC_BAD_PARAMETERS,
-                1,
+                2,
             )
         data = '"Data":{"system":{"config":{"dehumidificationMode":"' + mode + '" } } }'
+        await self.api.publishMessageHelper(self.sysId, data)
+
+    async def set_enhancedDehumidificationOvercooling(
+        self, r_f: int = None, r_c: float = None
+    ):
+        _LOGGER.debug(
+            f"set_enhancedDehumidificationOvercooling sysid [{self.sysId}] r_f [{r_f}] r_c [{r_c}]"
+        )
+        if self.dehumidifierType == None:
+            raise S30Exception(
+                f"System does not have a dehumidifier, cannot set enhancedDehumidificationOvercooling r_f [{r_f}] r_c [{r_c}]",
+                EC_EQUIPMENT_DNS,
+                1,
+            )
+        if (
+            self.enhancedDehumidificationOvercoolingF_enable != True
+            or self.enhancedDehumidificationOvercoolingC_enable != True
+        ):
+            raise S30Exception(
+                f"System does not allow enhancedDehumidificationOvercooling enhancedDehumidificationOvercoolingF_enable [{self.enhancedDehumidificationOvercoolingF_enable}] enhancedDehumidificationOvercoolingC_enable [{self.enhancedDehumidificationOvercoolingC_enable}]",
+                EC_EQUIPMENT_DNS,
+                2,
+            )
+        if r_f == None and r_c == None:
+            raise S30Exception(
+                f"enhancedDehumidificationOvercooling must specifcy r_f, r_c oe both",
+                EC_BAD_PARAMETERS,
+                3,
+            )
+        if r_f != None:
+            try:
+                f = int(r_f)
+            except ValueError as e:
+                raise S30Exception(
+                    f"enhancedDehumidificationOvercooling r_f [{r_f}] must be an integer",
+                    EC_BAD_PARAMETERS,
+                    4,
+                )
+            if (
+                f < self.enhancedDehumidificationOvercoolingF_min
+                or f > self.enhancedDehumidificationOvercoolingF_max
+            ):
+                raise S30Exception(
+                    f"enhancedDehumidificationOvercooling r_f [{r_f}] must be an integer between [{self.enhancedDehumidificationOvercoolingF_min}] and [{self.enhancedDehumidificationOvercoolingF_max}]",
+                    EC_BAD_PARAMETERS,
+                    5,
+                )
+        if r_c != None:
+            try:
+                c = float(r_c)
+            except ValueError as e:
+                raise S30Exception(
+                    f"enhancedDehumidificationOvercooling r_f [{r_c}] must be an float",
+                    EC_BAD_PARAMETERS,
+                    6,
+                )
+            if (
+                c < self.enhancedDehumidificationOvercoolingC_min
+                or c > self.enhancedDehumidificationOvercoolingC_max
+            ):
+                raise S30Exception(
+                    f"enhancedDehumidificationOvercooling r_c [{r_c}] must be an floating point [{self.enhancedDehumidificationOvercoolingC_min}] and [{self.enhancedDehumidificationOvercoolingC_max}]",
+                    EC_BAD_PARAMETERS,
+                    7,
+                )
+
+            if c % self.enhancedDehumidificationOvercoolingC_inc != 0:
+                raise S30Exception(
+                    f"enhancedDehumidificationOvercooling r_c [{r_c}] must be an floating point multiple on  [{self.enhancedDehumidificationOvercoolingC_inc}]",
+                    EC_BAD_PARAMETERS,
+                    8,
+                )
+
+        if r_c is None:
+            c = self.convertFtoC(f, noOffset=True)
+
+        if r_f is None:
+            f = self.convertCtoF(c, noOffset=True)
+
+        data = (
+            '"Data":{"system":{"config":{"enhancedDehumidificationOvercoolingF":'
+            + str(f)
+            + ' , "enhancedDehumidificationOvercoolingC":'
+            + str(c)
+            + "} } }"
+        )
         await self.api.publishMessageHelper(self.sysId, data)
 
     async def set_diagnostic_level(self, level: int) -> None:

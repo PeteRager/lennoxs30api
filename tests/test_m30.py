@@ -115,6 +115,9 @@ def test_process_configuration_message(api_m30):
     assert lsystem.get_smart_away_mode() == False
     assert lsystem.get_away_mode() == False
 
+    assert lsystem.enhancedDehumidificationOvercoolingF_enable == False
+    assert lsystem.enhancedDehumidificationOvercoolingC_enable == False
+
     zones = lsystem.getZoneList()
     assert len(zones) == 4
 
