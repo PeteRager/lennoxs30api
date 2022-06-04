@@ -88,11 +88,14 @@ HUMIDITY_MODES: Final = {
     LENNOX_HUMIDITY_MODE_DEHUMIDIFY,
 }
 
-
+LENNOX_HUMID_OPERATION_OFF: Final = "off"
 LENNOX_HUMID_OPERATION_DEHUMID: Final = "dehumidifying"  # validated
 LENNOX_HUMID_OPERATION_HUMID: Final = "humidifying"  # a guess
 LENNOX_HUMID_OPERATION_WAITING: Final = "waiting"
 
+LENNOX_TEMP_OPERATION_OFF: Final = "off"
+LENNOX_TEMP_OPERATION_HEATING: Final = "heating"
+LENNOX_TEMP_OPERATION_COOLING: Final = "cooling"
 
 LENNOX_DEHUMIDIFICATION_MODE_AUTO: Final = "auto"
 LENNOX_HUMIDIFICATION_MODE_BASIC: Final = "basic"
@@ -1869,6 +1872,18 @@ class lennox_zone(object):
                 return True
         return False
 
+    @property
+    def is_zone_disabled(self):
+        # When zoning is disabled, only zone 0 is enabled
+        if (
+            self.id == 0
+            or self._system.zoningMode is None
+            or self._system.zoningMode == LENNOX_ZONING_MODE_ZONED
+        ):
+            return False
+        return True
+
+
     def processMessage(self, zoneMessage):
         _LOGGER.debug(f"processMessage lennox_zone id [{self.id}]")
         if "config" in zoneMessage:
@@ -2398,7 +2413,6 @@ class lennox_zone(object):
             err_msg = (
                 f"setSchedule - unknown schedule [{scheduleName}] zone [{self.name}]"
             )
-            _LOGGER.error(err_msg)
             raise S30Exception(err_msg, EC_NO_SCHEDULE, 1)
 
         await self._system.setSchedule(self.id, scheduleId)
