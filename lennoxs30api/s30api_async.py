@@ -97,7 +97,6 @@ LENNOX_TEMP_OPERATION_OFF: Final = "off"
 LENNOX_TEMP_OPERATION_HEATING: Final = "heating"
 LENNOX_TEMP_OPERATION_COOLING: Final = "cooling"
 
-LENNOX_DEHUMIDIFICATION_MODE_AUTO: Final = "auto"
 LENNOX_HUMIDIFICATION_MODE_BASIC: Final = "basic"
 
 LENNOX_ZONING_MODE_ZONED: Final = "zoned"
@@ -135,10 +134,13 @@ LENNOX_STATUS: Final = {
 LENNOX_CIRCULATE_TIME_MIN: Final = 10  # TODO theses are incorrect
 LENNOX_CIRCULATE_TIME_MAX: Final = 30  # TODO thes are incorrect
 
-LENNOX_DEHUMIDIFICATION_MODE_HIGH: Final = "high"
-# TODO this list is incomplete
+LENNOX_DEHUMIDIFICATION_MODE_HIGH: Final = "high"  # Lennox UI - MAX
+LENNOX_DEHUMIDIFICATION_MODE_MEDIUM: Final = "medium"  # Lennox UI - Normal
+LENNOX_DEHUMIDIFICATION_MODE_AUTO: Final = "auto"  # Lennos UI - Climate IQ
 LENNOX_DEHUMIDIFICATION_MODES: Final = {
+    LENNOX_DEHUMIDIFICATION_MODE_MEDIUM,
     LENNOX_DEHUMIDIFICATION_MODE_HIGH,
+    LENNOX_DEHUMIDIFICATION_MODE_AUTO,
 }
 
 
@@ -1615,9 +1617,14 @@ class lennox_system(object):
         data = '"Data":{"system":{"config":{"circulateTime":' + str(r_min) + " } } }"
         await self.api.publishMessageHelper(self.sysId, data)
 
+    def is_none(self, s: str) -> bool:
+        if s is None or s == LENNOX_NONE_STR:
+            return True
+        return False
+
     async def set_dehumidificationMode(self, mode: str) -> None:
         _LOGGER.debug(f"set_dehumificationMode sysid [{self.sysId}] mode [{mode}]")
-        if self.dehumidifierType == None:
+        if self.is_none(self.dehumidifierType):
             raise S30Exception(
                 f"System does not have a dehumidifier, cannot set dehumidification mode[{mode}]",
                 EC_EQUIPMENT_DNS,
@@ -1638,7 +1645,7 @@ class lennox_system(object):
         _LOGGER.debug(
             f"set_enhancedDehumidificationOvercooling sysid [{self.sysId}] r_f [{r_f}] r_c [{r_c}]"
         )
-        if self.dehumidifierType == None:
+        if self.is_none(self.dehumidifierType):
             raise S30Exception(
                 f"System does not have a dehumidifier, cannot set enhancedDehumidificationOvercooling r_f [{r_f}] r_c [{r_c}]",
                 EC_EQUIPMENT_DNS,
@@ -1882,7 +1889,6 @@ class lennox_zone(object):
         ):
             return False
         return True
-
 
     def processMessage(self, zoneMessage):
         _LOGGER.debug(f"processMessage lennox_zone id [{self.id}]")

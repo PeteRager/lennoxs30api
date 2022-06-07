@@ -3,6 +3,7 @@ from lennoxs30api.s30api_async import (
     LENNOX_CIRCULATE_TIME_MAX,
     LENNOX_CIRCULATE_TIME_MIN,
     LENNOX_DEHUMIDIFICATION_MODES,
+    LENNOX_NONE_STR,
     lennox_system,
 )
 
@@ -17,7 +18,7 @@ from lennoxs30api.s30exception import EC_BAD_PARAMETERS, EC_EQUIPMENT_DNS, S30Ex
 def test_set_dehumidification_mode(api):
     lsystem: lennox_system = api.getSystems()[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
-    assert lsystem.dehumidifierType != None
+    assert lsystem.is_none(lsystem.dehumidifierType) == False
     for mode in LENNOX_DEHUMIDIFICATION_MODES:
         with patch.object(api, "publishMessageHelper") as mock_message_helper:
             loop = asyncio.get_event_loop()
@@ -51,7 +52,7 @@ def test_set_dehumidification_mode(api):
         assert "INVALID_MODE" in ex.message
         assert str(LENNOX_DEHUMIDIFICATION_MODES) in ex.message
 
-    lsystem.dehumidifierType = None
+    lsystem.dehumidifierType = LENNOX_NONE_STR
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         loop = asyncio.get_event_loop()
         ex = None

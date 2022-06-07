@@ -104,6 +104,7 @@ def test_process_configuration_message(api_m30):
     assert lsystem.ventilationControlMode == "ashrae"
     assert lsystem.feelsLikeMode == True
     assert lsystem.ventilatingUntilTime == ""
+    assert lsystem.is_none(lsystem.dehumidifierType) == True
 
     # Away Mode and Smart Away Tests
     assert lsystem.manualAwayMode == False == lsystem.get_manual_away_mode()

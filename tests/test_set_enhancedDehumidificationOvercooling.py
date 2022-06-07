@@ -1,6 +1,7 @@
 from lennoxs30api.s30api_async import (
     LENNOX_CIRCULATE_TIME_MAX,
     LENNOX_CIRCULATE_TIME_MIN,
+    LENNOX_NONE_STR,
     lennox_system,
 )
 
@@ -16,7 +17,7 @@ def test_set_enhancedDehumidificationOvercoolingF(api):
     lsystem: lennox_system = api.getSystems()[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.enhancedDehumidificationOvercoolingF_enable == True
-    assert lsystem.dehumidifierType != None
+    assert lsystem.is_none(lsystem.dehumidifierType) == False
 
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         loop = asyncio.get_event_loop()
@@ -109,7 +110,7 @@ def test_set_enhancedDehumidificationOvercoolingF(api):
         assert ex.error_code == EC_EQUIPMENT_DNS
 
     lsystem.enhancedDehumidificationOvercoolingF_enable = True
-    lsystem.dehumidifierType = None
+    lsystem.dehumidifierType = LENNOX_NONE_STR
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         loop = asyncio.get_event_loop()
         ex = None
@@ -236,7 +237,7 @@ def test_set_enhancedDehumidificationOvercoolingC(api):
         assert ex.error_code == EC_EQUIPMENT_DNS
 
     lsystem.enhancedDehumidificationOvercoolingC_enable = True
-    lsystem.dehumidifierType = None
+    lsystem.dehumidifierType = LENNOX_NONE_STR
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         loop = asyncio.get_event_loop()
         ex = None
