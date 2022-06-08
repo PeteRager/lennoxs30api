@@ -22,11 +22,20 @@ class Simulator(object):
         self.zoneSimRunning = False
         self.outdoorTempSimRunning = False
         self.siblingSimRunning = False
+        self.outdoorTempSim = False
+        self.zoneSim = False
+        self.siblingSim = False
         with open(configfile) as f:
             self.config_data = json.load(f)
+            if "outdoorTempSim" in self.config_data:
+                self.outdoorTempSim = self.config_data["outdoorTempSim"]
+            if "zoneSim" in self.config_data:
+                self.zoneSim = self.config_data["zoneSim"]
+            if "siblingSim" in self.config_data:
+                self.siblingSim = self.config_data["siblingSim"]
 
     async def outdoorTempSimulator(self):
-        if self.outdoorTempSimRunning == True:
+        if self.outdoorTempSim == False or self.outdoorTempSimRunning == True:
             return
         self.outdoorTempSimRunning = True
         await asyncio.sleep(15.0)
@@ -61,7 +70,7 @@ class Simulator(object):
             await asyncio.sleep(5.0)
 
     async def zoneSimulator(self):
-        if self.zoneSimRunning == True:
+        if self.zoneSim == False or self.zoneSimRunning == True:
             return
         self.zoneSimRunning = True
         await asyncio.sleep(15.0)
@@ -107,7 +116,7 @@ class Simulator(object):
             await asyncio.sleep(5.0)
 
     async def siblingSimulator(self):
-        if self.siblingSimRunning == True:
+        if self.siblingSim == False or self.siblingSimRunning == True:
             return
         self.siblingSimRunning = True
         message = {
@@ -242,6 +251,22 @@ class Simulator(object):
                                 "status": {
                                     "diagLevel": level,
                                 }
+                            }
+                        }
+            elif "system" in data:
+                if "config" in data["system"]:
+                    if "centralMode" in data["system"]["config"]:
+                        mode = data["system"]["config"]["centralMode"]
+                        if mode == True:
+                            zm = "central"
+                        else:
+                            zm = "zoned"
+                        msg["Data"] = {
+                            "system": {
+                                "status": {
+                                    "zoningMode": zm,
+                                },
+                                "config": {"centralMode": mode},
                             }
                         }
         return msg
