@@ -131,8 +131,11 @@ LENNOX_STATUS: Final = {
     LENNOX_STATUS_NOT_AVAILABLE,
 }
 
-LENNOX_CIRCULATE_TIME_MIN: Final = 10  # TODO theses are incorrect
-LENNOX_CIRCULATE_TIME_MAX: Final = 30  # TODO thes are incorrect
+# Percentage
+# Minimum Time in UI is 9 minutes =  9/60 = 15%
+LENNOX_CIRCULATE_TIME_MIN: Final = 15
+# Maximum Time in UI is 27 minutes =  27/60 = 45%
+LENNOX_CIRCULATE_TIME_MAX: Final = 45
 
 LENNOX_DEHUMIDIFICATION_MODE_HIGH: Final = "high"  # Lennox UI - MAX
 LENNOX_DEHUMIDIFICATION_MODE_MEDIUM: Final = "medium"  # Lennox UI - Normal
