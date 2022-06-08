@@ -239,6 +239,7 @@ class s30api_async(object):
         self.authBearerToken = None
         self._homeList: List[lennox_home] = []
         self._systemList: List["lennox_system"] = []
+        self._badSenderDict: dict = {}
 
     def initialize_urls_cloud(self):
         self.url_authenticate: str = CLOUD_AUTHENTICATE_URL
@@ -713,7 +714,15 @@ class s30api_async(object):
             system: lennox_system = self.getSystemSibling(sysId)
             if system == None:
                 self.metrics.inc_sender_message_drop()
-                _LOGGER.error(f"processMessage unknown SenderId/SystemId [{sysId}]")
+                if sysId in self._badSenderDict:
+                    _LOGGER.debug(
+                        f"processMessage dropping messages from unknown SenderId/SystemId [{sysId}]"
+                    )
+                else:
+                    _LOGGER.error(
+                        f"processMessage dropping message from unknown SenderId/SystemId [{sysId}] - please consult https://github.com/PeteRager/lennoxs30/blob/master/docs/sibling.md for configuration assistance"
+                    )
+                    self._badSenderDict[sysId] = sysId
             else:
                 self.metrics.inc_sibling_message_drop()
                 if self.metrics.sibling_message_drop == 1:

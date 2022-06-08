@@ -45,9 +45,34 @@ def test_api_process_unknown_sender(api: s30api_async, caplog):
     caplog.clear()
     api.metrics.reset()
     with caplog.at_level(logging.DEBUG):
+        # First message should result in an Error Logged and an entry for the bad second in the dict
         api.processMessage(message)
         assert len(caplog.records) == 1
         assert "KL21J00002" in caplog.messages[0]
         assert caplog.records[0].levelname == "ERROR"
         assert api.metrics.sibling_message_drop == 0
         assert api.metrics.sender_message_drop == 1
+        assert len(api._badSenderDict) == 1
+        assert "KL21J00002" in api._badSenderDict
+        # Second message should result in an Debug message logged
+        caplog.clear()
+        api.processMessage(message)
+        assert len(caplog.records) == 1
+        assert "KL21J00002" in caplog.messages[0]
+        assert caplog.records[0].levelname == "DEBUG"
+        assert api.metrics.sibling_message_drop == 0
+        assert api.metrics.sender_message_drop == 2
+        assert len(api._badSenderDict) == 1
+        assert "KL21J00002" in api._badSenderDict
+
+        message["SenderId"] = "KL21J00003"
+        caplog.clear()
+        api.processMessage(message)
+        assert len(caplog.records) == 1
+        assert "KL21J00003" in caplog.messages[0]
+        assert caplog.records[0].levelname == "ERROR"
+        assert api.metrics.sibling_message_drop == 0
+        assert api.metrics.sender_message_drop == 3
+        assert len(api._badSenderDict) == 2
+        assert "KL21J00002" in api._badSenderDict
+        assert "KL21J00003" in api._badSenderDict
