@@ -1674,7 +1674,7 @@ class lennox_system(object):
             )
         if r_f == None and r_c == None:
             raise S30Exception(
-                f"enhancedDehumidificationOvercooling must specifcy r_f, r_c oe both",
+                f"enhancedDehumidificationOvercooling must specifcy r_f, r_c or both",
                 EC_BAD_PARAMETERS,
                 3,
             )
@@ -1710,14 +1710,14 @@ class lennox_system(object):
                 or c > self.enhancedDehumidificationOvercoolingC_max
             ):
                 raise S30Exception(
-                    f"enhancedDehumidificationOvercooling r_c [{r_c}] must be an floating point [{self.enhancedDehumidificationOvercoolingC_min}] and [{self.enhancedDehumidificationOvercoolingC_max}]",
+                    f"enhancedDehumidificationOvercooling r_c [{r_c}] must be an floating point between [{self.enhancedDehumidificationOvercoolingC_min}] and [{self.enhancedDehumidificationOvercoolingC_max}]",
                     EC_BAD_PARAMETERS,
                     7,
                 )
 
             if c % self.enhancedDehumidificationOvercoolingC_inc != 0:
                 raise S30Exception(
-                    f"enhancedDehumidificationOvercooling r_c [{r_c}] must be an floating point multiple on  [{self.enhancedDehumidificationOvercoolingC_inc}]",
+                    f"enhancedDehumidificationOvercooling r_c [{r_c}] must be an floating point multiple of [{self.enhancedDehumidificationOvercoolingC_inc}]",
                     EC_BAD_PARAMETERS,
                     8,
                 )
