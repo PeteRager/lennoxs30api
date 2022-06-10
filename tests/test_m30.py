@@ -104,6 +104,7 @@ def test_process_configuration_message(api_m30):
     assert lsystem.ventilationControlMode == "ashrae"
     assert lsystem.feelsLikeMode == True
     assert lsystem.ventilatingUntilTime == ""
+    assert lsystem.is_none(lsystem.dehumidifierType) == True
 
     # Away Mode and Smart Away Tests
     assert lsystem.manualAwayMode == False == lsystem.get_manual_away_mode()
@@ -114,6 +115,9 @@ def test_process_configuration_message(api_m30):
     assert lsystem.sa_setpointState == LENNOX_SA_SETPOINT_STATE_HOME
     assert lsystem.get_smart_away_mode() == False
     assert lsystem.get_away_mode() == False
+
+    assert lsystem.enhancedDehumidificationOvercoolingF_enable == False
+    assert lsystem.enhancedDehumidificationOvercoolingC_enable == False
 
     zones = lsystem.getZoneList()
     assert len(zones) == 4

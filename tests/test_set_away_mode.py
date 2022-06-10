@@ -17,7 +17,7 @@ def test_set_manual_mode(api):
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         loop = asyncio.get_event_loop()
         result = loop.run_until_complete(lsystem.set_manual_away_mode(True))
-        mock_message_helper.call_count == 1
+        assert mock_message_helper.call_count == 1
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
         arg1 = mock_message_helper.await_args[0][1]
@@ -28,7 +28,7 @@ def test_set_manual_mode(api):
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         loop = asyncio.get_event_loop()
         result = loop.run_until_complete(lsystem.set_manual_away_mode(False))
-        mock_message_helper.call_count == 1
+        assert mock_message_helper.call_count == 1
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
         arg1 = mock_message_helper.await_args[0][1]
@@ -44,7 +44,7 @@ def test_set_smart_away_cancel(api):
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         loop = asyncio.get_event_loop()
         result = loop.run_until_complete(lsystem.cancel_smart_away())
-        mock_message_helper.call_count == 1
+        assert mock_message_helper.call_count == 1
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
         arg1 = mock_message_helper.await_args[0][1]
@@ -63,7 +63,7 @@ def test_set_smart_away_cancel(api):
             ec = e.error_code
         assert error == True
         assert ec == EC_BAD_PARAMETERS
-        mock_message_helper.call_count == 0
+        assert mock_message_helper.call_count == 0
 
 
 def test_enable_smart_away(api):
@@ -72,7 +72,7 @@ def test_enable_smart_away(api):
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         loop = asyncio.get_event_loop()
         result = loop.run_until_complete(lsystem.enable_smart_away(True))
-        mock_message_helper.call_count == 1
+        assert mock_message_helper.call_count == 1
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
         arg1 = mock_message_helper.await_args[0][1]
@@ -83,7 +83,7 @@ def test_enable_smart_away(api):
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         loop = asyncio.get_event_loop()
         result = loop.run_until_complete(lsystem.enable_smart_away(False))
-        mock_message_helper.call_count == 1
+        assert mock_message_helper.call_count == 1
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
         arg1 = mock_message_helper.await_args[0][1]
@@ -102,4 +102,4 @@ def test_enable_smart_away(api):
             ec = e.error_code
         assert error == True
         assert ec == EC_BAD_PARAMETERS
-        mock_message_helper.call_count == 0
+        assert mock_message_helper.call_count == 0

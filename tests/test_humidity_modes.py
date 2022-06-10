@@ -39,7 +39,7 @@ def test_set_humidity_mode_humidify(api):
         result = loop.run_until_complete(
             zone.setHumidityMode(LENNOX_HUMIDITY_MODE_HUMIDIFY)
         )
-        mock_message_helper.call_count == 1
+        assert mock_message_helper.call_count == 1
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
         arg1 = mock_message_helper.await_args[0][1]
@@ -76,7 +76,7 @@ def test_set_humidity_mode_dehumidify(api):
         result = loop.run_until_complete(
             zone.setHumidityMode(LENNOX_HUMIDITY_MODE_DEHUMIDIFY)
         )
-        mock_message_helper.call_count == 1
+        assert mock_message_helper.call_count == 1
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
         arg1 = mock_message_helper.await_args[0][1]
@@ -96,7 +96,7 @@ def test_set_humidity_mode_off(api):
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         loop = asyncio.get_event_loop()
         result = loop.run_until_complete(zone.setHumidityMode(LENNOX_HUMIDITY_MODE_OFF))
-        mock_message_helper.call_count == 1
+        assert mock_message_helper.call_count == 1
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
         arg1 = mock_message_helper.await_args[0][1]

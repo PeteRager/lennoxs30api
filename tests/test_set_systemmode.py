@@ -38,7 +38,7 @@ def test_set_systemMode_emergency_heat(api):
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         loop = asyncio.get_event_loop()
         result = loop.run_until_complete(zone.setHVACMode(LENNOX_HVAC_EMERGENCY_HEAT))
-        mock_message_helper.call_count == 1
+        assert mock_message_helper.call_count == 1
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
         arg1 = mock_message_helper.await_args[0][1]
