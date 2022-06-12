@@ -1228,6 +1228,7 @@ class lennox_system(object):
                     value = diagnostic_data["diagnostic"].get(key)
                     #_LOGGER.info(f"Diag: {eid} {did} {key} {value} ") 
                     self.diagnostics[eid][did][key] = value
+                    # TODO only execute callback if data changed.  We can add a unit test for this.
                     self.executeOnUpdateCallbacksDiag(f"{eid}_{did}", value)
                             
     def getDiagnostics(self):

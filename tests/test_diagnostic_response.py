@@ -75,8 +75,12 @@ def test_process_equipment_energy_invalid():
     file_path = os.path.join(script_dir, "equipments_response_energy.json")
     with open(file_path) as f:
         data = json.load(f)
-    data['Data']['equipments'][1]['equipment']['diagnostics'][19]['diagnostic']['value'] = "Open"
-    data['Data']['equipments'][1]['equipment']['diagnostics'][20]['diagnostic']['value'] = "Open"
+    data["Data"]["equipments"][1]["equipment"]["diagnostics"][19]["diagnostic"][
+        "value"
+    ] = "Open"
+    data["Data"]["equipments"][1]["equipment"]["diagnostics"][20]["diagnostic"][
+        "value"
+    ] = "Open"
     api.processMessage(data)
 
     assert lsystem.diagInverterInputVoltage == "Open"
@@ -97,8 +101,12 @@ def test_process_equipment_energy_unnamed():
     file_path = os.path.join(script_dir, "equipments_response_energy.json")
     with open(file_path) as f:
         data = json.load(f)
-    data['Data']['equipments'][1]['equipment']['diagnostics'][19]['diagnostic']['value'] = "Open"
-    data['Data']['equipments'][1]['equipment']['diagnostics'][20]['diagnostic']['value'] = "Open"
+    data["Data"]["equipments"][1]["equipment"]["diagnostics"][19]["diagnostic"][
+        "value"
+    ] = "Open"
+    data["Data"]["equipments"][1]["equipment"]["diagnostics"][20]["diagnostic"][
+        "value"
+    ] = "Open"
     api.processMessage(data)
 
     assert lsystem.diagInverterInputVoltage == "Open"
@@ -112,12 +120,77 @@ def test_process_equipment_energy_unnamed():
     file_path = os.path.join(script_dir, "equipments_response_energy.json")
     with open(file_path) as f:
         data = json.load(f)
-    del data['Data']['equipments'][1]['equipment']['diagnostics'][19]['diagnostic']['name']
-    del data['Data']['equipments'][1]['equipment']['diagnostics'][20]['diagnostic']['name']
-    del data['Data']['equipments'][0]
+    del data["Data"]["equipments"][1]["equipment"]["diagnostics"][19]["diagnostic"][
+        "name"
+    ]
+    del data["Data"]["equipments"][1]["equipment"]["diagnostics"][20]["diagnostic"][
+        "name"
+    ]
+    del data["Data"]["equipments"][0]
     api.processMessage(data)
 
     assert lsystem.diagInverterInputVoltage == "247.0"
     assert lsystem.diagInverterInputCurrent == "4.301"
     assert dirtyVoltage.triggered == True
     assert dirtyCurrent.triggered == True
+
+
+def test_process_diagnostics():
+    api = setup_load_configuration()
+    lsystem: lennox_system = api.getSystems()[0]
+    assert len(lsystem.diagnosticPaths) == 0
+    assert len(lsystem.diagnostics) == 0
+
+    file_path = os.path.join(script_dir, "equipments_response_energy.json")
+    with open(file_path) as f:
+        data = json.load(f)
+    api.processMessage(data)
+
+    # It appears that only the power inverted diagnostics are captured in here
+    # and the other diagnostics are not stored and only provided via callbacks.
+    assert len(lsystem.diagnosticPaths) == 2
+    assert len(lsystem.diagnostics) == 3
+
+    assert len(lsystem.diagnostics[0]) == 1
+    assert len(lsystem.diagnostics[1]) == 23
+    assert len(lsystem.diagnostics[2]) == 24
+
+    eq1 = lsystem.diagnostics[1]
+    assert len(eq1) == 23
+
+    eq_did = eq1[0]
+    assert eq_did["name"] == "Comp. Short Cycle Delay Active"
+    assert eq_did["unit"] == ""
+    assert eq_did["value"] == "No"
+
+    eq_did = eq1[1]
+    assert eq_did["name"] == "Cooling Rate"
+    assert eq_did["unit"] == "%"
+    assert eq_did["value"] == "0.0"
+
+    eq_did = eq1[2]
+    assert eq_did["name"] == "Heating Rate"
+    assert eq_did["unit"] == "%"
+    assert eq_did["value"] == "0.0"
+
+    eq_did = eq1[3]
+    assert eq_did["name"] == "Compressor Shift Delay Active"
+    assert eq_did["unit"] == ""
+    assert eq_did["value"] == "No"
+
+    eq_did = eq1[4]
+    assert eq_did["name"] == "Defrost Status"
+    assert eq_did["unit"] == ""
+    assert eq_did["value"] == "Off"
+
+    eq_did = eq1[9]
+    assert eq_did["name"] == "Liquid Line Temp"
+    assert eq_did["unit"] == "F"
+    assert eq_did["value"] == "64.3"
+
+    eq_did = eq1[22]
+    assert eq_did["name"] == "Compressor Current"
+    assert eq_did["unit"] == "A"
+    assert eq_did["value"] == "0.000"
+
+    #### Repeat for equipment 2
