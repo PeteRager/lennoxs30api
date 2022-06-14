@@ -4,6 +4,8 @@ from lennoxs30api.lennox_home import lennox_home
 import json
 import os
 
+from tests.conftest import loadfile
+
 
 # where device responses can be found
 script_dir = os.path.dirname(__file__) + "/messages/"
@@ -194,3 +196,105 @@ def test_process_diagnostics():
     assert eq_did["value"] == "0.000"
 
     #### Repeat for equipment 2
+
+
+class DirtyDiagnosticsSubscription:
+    def __init__(self, system: lennox_system, eid_did: str):
+        self.trigger_count: int = 0
+        self.eid_did: str = None
+        self.value: str = None
+        system.registerOnUpdateCallbackDiag(self.update_callback, eid_did)
+
+    def update_callback(self, eid_did: str, value: str):
+        self.trigger_count += 1
+        self.eid_did = eid_did
+        self.value = value
+
+    def clear(self):
+        self.trigger_count: int = 0
+        self.eid_did: str = None
+        self.value: str = None
+
+
+def test_diagnostics_subscription():
+    api = setup_load_configuration()
+    lsystem: lennox_system = api.getSystems()[0]
+    assert len(lsystem.diagnosticPaths) == 0
+    assert len(lsystem.diagnostics) == 0
+
+    message = loadfile("equipments_response_energy.json")
+    api.processMessage(message)
+
+    sub1 = DirtyDiagnosticsSubscription(lsystem, ["1_0"])
+    sub2 = DirtyDiagnosticsSubscription(lsystem, ["1_1"])
+    sub3 = DirtyDiagnosticsSubscription(lsystem, ["1_0", "1_1"])
+    assert sub1.trigger_count == 0
+    assert sub2.trigger_count == 0
+    assert sub3.trigger_count == 0
+    message = loadfile("equipments_diag_update.json")
+    api.processMessage(message)
+
+    assert sub1.trigger_count == 1
+    assert sub1.eid_did == "1_0"
+    assert sub1.value == "Yes"
+    assert lsystem.getDiagnostics()[1][0]["value"] == "Yes"
+
+    assert sub2.trigger_count == 1
+    assert sub2.eid_did == "1_1"
+    assert sub2.value == "10.0"
+    assert lsystem.getDiagnostics()[1][1]["value"] == "10.0"
+
+    assert sub3.trigger_count == 2
+
+    # Process the same file again, should result in no changes and no callbacks
+    sub1.clear()
+    sub2.clear()
+    sub3.clear()
+    assert sub1.trigger_count == 0
+    assert sub2.trigger_count == 0
+    message = loadfile("equipments_diag_update.json")
+    api.processMessage(message)
+
+    assert sub1.trigger_count == 0
+    assert sub1.eid_did == None
+    assert sub1.value == None
+    assert lsystem.getDiagnostics()[1][0]["value"] == "Yes"
+
+    assert sub2.trigger_count == 0
+    assert sub2.eid_did == None
+    assert sub2.value == None
+    assert lsystem.getDiagnostics()[1][1]["value"] == "10.0"
+
+    assert sub3.trigger_count == 0
+
+    message["Data"]["equipments"][0]["equipment"]["diagnostics"][0]["diagnostic"][
+        "value"
+    ] = "No"
+    api.processMessage(message)
+    assert sub1.trigger_count == 1
+    assert sub1.eid_did == "1_0"
+    assert sub1.value == "No"
+    assert lsystem.getDiagnostics()[1][0]["value"] == "No"
+
+    assert sub2.trigger_count == 0
+    assert sub2.eid_did == None
+    assert sub2.value == None
+    assert lsystem.getDiagnostics()[1][1]["value"] == "10.0"
+
+    assert sub3.trigger_count == 1
+
+    sub1.clear()
+    sub3.clear()
+    assert sub1.trigger_count == 0
+    message["Data"]["equipments"][0]["equipment"]["diagnostics"][1]["diagnostic"][
+        "value"
+    ] = "11.1"
+    api.processMessage(message)
+    assert sub1.trigger_count == 0
+    assert sub1.eid_did == None
+    assert sub1.value == None
+    assert sub2.trigger_count == 1
+    assert sub2.eid_did == "1_1"
+    assert sub2.value == "11.1"
+    assert sub3.trigger_count == 1
+    assert lsystem.getDiagnostics()[1][1]["value"] == "11.1"
