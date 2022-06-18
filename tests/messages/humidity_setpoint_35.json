@@ -1,0 +1,52 @@
+{
+    "MessageId": "637618746572107413|a03fd4522569461791206d22f82d89a5",
+    "SenderId":  "0000000-0000-0000-0000-000000000001",
+    "TargetID": "mapp079372367620210714081037_myemail@email.com",
+    "MessageType": "PropertyChange",
+    "Data": {
+        "zones": [
+            {
+                "publisher": {
+                    "publisherName": "lcc"
+                },
+                "status": {
+                    "fan": false,
+                    "allergenDefender": false,
+                    "humidity": 35,
+                    "temperature": 71,
+                    "damper": 0,
+                    "heatCoast": false,
+                    "defrost": false,
+                    "humidityStatus": "good",
+                    "period": {
+                        "systemMode": "heat",
+                        "fanMode": "on",
+                        "husp": 35,
+                        "sp": 73,
+                        "desp": 55,
+                        "csp": 85,
+                        "hsp": 71,
+                        "hspC": 21.5,
+                        "startTime": 106200,
+                        "humidityMode": "humidify",
+                        "spC": 23,
+                        "cspC": 29.5
+                    },
+                    "humOperation": "humidifying",
+                    "scheduleExceptionIds": [],
+                    "balancePoint": "high",
+                    "tempOperation": "off",
+                    "ventilation": false,
+                    "demand": 0,
+                    "aux": false,
+                    "coolCoast": false,
+                    "ssr": false,
+                    "temperatureStatus": "good",
+                    "temperatureC": 21.5
+                },
+                "id": 0
+            }
+        ]
+    },
+   "AdditionalParameters": null
+}

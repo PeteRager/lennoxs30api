@@ -115,3 +115,17 @@ def test_logging_redacted_performance(caplog):
         )
         print(t1)
         pass
+
+
+def test_logger_instances_separate(caplog):
+    # Message Loggers are unique per file.  So when specifying different files we should get different loggers
+    mlog1 = MessageLogger(enabled=True, message_logging_file="s30_log_file_1.tmp")
+    mlog2 = MessageLogger(enabled=True, message_logging_file="s30_log_file_2.tmp")
+    assert mlog1.logger != mlog2.logger
+
+    # Message Loggers are unique per file.  So when specifying different files we should get the same logger
+    mlog1 = MessageLogger(enabled=True, message_logging_file="s30_log file_1.tmp")
+    mlog2 = MessageLogger(enabled=True, message_logging_file="s30_log file_1.tmp")
+    assert mlog1.logger == mlog2.logger
+    # There should only be one handler for the loggers.
+    assert len(mlog1.logger.handlers) == 1

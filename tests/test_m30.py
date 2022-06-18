@@ -10,6 +10,8 @@ from lennoxs30api.s30api_async import (
     LENNOX_HVAC_HEAT,
     LENNOX_SA_SETPOINT_STATE_HOME,
     LENNOX_SA_STATE_DISABLED,
+    LENNOX_STATUS_GOOD,
+    LENNOX_STATUS_NOT_EXIST,
     lennox_zone,
     s30api_async,
     lennox_system,
@@ -79,6 +81,7 @@ def test_process_configuration_message(api_m30):
     assert lsystem.numberOfZones == 1
     assert lsystem.outdoorTemperature == 77
     assert lsystem.outdoorTemperatureC == 25
+    assert lsystem.outdoorTemperatureStatus == LENNOX_STATUS_NOT_EXIST
     assert lsystem.temperatureUnit == "F"
 
     assert lsystem.serialNumber == "A220K00436"
@@ -101,6 +104,7 @@ def test_process_configuration_message(api_m30):
     assert lsystem.ventilationControlMode == "ashrae"
     assert lsystem.feelsLikeMode == True
     assert lsystem.ventilatingUntilTime == ""
+    assert lsystem.is_none(lsystem.dehumidifierType) == True
 
     # Away Mode and Smart Away Tests
     assert lsystem.manualAwayMode == False == lsystem.get_manual_away_mode()
@@ -111,6 +115,9 @@ def test_process_configuration_message(api_m30):
     assert lsystem.sa_setpointState == LENNOX_SA_SETPOINT_STATE_HOME
     assert lsystem.get_smart_away_mode() == False
     assert lsystem.get_away_mode() == False
+
+    assert lsystem.enhancedDehumidificationOvercoolingF_enable == False
+    assert lsystem.enhancedDehumidificationOvercoolingC_enable == False
 
     zones = lsystem.getZoneList()
     assert len(zones) == 4
@@ -131,8 +138,10 @@ def test_process_configuration_message(api_m30):
     assert zone_1.humOperation == "off"
     assert zone_1.humidificationOption == False
     assert zone_1.humidity == 27 == zone_1.getHumidity()
+    assert zone_1.humidityStatus == LENNOX_STATUS_GOOD
+
     assert zone_1.humidityMode == "off"
-    assert zone_1.husp == 40
+    assert zone_1.husp == 40 == zone_1.getHumidifySetpoint()
     assert zone_1.maxCsp == 99
     assert zone_1.maxCspC == 37
     assert zone_1.minCsp == 60
@@ -150,6 +159,8 @@ def test_process_configuration_message(api_m30):
     assert zone_1.tempOperation == "heating"
     assert zone_1.temperature == 73 == zone_1.getTemperature()
     assert zone_1.temperatureC == 23 == zone_1.getTemperatureC()
+    assert zone_1.temperatureStatus == LENNOX_STATUS_GOOD
+
     assert zone_1.heatCoast == False
     assert zone_1.defrost == False
     assert zone_1.balancePoint == "none"

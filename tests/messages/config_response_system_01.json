@@ -196,7 +196,7 @@
                             "heatingOption": true,
                             "maxHsp": 90,
                             "temperatureDeadbandC": 1.5,
-                            "humidificationOption": false,
+                            "humidificationOption": true,
                             "coolingOption": true,
                             "singleSetpointAvailable": false,
                             "humidityDeadband": 5,

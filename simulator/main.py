@@ -6,6 +6,8 @@ from aiohttp import web
 from aiohttp.typedefs import JSONDecoder
 from aiohttp.web_request import Request
 
+from lennoxs30api.s30api_async import LENNOX_STATUS_GOOD, LENNOX_STATUS_NOT_AVAILABLE
+
 
 class AppConnection(object):
     def __init__(self, app_id: str):
@@ -17,8 +19,162 @@ class Simulator(object):
     def __init__(self, configfile: str):
         self.configfile = configfile
         self.appList = {}
+        self.zoneSimRunning = False
+        self.outdoorTempSimRunning = False
+        self.siblingSimRunning = False
+        self.outdoorTempSim = False
+        self.zoneSim = False
+        self.siblingSim = False
         with open(configfile) as f:
             self.config_data = json.load(f)
+            if "outdoorTempSim" in self.config_data:
+                self.outdoorTempSim = self.config_data["outdoorTempSim"]
+            if "zoneSim" in self.config_data:
+                self.zoneSim = self.config_data["zoneSim"]
+            if "siblingSim" in self.config_data:
+                self.siblingSim = self.config_data["siblingSim"]
+
+    async def outdoorTempSimulator(self):
+        if self.outdoorTempSim == False or self.outdoorTempSimRunning == True:
+            return
+        self.outdoorTempSimRunning = True
+        await asyncio.sleep(15.0)
+        temperature = 10
+        while True:
+            if temperature == 100:
+                status = LENNOX_STATUS_NOT_AVAILABLE
+            else:
+                status = LENNOX_STATUS_GOOD
+            message = {
+                "MessageId": "637594500464320381|95a6cacebd94459dbe7538161628bdb6",
+                "SenderId": "LCC",
+                "TargetID": "mapp079372367644467046827098_myemail@email.com",
+                "MessageType": "PropertyChange",
+                "Data": {
+                    "system": {
+                        "status": {
+                            "outdoorTemperatureStatus": status,
+                            "outdoorTemperature": temperature,
+                            "outdoorTemperatureC": 13.5,
+                        },
+                        "publisher": {"publisherName": "lcc"},
+                    }
+                },
+            }
+            for appName, appObject in self.appList.items():
+                appObject.queue.append(message)
+            if temperature == 100:
+                temperature = 10
+            else:
+                temperature = temperature + 10
+            await asyncio.sleep(5.0)
+
+    async def zoneSimulator(self):
+        if self.zoneSim == False or self.zoneSimRunning == True:
+            return
+        self.zoneSimRunning = True
+        await asyncio.sleep(15.0)
+        temperature = 10
+        humidity = 50
+        while True:
+            if temperature == 100:
+                status = LENNOX_STATUS_NOT_AVAILABLE
+            else:
+                status = LENNOX_STATUS_GOOD
+            message = {
+                "MessageId": "637594500464319661|7df1361acd764dce83fcbc776ae3f8dd",
+                "SenderId": "LCC",
+                "TargetID": "mapp079372367644467046827098_myemail@email.com",
+                "MessageType": "PropertyChange",
+                "Data": {
+                    "zones": [
+                        {
+                            "publisher": {"publisherName": "lcc"},
+                            "status": {
+                                "fan": False,
+                                "allergenDefender": False,
+                                "humidity": humidity,
+                                "humidityStatus": status,
+                                "temperature": temperature,
+                                "temperatureStatus": status,
+                                "temperatureC": 26,
+                            },
+                            "id": 0,
+                        }
+                    ]
+                },
+                "AdditionalParameters": None,
+            }
+            for appName, appObject in self.appList.items():
+                appObject.queue.append(message)
+            if temperature == 100:
+                temperature = 10
+                humidity = 50
+            else:
+                temperature = temperature + 10
+                humidity = humidity + 1
+            await asyncio.sleep(5.0)
+
+    async def siblingSimulator(self):
+        if self.siblingSim == False or self.siblingSimRunning == True:
+            return
+        self.siblingSimRunning = True
+        message = {
+            "MessageId": 0,
+            "SenderID": "LCC",
+            "TargetID": "homeassistant",
+            "MessageType": "PropertyChange",
+            "Data": {
+                "siblings": [
+                    {
+                        "publisher": {"publisherName": "lcc"},
+                        "id": 0,
+                        "selfIdentifier": "KL21J00001",
+                        "sibling": {
+                            "identifier": "KL21J00002",
+                            "systemName": '"Bedrooms"',
+                            "nodePresent": True,
+                            "portNumber": 443,
+                            "groupCountTracker": True,
+                            "ipAddress": "10.0.0.2",
+                        },
+                    }
+                ]
+            },
+        }
+        for appName, appObject in self.appList.items():
+            appObject.queue.append(message)
+        await asyncio.sleep(15.0)
+
+        temperature = 100
+        while True:
+            if temperature == 100:
+                status = LENNOX_STATUS_NOT_AVAILABLE
+            else:
+                status = LENNOX_STATUS_GOOD
+            message = {
+                "MessageId": "637594500464320381|95a6cacebd94459dbe7538161628bdb6",
+                "SenderId": "KL21J00002",
+                "TargetID": "mapp079372367644467046827098_myemail@email.com",
+                "MessageType": "PropertyChange",
+                "Data": {
+                    "system": {
+                        "status": {
+                            "outdoorTemperatureStatus": status,
+                            "outdoorTemperature": temperature,
+                            "outdoorTemperatureC": 13.5,
+                        },
+                        "publisher": {"publisherName": "lcc"},
+                    }
+                },
+            }
+            for appName, appObject in self.appList.items():
+                appObject.queue.append(message)
+            if temperature == 200:
+                temperature = 100
+            else:
+                temperature = temperature + 10
+            await asyncio.sleep(5.0)
 
     def loadfile(self, name) -> json:
         script_dir = os.path.dirname(__file__)
@@ -55,7 +211,9 @@ class Simulator(object):
                 data = self.loadfile(self.config_data["deviceFile"])
                 app: AppConnection = self.appList[app_id]
                 app.queue.append(data)
-
+                asyncio.create_task(self.outdoorTempSimulator())
+                asyncio.create_task(self.zoneSimulator())
+                asyncio.create_task(self.siblingSimulator())
                 return web.Response(text="Simulator Success")
         return web.Response(status=404, text="Simulator Failuer")
 
@@ -93,6 +251,22 @@ class Simulator(object):
                                 "status": {
                                     "diagLevel": level,
                                 }
+                            }
+                        }
+            elif "system" in data:
+                if "config" in data["system"]:
+                    if "centralMode" in data["system"]["config"]:
+                        mode = data["system"]["config"]["centralMode"]
+                        if mode == True:
+                            zm = "central"
+                        else:
+                            zm = "zoned"
+                        msg["Data"] = {
+                            "system": {
+                                "status": {
+                                    "zoningMode": zm,
+                                },
+                                "config": {"centralMode": mode},
                             }
                         }
         return msg
