@@ -21,10 +21,12 @@ class Simulator(object):
         self.appList = {}
         self.zoneSimRunning = False
         self.outdoorTempSimRunning = False
+        self.diagSimRunning = False
         self.siblingSimRunning = False
         self.outdoorTempSim = False
         self.zoneSim = False
         self.siblingSim = False
+        self.diagSim = False
         with open(configfile) as f:
             self.config_data = json.load(f)
             if "outdoorTempSim" in self.config_data:
@@ -33,6 +35,8 @@ class Simulator(object):
                 self.zoneSim = self.config_data["zoneSim"]
             if "siblingSim" in self.config_data:
                 self.siblingSim = self.config_data["siblingSim"]
+            if "diagSim" in self.config_data:
+                self.diagSim = self.config_data["diagSim"]
 
     async def outdoorTempSimulator(self):
         if self.outdoorTempSim == False or self.outdoorTempSimRunning == True:
@@ -68,6 +72,40 @@ class Simulator(object):
             else:
                 temperature = temperature + 10
             await asyncio.sleep(5.0)
+
+    async def diagSimulator(self):
+        if self.diagSim == False or self.diagSimRunning == True:
+            return
+        self.diagSimRunning = True
+        message = self.loadfile("tests/messages/equipments_diag_update.json")
+
+        await asyncio.sleep(15.0)
+        value: float = 0.0
+        while True:
+            message["Data"]["equipments"][0]["equipment"]["diagnostics"][1][
+                "diagnostic"
+            ]["value"] = str(value)
+            value += 1.2
+            if value > 300:
+                value = 0.0
+
+            if (
+                message["Data"]["equipments"][0]["equipment"]["diagnostics"][0][
+                    "diagnostic"
+                ]["value"]
+                == "Yes"
+            ):
+                message["Data"]["equipments"][0]["equipment"]["diagnostics"][0][
+                    "diagnostic"
+                ]["value"] = "No"
+            else:
+                message["Data"]["equipments"][0]["equipment"]["diagnostics"][0][
+                    "diagnostic"
+                ]["value"] = "Yes"
+
+            for appName, appObject in self.appList.items():
+                appObject.queue.append(message)
+            await asyncio.sleep(1.0)
 
     async def zoneSimulator(self):
         if self.zoneSim == False or self.zoneSimRunning == True:
@@ -208,12 +246,16 @@ class Simulator(object):
                 data = self.loadfile(self.config_data["configFile"])
                 app: AppConnection = self.appList[app_id]
                 app.queue.append(data)
+                data = self.loadfile(self.config_data["equipmentFile"])
+                app: AppConnection = self.appList[app_id]
+                app.queue.append(data)
                 data = self.loadfile(self.config_data["deviceFile"])
                 app: AppConnection = self.appList[app_id]
                 app.queue.append(data)
                 asyncio.create_task(self.outdoorTempSimulator())
                 asyncio.create_task(self.zoneSimulator())
                 asyncio.create_task(self.siblingSimulator())
+                asyncio.create_task(self.diagSimulator())
                 return web.Response(text="Simulator Success")
         return web.Response(status=404, text="Simulator Failuer")
 

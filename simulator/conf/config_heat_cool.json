@@ -1,6 +1,10 @@
 {
     "configFile" : "tests/messages/config_response_system_01.json",
     "deviceFile" : "tests/messages/device_response_lcc.json",
+    "equipmentFile" : "tests/messages/equipments_response_energy.json",
     "substitutions" : [ { "old_value" : "HD21212121", 
-                       "new_value" : "HD00000000" }  ]
+                       "new_value" : "HD00000000" }  ],
+    "outdoorTempSim" : true,
+    "zoneSim" : true,
+    "diagSim" : true                   
 }
