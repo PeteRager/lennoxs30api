@@ -1066,6 +1066,9 @@ class lennox_system(object):
         self.dehumidificationMode: str = None
         # humidification
         self.humidificationMode: str = None
+        # Internet status
+        self.relayServerConnected: bool = None
+        self.internetStatus: bool = None
 
         self._dirty = False
         self._dirtyList = []
@@ -1078,6 +1081,7 @@ class lennox_system(object):
             "equipments": self._processEquipments,
             "systemControl": self._processSystemControl,
             "siblings": self._processSiblings,
+            "rgw": self._process_rgw,
         }
 
         self.diagnostics = nested_dict(3, str)
@@ -1160,6 +1164,12 @@ class lennox_system(object):
             self.attr_updater(sibling["sibling"], "portNumber", "sibling_portNumber")
             self.attr_updater(sibling["sibling"], "nodePresent", "sibling_nodePresent")
             self.attr_updater(sibling["sibling"], "ipAddress", "sibling_ipAddress")
+
+    def _process_rgw(self, rgw):
+        if "status" in rgw:
+            status = rgw["status"]
+            self.attr_updater(status, "relayServerConnected")
+            self.attr_updater(status, "internetStatus")
 
     def _processSchedules(self, schedules):
         """Processes the schedule messages, throws base exceptions if a problem is encoutered"""

@@ -1,0 +1,17 @@
+{
+    "MessageId": 0,
+    "SenderID": "0000000-0000-0000-0000-000000000001",
+    "TargetID": "homeassistant",
+    "MessageType": "PropertyChange",
+    "Data": {
+        "rgw": {
+            "status": {
+                "relayServerConnected": false,
+                "internetStatus": false
+            },
+            "publisher": {
+                "publisherName": "lcc"
+            }
+        }
+    }
+}
