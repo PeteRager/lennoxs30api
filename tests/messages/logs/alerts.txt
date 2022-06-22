@@ -1,0 +1,63 @@
+2022-06-22 09:05:23,228 [MainThread  ] [DEBUG]  {
+    "messages": [
+        {
+            "MessageId": 0,
+            "SenderID": "LCC",
+            "TargetID": "ha_dev",
+            "MessageType": "PropertyChange",
+            "Data": {
+                "alerts": {
+                    "active": [
+                        {
+                            "alert": {
+                                "userMessageID": 0,
+                                "timestampClear": null,
+                                "code": 0,
+                                "notifyDealer": false,
+                                "userMessage": "",
+                                "isStillActive": false,
+                                "update": false,
+                                "clearableByDealer": true,
+                                "timestampLast": null,
+                                "priority": "minor",
+                                "notifyUser": false,
+                                "clearedBy": "device",
+                                "timestampFirst": null,
+                                "equipmentType": 0,
+                                "optionalfieldData": "",
+                                "action": "clear",
+                                "optionalfieldType": "null",
+                                "clearableByUser": false,
+                                "count": 0
+                            },
+                            "maxItems": 256,
+                            "id": 0
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
+2022-06-22 09:05:23,263 [MainThread  ] [DEBUG]  {
+    "messages": [
+        {
+            "MessageId": 0,
+            "SenderID": "LCC",
+            "TargetID": "ha_dev",
+            "MessageType": "PropertyChange",
+            "Data": {
+                "alerts": {
+                    "meta": {
+                        "numClearedAlerts": 2,
+                        "numActiveAlerts": 0,
+                        "lastClearedAlertId": 1,
+                        "szClearedAlerts": 256,
+                        "firstClearedAlertId": 0,
+                        "numAlertsInActiveArray": 0
+                    }
+                }
+            }
+        }
+    ]
+}

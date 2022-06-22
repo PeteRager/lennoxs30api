@@ -16,11 +16,13 @@ from unittest.mock import patch
 from lennoxs30api.s30exception import S30Exception
 
 
-def loadfile(name) -> json:
+def loadfile(name, sysId=None) -> json:
     script_dir = os.path.dirname(__file__) + "/messages/"
     file_path = os.path.join(script_dir, name)
     with open(file_path) as f:
         data = json.load(f)
+    if sysId != None:
+        data["SenderID"] = sysId
     return data
 
 

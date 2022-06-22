@@ -603,7 +603,7 @@ class s30api_async(object):
             try:
                 await self.requestDataHelper(
                     lennoxSystem.sysId,
-                    '"AdditionalParameters":{"JSONPath":"1;/systemControl;/devices;/zones;/equipments;/schedules;/occupancy;/system"}',
+                    '"AdditionalParameters":{"JSONPath":"1;/systemControl;/reminderSensors;/reminders;/alerts/active;/alerts/meta;/fwm;/rgw;/devices;/zones;/equipments;/schedules;/occupancy;/system"}',
                 )
             except S30Exception as e:
                 err_msg = f"subscribe fail loca [{ref}] {e.as_string()}"

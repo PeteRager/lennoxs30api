@@ -6,7 +6,7 @@
     "Data": {
         "rgw": {
             "status": {
-                "relayServerConnected": false,
+                "relayServerConnected": true,
                 "internetStatus": false
             },
             "publisher": {

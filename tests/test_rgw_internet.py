@@ -19,15 +19,15 @@ def test_get_rgw_status(api: s30api_async):
     assert lsystem.relayServerConnected == None
     assert lsystem.internetStatus == None
 
-    message = loadfile("relay_internet_status.json")
-    message["SenderID"] = lsystem.sysId
+    message = loadfile("rgw_initial.json", lsystem.sysId)
     api.processMessage(message)
 
     assert lsystem.relayServerConnected == False
     assert lsystem.internetStatus == False
 
-    message["Data"]["rgw"]["status"]["relayServerConnected"] = True
+    message = loadfile("rgw_incremental.json", lsystem.sysId)
     api.processMessage(message)
+
     assert lsystem.relayServerConnected == True
     assert lsystem.internetStatus == False
 
