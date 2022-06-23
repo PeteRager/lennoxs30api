@@ -1,3 +1,4 @@
+from lennoxs30api.lennox_equipment import lennox_equipment, lennox_equipment_diagnostic
 from lennoxs30api.s30api_async import lennox_zone, s30api_async, lennox_system
 from lennoxs30api.lennox_home import lennox_home
 
@@ -141,7 +142,7 @@ def test_process_diagnostics():
     api = setup_load_configuration()
     lsystem: lennox_system = api.getSystems()[0]
     assert len(lsystem.diagnosticPaths) == 0
-    assert len(lsystem.diagnostics) == 0
+    assert len(lsystem.equipment) == 0
 
     file_path = os.path.join(script_dir, "equipments_response_energy.json")
     with open(file_path) as f:
@@ -151,49 +152,49 @@ def test_process_diagnostics():
     # It appears that only the power inverted diagnostics are captured in here
     # and the other diagnostics are not stored and only provided via callbacks.
     assert len(lsystem.diagnosticPaths) == 2
-    assert len(lsystem.diagnostics) == 3
+    assert len(lsystem.equipment) == 3
 
-    assert len(lsystem.diagnostics[0]) == 1
-    assert len(lsystem.diagnostics[1]) == 23
-    assert len(lsystem.diagnostics[2]) == 24
+    assert len(lsystem.equipment[0].diagnostics) == 1
+    assert len(lsystem.equipment[1].diagnostics) == 23
+    assert len(lsystem.equipment[2].diagnostics) == 24
 
-    eq1 = lsystem.diagnostics[1]
-    assert len(eq1) == 23
+    eq1: lennox_equipment = lsystem.equipment[1]
+    assert len(eq1.diagnostics) == 23
 
-    eq_did = eq1[0]
-    assert eq_did["name"] == "Comp. Short Cycle Delay Active"
-    assert eq_did["unit"] == ""
-    assert eq_did["value"] == "No"
+    eq_did: lennox_equipment_diagnostic = eq1.diagnostics[0]
+    assert eq_did.name == "Comp. Short Cycle Delay Active"
+    assert eq_did.unit == ""
+    assert eq_did.value == "No"
 
-    eq_did = eq1[1]
-    assert eq_did["name"] == "Cooling Rate"
-    assert eq_did["unit"] == "%"
-    assert eq_did["value"] == "0.0"
+    eq_did: lennox_equipment_diagnostic = eq1.diagnostics[1]
+    assert eq_did.name == "Cooling Rate"
+    assert eq_did.unit == "%"
+    assert eq_did.value == "0.0"
 
-    eq_did = eq1[2]
-    assert eq_did["name"] == "Heating Rate"
-    assert eq_did["unit"] == "%"
-    assert eq_did["value"] == "0.0"
+    eq_did: lennox_equipment_diagnostic = eq1.diagnostics[2]
+    assert eq_did.name == "Heating Rate"
+    assert eq_did.unit == "%"
+    assert eq_did.value == "0.0"
 
-    eq_did = eq1[3]
-    assert eq_did["name"] == "Compressor Shift Delay Active"
-    assert eq_did["unit"] == ""
-    assert eq_did["value"] == "No"
+    eq_did: lennox_equipment_diagnostic = eq1.diagnostics[3]
+    assert eq_did.name == "Compressor Shift Delay Active"
+    assert eq_did.unit == ""
+    assert eq_did.value == "No"
 
-    eq_did = eq1[4]
-    assert eq_did["name"] == "Defrost Status"
-    assert eq_did["unit"] == ""
-    assert eq_did["value"] == "Off"
+    eq_did: lennox_equipment_diagnostic = eq1.diagnostics[4]
+    assert eq_did.name == "Defrost Status"
+    assert eq_did.unit == ""
+    assert eq_did.value == "Off"
 
-    eq_did = eq1[9]
-    assert eq_did["name"] == "Liquid Line Temp"
-    assert eq_did["unit"] == "F"
-    assert eq_did["value"] == "64.3"
+    eq_did: lennox_equipment_diagnostic = eq1.diagnostics[9]
+    assert eq_did.name == "Liquid Line Temp"
+    assert eq_did.unit == "F"
+    assert eq_did.value == "64.3"
 
-    eq_did = eq1[22]
-    assert eq_did["name"] == "Compressor Current"
-    assert eq_did["unit"] == "A"
-    assert eq_did["value"] == "0.000"
+    eq_did: lennox_equipment_diagnostic = eq1.diagnostics[22]
+    assert eq_did.name == "Compressor Current"
+    assert eq_did.unit == "A"
+    assert eq_did.value == "0.000"
 
     #### Repeat for equipment 2
 
@@ -220,7 +221,7 @@ def test_diagnostics_subscription():
     api = setup_load_configuration()
     lsystem: lennox_system = api.getSystems()[0]
     assert len(lsystem.diagnosticPaths) == 0
-    assert len(lsystem.diagnostics) == 0
+    assert len(lsystem.equipment) == 0
 
     message = loadfile("equipments_response_energy.json")
     api.processMessage(message)
@@ -237,12 +238,12 @@ def test_diagnostics_subscription():
     assert sub1.trigger_count == 1
     assert sub1.eid_did == "1_0"
     assert sub1.value == "Yes"
-    assert lsystem.getDiagnostics()[1][0]["value"] == "Yes"
+    assert lsystem.equipment[1].diagnostics[0].value == "Yes"
 
     assert sub2.trigger_count == 1
     assert sub2.eid_did == "1_1"
     assert sub2.value == "10.0"
-    assert lsystem.getDiagnostics()[1][1]["value"] == "10.0"
+    assert lsystem.equipment[1].diagnostics[1].value == "10.0"
 
     assert sub3.trigger_count == 2
 
@@ -258,12 +259,12 @@ def test_diagnostics_subscription():
     assert sub1.trigger_count == 0
     assert sub1.eid_did == None
     assert sub1.value == None
-    assert lsystem.getDiagnostics()[1][0]["value"] == "Yes"
+    assert lsystem.equipment[1].diagnostics[0].value == "Yes"
 
     assert sub2.trigger_count == 0
     assert sub2.eid_did == None
     assert sub2.value == None
-    assert lsystem.getDiagnostics()[1][1]["value"] == "10.0"
+    assert lsystem.equipment[1].diagnostics[1].value == "10.0"
 
     assert sub3.trigger_count == 0
 
@@ -274,12 +275,12 @@ def test_diagnostics_subscription():
     assert sub1.trigger_count == 1
     assert sub1.eid_did == "1_0"
     assert sub1.value == "No"
-    assert lsystem.getDiagnostics()[1][0]["value"] == "No"
+    assert lsystem.equipment[1].diagnostics[0].value == "No"
 
     assert sub2.trigger_count == 0
     assert sub2.eid_did == None
     assert sub2.value == None
-    assert lsystem.getDiagnostics()[1][1]["value"] == "10.0"
+    assert lsystem.equipment[1].diagnostics[1].value == "10.0"
 
     assert sub3.trigger_count == 1
 
@@ -297,4 +298,4 @@ def test_diagnostics_subscription():
     assert sub2.eid_did == "1_1"
     assert sub2.value == "11.1"
     assert sub3.trigger_count == 1
-    assert lsystem.getDiagnostics()[1][1]["value"] == "11.1"
+    assert lsystem.equipment[1].diagnostics[1].value == "11.1"

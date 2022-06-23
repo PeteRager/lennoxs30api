@@ -47,6 +47,8 @@ from .lennox_schedule import lennox_schedule
 from .lennox_home import lennox_home
 from .metrics import Metrics
 from .message_logger import MessageLogger
+from .lennox_equipment import lennox_equipment, lennox_equipment_diagnostic
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -1084,8 +1086,7 @@ class lennox_system(object):
             "rgw": self._process_rgw,
         }
 
-        self.diagnostics = nested_dict(3, str)
-
+        self.equipment = {}
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
 
     def update(self, api: s30api_async, home: lennox_home, idx: int):
@@ -1142,6 +1143,11 @@ class lennox_system(object):
 
     def getSchedules(self):
         return self._schedules
+
+    def getOrCreateEquipment(self, equipment_id: int) -> lennox_equipment:
+        if equipment_id not in self.equipment:
+            self.equipment[equipment_id] = lennox_equipment(equipment_id)
+        return self.equipment[equipment_id]
 
     def _processSystemControl(self, systemControl):
         if "diagControl" in systemControl:
@@ -1375,6 +1381,17 @@ class lennox_system(object):
     def _processEquipments(self, message):
         for equipment in message:
             equipment_id = equipment.get("id")
+            eq = self.getOrCreateEquipment(equipment_id)
+            if "equipment" in equipment:
+                eq_equipment = equipment["equipment"]
+                if "equipType" in eq_equipment:
+                    eq.equipType = eq_equipment["equipType"]
+            for feature in equipment.get("equipment", {}).get("features", []):
+                if feature.get("feature", {}).get("fid") == 15:
+                    if "values" in feature["feature"]:
+                        eq.equipment_type_name = feature["feature"]["values"][0][
+                            "value"
+                        ]
             for parameter in equipment.get("equipment", {}).get("parameters", []):
                 # 525 is the parameter id for split-setpoint
                 if parameter.get("parameter", {}).get("pid") == 525:
@@ -1409,26 +1426,22 @@ class lennox_system(object):
                 "diagnostics", []
             ):
                 did = diagnostic_data["id"]
-                for key in diagnostic_data["diagnostic"]:
-                    value = diagnostic_data["diagnostic"].get(key)
-                    _LOGGER.debug(
-                        f"Process Diagnostic Data eid [{eid}] did [{did}] key [{key}] value [{value}]"
-                    )
-                    # If the key is the value, check for change and call the callback.
-                    if key == "value":
-                        old_value = None
-                        try:
-                            old_value = self.diagnostics[eid][did]["value"]
-                        except KeyError as e:
-                            pass
-                        self.diagnostics[eid][did]["value"] = value
-                        if old_value != value:
-                            self.executeOnUpdateCallbacksDiag(f"{eid}_{did}", value)
-                    else:
-                        self.diagnostics[eid][did][key] = value
-
-    def getDiagnostics(self):
-        return self.diagnostics
+                diagnostic: lennox_equipment_diagnostic = eq.get_or_create_diagnostic(
+                    did
+                )
+                if "diagnostic" in diagnostic_data:
+                    diags = diagnostic_data["diagnostic"]
+                    if "name" in diags:
+                        diagnostic.name = diags["name"]
+                    if "unit" in diags:
+                        diagnostic.unit = diags["unit"]
+                    if "valid" in diags:
+                        diagnostic.valid = diags["valid"]
+                    if "value" in diags:
+                        new_value = diags["value"]
+                        if new_value != diagnostic.value:
+                            diagnostic.value = new_value
+                            self.executeOnUpdateCallbacksDiag(f"{eid}_{did}", new_value)
 
     def has_emergency_heat(self) -> bool:
         """Returns True is the system has emergency heat"""
