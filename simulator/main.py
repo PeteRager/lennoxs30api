@@ -243,15 +243,16 @@ class Simulator(object):
         if "SenderID" in data:
             app_id = data["SenderID"]
             if app_id in self.appList:
-                data = self.loadfile(self.config_data["configFile"])
                 app: AppConnection = self.appList[app_id]
+                data = self.loadfile(self.config_data["configFile"])
                 app.queue.append(data)
                 data = self.loadfile(self.config_data["equipmentFile"])
-                app: AppConnection = self.appList[app_id]
                 app.queue.append(data)
                 data = self.loadfile(self.config_data["deviceFile"])
-                app: AppConnection = self.appList[app_id]
                 app.queue.append(data)
+                data = self.loadfile(self.config_data["systemFile"])
+                app.queue.append(data)
+
                 asyncio.create_task(self.outdoorTempSimulator())
                 asyncio.create_task(self.zoneSimulator())
                 asyncio.create_task(self.siblingSimulator())
@@ -284,18 +285,7 @@ class Simulator(object):
     def process_message(self, msg):
         if "Data" in msg:
             data = msg["Data"]
-            if "systemControl" in data:
-                if "diagControl" in data["systemControl"]:
-                    if "level" in data["systemControl"]["diagControl"]:
-                        level = data["systemControl"]["diagControl"]["level"]
-                        msg["Data"] = {
-                            "system": {
-                                "status": {
-                                    "diagLevel": level,
-                                }
-                            }
-                        }
-            elif "system" in data:
+            if "system" in data:
                 if "config" in data["system"]:
                     if "centralMode" in data["system"]["config"]:
                         mode = data["system"]["config"]["centralMode"]
