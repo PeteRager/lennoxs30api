@@ -1,0 +1,266 @@
+2022-06-22 09:05:23,112 [MainThread  ] [DEBUG]  {
+    "messages": [
+        {
+            "MessageId": 0,
+            "SenderID": "LCC",
+            "TargetID": "ha_dev",
+            "MessageType": "PropertyChange",
+            "Data": {
+                "reminderSensors": [
+                    {
+                        "status": {
+                            "calibrationStatus": false,
+                            "sensorStatus": "none",
+                            "reminderExpired": false,
+                            "reminderExpiredTime": "",
+                            "isValid": false,
+                            "remainingPct": 0,
+                            "reminderSetTime": "",
+                            "replacedDate": ""
+                        },
+                        "writeAccess": "remote",
+                        "config": {
+                            "kind": "pureAirFilter",
+                            "enabled": false,
+                            "writeAccess": "remote",
+                            "reminderExpiryType": "sensor",
+                            "percentage": 10,
+                            "viewed": false
+                        },
+                        "publisher": {
+                            "publisherName": "unknown",
+                            "doNotPersist": false,
+                            "writeAccess": "openAll"
+                        },
+                        "id": 0
+                    },
+                    {
+                        "status": {
+                            "calibrationStatus": false,
+                            "sensorStatus": "none",
+                            "reminderExpired": false,
+                            "reminderExpiredTime": "",
+                            "isValid": false,
+                            "remainingPct": 0,
+                            "reminderSetTime": "",
+                            "replacedDate": ""
+                        },
+                        "writeAccess": "remote",
+                        "config": {
+                            "kind": "pureAirPurifier",
+                            "enabled": false,
+                            "writeAccess": "remote",
+                            "reminderExpiryType": "sensor",
+                            "percentage": 10,
+                            "viewed": false
+                        },
+                        "publisher": {
+                            "publisherName": "unknown",
+                            "doNotPersist": false,
+                            "writeAccess": "openAll"
+                        },
+                        "id": 1
+                    }
+                ]
+            }
+        }
+    ]
+}
+
+
+2022-06-22 09:05:23,195 [MainThread  ] [DEBUG]  {
+    "messages": [
+        {
+            "MessageId": 0,
+            "SenderID": "LCC",
+            "TargetID": "ha_dev",
+            "MessageType": "PropertyChange",
+            "Data": {
+                "reminders": [
+                    {
+                        "id": 0,
+                        "maxItems": 8,
+                        "writeAccess": "remote",
+                        "config": {
+                            "kind": "filter1",
+                            "enabled": true,
+                            "writeAccess": "remote",
+                            "reminderExpiryType": "systemCalendarTime",
+                            "viewed": false,
+                            "reminderTime": 31536000
+                        },
+                        "status": {
+                            "isValid": true,
+                            "reminderExpired": true,
+                            "reminderExpiredTime": "1653521746",
+                            "reminderExpiryTime": "1653521726",
+                            "reminderSetTime": "1621985726",
+                            "reminderRemainingPct": 0
+                        },
+                        "publisher": {
+                            "publisherName": "unknown",
+                            "doNotPersist": false,
+                            "writeAccess": "openAll"
+                        }
+                    },
+                    {
+                        "id": 1,
+                        "config": {
+                            "kind": "filter2",
+                            "enabled": false,
+                            "writeAccess": "remote",
+                            "reminderExpiryType": "systemCalendarTime",
+                            "viewed": false
+                        },
+                        "status": {
+                            "isValid": true,
+                            "reminderExpired": false
+                        },
+                        "publisher": {
+                            "publisherName": "unknown",
+                            "doNotPersist": false,
+                            "writeAccess": "openAll"
+                        }
+                    },
+                    {
+                        "id": 2,
+                        "config": {
+                            "kind": "uvBulb",
+                            "enabled": true,
+                            "writeAccess": "remote",
+                            "reminderExpiryType": "systemCalendarTime",
+                            "viewed": false,
+                            "reminderTime": 31536000
+                        },
+                        "status": {
+                            "isValid": true,
+                            "reminderExpired": true,
+                            "reminderExpiredTime": "1653521746",
+                            "reminderExpiryTime": "1653521717",
+                            "reminderSetTime": "1621985717",
+                            "reminderRemainingPct": 0
+                        },
+                        "publisher": {
+                            "publisherName": "unknown",
+                            "doNotPersist": false,
+                            "writeAccess": "openAll"
+                        }
+                    },
+                    {
+                        "id": 3,
+                        "config": {
+                            "kind": "humidifiedPad",
+                            "enabled": false,
+                            "writeAccess": "remote",
+                            "reminderExpiryType": "systemCalendarTime",
+                            "viewed": false
+                        },
+                        "status": {
+                            "isValid": true,
+                            "reminderExpired": false
+                        },
+                        "publisher": {
+                            "publisherName": "unknown",
+                            "doNotPersist": false,
+                            "writeAccess": "openAll"
+                        }
+                    },
+                    {
+                        "id": 4,
+                        "config": {
+                            "kind": "pureAir",
+                            "enabled": true,
+                            "writeAccess": "remote",
+                            "reminderExpiryType": "systemCalendarTime",
+                            "viewed": false,
+                            "reminderTime": 31536000
+                        },
+                        "status": {
+                            "isValid": true,
+                            "reminderExpired": true,
+                            "reminderExpiredTime": "1653521746",
+                            "reminderExpiryTime": "1653521732",
+                            "reminderSetTime": "1621985732",
+                            "reminderRemainingPct": 0
+                        },
+                        "publisher": {
+                            "publisherName": "unknown",
+                            "doNotPersist": false,
+                            "writeAccess": "openAll"
+                        }
+                    },
+                    {
+                        "id": 5,
+                        "config": {
+                            "kind": "maintenance",
+                            "enabled": true,
+                            "writeAccess": "remote",
+                            "reminderExpiryType": "systemCalendarTime",
+                            "viewed": false,
+                            "reminderTime": 31536000
+                        },
+                        "status": {
+                            "isValid": true,
+                            "reminderExpired": true,
+                            "reminderExpiredTime": "1653521746",
+                            "reminderExpiryTime": "1653521742",
+                            "reminderSetTime": "1621985742",
+                            "reminderRemainingPct": 0
+                        },
+                        "publisher": {
+                            "publisherName": "unknown",
+                            "doNotPersist": false,
+                            "writeAccess": "openAll"
+                        }
+                    },
+                    {
+                        "id": 6,
+                        "config": {
+                            "kind": "ventilationMaintenance",
+                            "enabled": false,
+                            "writeAccess": "remote",
+                            "reminderExpiryType": "systemCalendarTime",
+                            "viewed": false
+                        },
+                        "status": {
+                            "isValid": false,
+                            "reminderExpired": false,
+                            "reminderExpiredTime": "0",
+                            "reminderExpiryTime": "0",
+                            "reminderSetTime": "0",
+                            "reminderRemainingPct": 0
+                        },
+                        "publisher": {
+                            "publisherName": "unknown",
+                            "doNotPersist": false,
+                            "writeAccess": "openAll"
+                        }
+                    },
+                    {
+                        "id": 7,
+                        "config": {
+                            "kind": "ventilationFilter",
+                            "enabled": false,
+                            "writeAccess": "remote",
+                            "reminderExpiryType": "systemCalendarTime",
+                            "viewed": false
+                        },
+                        "status": {
+                            "isValid": false,
+                            "reminderExpired": false,
+                            "reminderExpiredTime": "0",
+                            "reminderExpiryTime": "0",
+                            "reminderSetTime": "0",
+                            "reminderRemainingPct": 0
+                        },
+                        "publisher": {
+                            "publisherName": "unknown",
+                            "doNotPersist": false,
+                            "writeAccess": "openAll"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

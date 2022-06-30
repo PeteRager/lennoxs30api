@@ -46,6 +46,8 @@ from .lennox_schedule import lennox_schedule
 from .lennox_home import lennox_home
 from .metrics import Metrics
 from .message_logger import MessageLogger
+from .lennox_equipment import lennox_equipment, lennox_equipment_diagnostic
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -595,7 +597,7 @@ class s30api_async(object):
             try:
                 await self.requestDataHelper(
                     lennoxSystem.sysId,
-                    '"AdditionalParameters":{"JSONPath":"1;/systemControl;/devices;/zones;/equipments;/schedules;/occupancy;/system"}',
+                    '"AdditionalParameters":{"JSONPath":"1;/systemControl;/reminderSensors;/reminders;/alerts/active;/alerts/meta;/fwm;/rgw;/devices;/zones;/equipments;/schedules;/occupancy;/system"}',
                 )
             except S30Exception as e:
                 err_msg = f"subscribe fail loca [{ref}] {e.as_string()}"
@@ -993,6 +995,7 @@ class lennox_system(object):
         self._zoneList: List["lennox_zone"] = []
         self._schedules: List[lennox_schedule] = []
         self._callbacks = []
+        self._diagcallbacks = []
         self.outdoorTemperature = None
         self.name: str = None
         self.allergenDefender = None
@@ -1057,6 +1060,9 @@ class lennox_system(object):
         self.dehumidificationMode: str = None
         # humidification
         self.humidificationMode: str = None
+        # Internet status
+        self.relayServerConnected: bool = None
+        self.internetStatus: bool = None
 
         self._dirty = False
         self._dirtyList = []
@@ -1069,7 +1075,10 @@ class lennox_system(object):
             "equipments": self._processEquipments,
             "systemControl": self._processSystemControl,
             "siblings": self._processSiblings,
+            "rgw": self._process_rgw,
         }
+
+        self.equipment = {}
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
 
     def update(self, api: s30api_async, home: lennox_home, idx: int):
@@ -1127,6 +1136,11 @@ class lennox_system(object):
     def getSchedules(self):
         return self._schedules
 
+    def getOrCreateEquipment(self, equipment_id: int) -> lennox_equipment:
+        if equipment_id not in self.equipment:
+            self.equipment[equipment_id] = lennox_equipment(equipment_id)
+        return self.equipment[equipment_id]
+
     def _processSystemControl(self, systemControl):
         if "diagControl" in systemControl:
             self.attr_updater(systemControl["diagControl"], "level", "diagLevel")
@@ -1148,6 +1162,12 @@ class lennox_system(object):
             self.attr_updater(sibling["sibling"], "portNumber", "sibling_portNumber")
             self.attr_updater(sibling["sibling"], "nodePresent", "sibling_nodePresent")
             self.attr_updater(sibling["sibling"], "ipAddress", "sibling_ipAddress")
+
+    def _process_rgw(self, rgw):
+        if "status" in rgw:
+            status = rgw["status"]
+            self.attr_updater(status, "relayServerConnected")
+            self.attr_updater(status, "internetStatus")
 
     def _processSchedules(self, schedules):
         """Processes the schedule messages, throws base exceptions if a problem is encoutered"""
@@ -1202,6 +1222,33 @@ class lennox_system(object):
                     _LOGGER.exception("executeOnUpdateCallback - failed ")
         self._dirty = False
         self._dirtyList = []
+
+    def registerOnUpdateCallbackDiag(self, callbackfunc, match=None):
+        # match is f'{eid}_{did}'
+        self._diagcallbacks.append({"func": callbackfunc, "match": match})
+
+    def executeOnUpdateCallbacksDiag(self, id, newval):
+        if True:
+            for callback in self._diagcallbacks:
+                callbackfunc = callback["func"]
+                match = callback["match"]
+                matches = False
+                if match is None:
+                    matches = True
+                else:
+                    for m in match:
+                        if m == id:
+                            matches = True
+                            break
+                try:
+                    if matches == True:
+                        # Adding ID to the callback, since you can pass in an array
+                        # of IDs to register for the callback, the callback needs to
+                        # know which id the value belongs to.
+                        callbackfunc(id, newval)
+                except Exception as e:
+                    # Log and eat this exception so we can process other callbacks
+                    _LOGGER.exception("executeOnUpdateCallback - failed ")
 
     def attr_updater(self, set, attr: str, propertyName: str = None) -> bool:
         if attr in set:
@@ -1326,6 +1373,17 @@ class lennox_system(object):
     def _processEquipments(self, message):
         for equipment in message:
             equipment_id = equipment.get("id")
+            eq = self.getOrCreateEquipment(equipment_id)
+            if "equipment" in equipment:
+                eq_equipment = equipment["equipment"]
+                if "equipType" in eq_equipment:
+                    eq.equipType = eq_equipment["equipType"]
+            for feature in equipment.get("equipment", {}).get("features", []):
+                if feature.get("feature", {}).get("fid") == 15:
+                    if "values" in feature["feature"]:
+                        eq.equipment_type_name = feature["feature"]["values"][0][
+                            "value"
+                        ]
             for parameter in equipment.get("equipment", {}).get("parameters", []):
                 # 525 is the parameter id for split-setpoint
                 if parameter.get("parameter", {}).get("pid") == 525:
@@ -1354,6 +1412,28 @@ class lennox_system(object):
                         "value",
                         self.diagnosticPaths[diagnostic_path],
                     )
+
+            eid = equipment_id
+            for diagnostic_data in equipment.get("equipment", {}).get(
+                "diagnostics", []
+            ):
+                did = diagnostic_data["id"]
+                diagnostic: lennox_equipment_diagnostic = eq.get_or_create_diagnostic(
+                    did
+                )
+                if "diagnostic" in diagnostic_data:
+                    diags = diagnostic_data["diagnostic"]
+                    if "name" in diags:
+                        diagnostic.name = diags["name"]
+                    if "unit" in diags:
+                        diagnostic.unit = diags["unit"]
+                    if "valid" in diags:
+                        diagnostic.valid = diags["valid"]
+                    if "value" in diags:
+                        new_value = diags["value"]
+                        if new_value != diagnostic.value:
+                            diagnostic.value = new_value
+                            self.executeOnUpdateCallbacksDiag(f"{eid}_{did}", new_value)
 
     def has_emergency_heat(self) -> bool:
         """Returns True is the system has emergency heat"""

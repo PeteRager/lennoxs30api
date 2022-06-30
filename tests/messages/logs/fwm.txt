@@ -1,0 +1,281 @@
+2022-06-22 09:05:23,339 [MainThread  ] [DEBUG]  {
+    "messages": [
+        {
+            "MessageId": 0,
+            "SenderID": "LCC",
+            "TargetID": "ha_dev",
+            "MessageType": "PropertyChange",
+            "Data": {
+                "fwm": {
+                    "fwmversiondetails": [
+                        {
+                            "major": 3,
+                            "timeOfUpdate": 1630561968,
+                            "description": "LCC 2 production release",
+                            "deviceModel": "",
+                            "build": 777,
+                            "id": 0,
+                            "minor": 81,
+                            "size": 123803133,
+                            "deviceType": "system"
+                        },
+                        {
+                            "id": 1,
+                            "major": 3,
+                            "timeOfUpdate": 1626930353,
+                            "description": "TSTAT Production release",
+                            "deviceModel": "106151-01",
+                            "deviceType": "tstat",
+                            "build": 207,
+                            "minor": 81,
+                            "size": 16720080
+                        },
+                        {
+                            "id": 2
+                        },
+                        {
+                            "id": 3
+                        },
+                        {
+                            "id": 4
+                        },
+                        {
+                            "id": 5
+                        },
+                        {
+                            "id": 6
+                        },
+                        {
+                            "id": 7
+                        },
+                        {
+                            "id": 8
+                        }
+                    ],
+                    "fwmusbupdate": {
+                        "fw_USB_available": false,
+                        "packagedetails": [
+                            {
+                                "major": 0,
+                                "description": "",
+                                "deviceModel": "",
+                                "build": 0,
+                                "path": "",
+                                "id": 0,
+                                "minor": 0,
+                                "size": 0
+                            }
+                        ],
+                        "fw_USB_authorized": false
+                    },
+                    "fwminternal": {
+                        "stop_dl": false,
+                        "devPend": 0
+                    },
+                    "fwmalarminfo": {
+                        "alarminfo": [
+                            {
+                                "id": 0,
+                                "tstat_alarm_msg": ""
+                            }
+                        ]
+                    },
+                    "fwmdevimagesInt": [
+                        {
+                            "major": 0,
+                            "description": "",
+                            "deviceModel": "",
+                            "build": 0,
+                            "path": "",
+                            "id": 0,
+                            "minor": 0,
+                            "size": 0
+                        },
+                        {
+                            "major": 0,
+                            "description": "",
+                            "deviceModel": "",
+                            "deviceType": "tstat",
+                            "build": 0,
+                            "path": "",
+                            "id": 1,
+                            "minor": 0,
+                            "size": 0
+                        },
+                        {
+                            "major": 0,
+                            "description": "",
+                            "deviceModel": "",
+                            "build": 0,
+                            "path": "",
+                            "id": 2,
+                            "minor": 0,
+                            "size": 0
+                        },
+                        {
+                            "major": 0,
+                            "description": "",
+                            "deviceModel": "",
+                            "build": 0,
+                            "path": "",
+                            "id": 3,
+                            "minor": 0,
+                            "size": 0
+                        },
+                        {
+                            "major": 0,
+                            "description": "",
+                            "deviceModel": "",
+                            "build": 0,
+                            "path": "",
+                            "id": 4,
+                            "minor": 0,
+                            "size": 0
+                        },
+                        {
+                            "major": 0,
+                            "description": "",
+                            "deviceModel": "",
+                            "build": 0,
+                            "path": "",
+                            "id": 5,
+                            "minor": 0,
+                            "size": 0
+                        },
+                        {
+                            "major": 0,
+                            "description": "",
+                            "deviceModel": "",
+                            "build": 0,
+                            "path": "",
+                            "id": 6,
+                            "minor": 0,
+                            "size": 0
+                        },
+                        {
+                            "major": 0,
+                            "description": "",
+                            "deviceModel": "",
+                            "build": 0,
+                            "path": "",
+                            "id": 7,
+                            "minor": 0,
+                            "size": 0
+                        },
+                        {
+                            "major": 0,
+                            "description": "",
+                            "deviceModel": "",
+                            "build": 0,
+                            "path": "",
+                            "id": 8,
+                            "minor": 0,
+                            "size": 0
+                        }
+                    ],
+                    "fwmdevimages": {
+                        "binary": [
+                            {
+                                "id": 0,
+                                "path": "",
+                                "size": 0
+                            },
+                            {
+                                "path": "",
+                                "id": 1,
+                                "size": 0
+                            },
+                            {
+                                "path": "",
+                                "id": 2,
+                                "size": 0
+                            },
+                            {
+                                "path": "",
+                                "id": 3,
+                                "size": 0
+                            },
+                            {
+                                "path": "",
+                                "id": 4,
+                                "size": 0
+                            },
+                            {
+                                "path": "",
+                                "id": 5,
+                                "size": 0
+                            },
+                            {
+                                "path": "",
+                                "id": 6,
+                                "size": 0
+                            },
+                            {
+                                "path": "",
+                                "id": 7,
+                                "size": 0
+                            },
+                            {
+                                "path": "",
+                                "id": 8,
+                                "size": 0
+                            }
+                        ]
+                    },
+                    "fwmAutoOn": {
+                        "auto_on": false,
+                        "writeAccess": "local"
+                    },
+                    "publisher": {
+                        "writeAccess": "openAll",
+                        "publisherName": "unknown",
+                        "doNotPersist": true
+                    },
+                    "fwmFiles": [
+                        {
+                            "major": 0,
+                            "description": "",
+                            "deviceModel": "",
+                            "writeAccess": "remote",
+                            "build": 0,
+                            "path": "",
+                            "doNotPersist": true,
+                            "id": 0,
+                            "minor": 0,
+                            "size": 0
+                        }
+                    ],
+                    "fwmUsbDlInfo": {
+                        "percentagedownload": 0,
+                        "doNotPersist": true
+                    },
+                    "fwmdevupdate": {
+                        "doNotPersist": true,
+                        "writeAccess": "remote",
+                        "path": "",
+                        "progress": 0,
+                        "id": 0
+                    },
+                    "fwmUI": {
+                        "doNotPersist": true,
+                        "usb_updatereq": false,
+                        "flashLED": false,
+                        "writeAccess": "local",
+                        "check_fw": false
+                    },
+                    "fwmdownloadinfo": [
+                        {
+                            "currentbytes": 0,
+                            "src": "",
+                            "Qid": 0,
+                            "dst": "",
+                            "percentagedownload": 0,
+                            "totalbytes": 0,
+                            "id": 0
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
