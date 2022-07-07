@@ -38,6 +38,7 @@ from datetime import datetime
 import logging
 import json
 import uuid
+import ssl
 from aiohttp import ClientTimeout, ClientSession
 
 from urllib.parse import quote
@@ -231,7 +232,12 @@ class s30api_async(object):
             self.ip = ip_address
             self._isLANConnection = True
             # The certificate on the S30 cannot be validated.  It is self issued by Lennox
-            self.ssl = False
+            # Default ciphers needed as of python 3.10
+            context = ssl.create_default_context()
+            context.set_ciphers("DEFAULT")
+            context.check_hostname = False
+            context.verify_mode = ssl.CERT_NONE
+            self.ssl = context
             self.initialize_urls_local()
 
         self._publishMessageId: int = 1

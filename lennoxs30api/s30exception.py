@@ -76,8 +76,11 @@ def s30exception_from_comm_exception(
         )
     if isinstance(e, ClientConnectorError):
         metrics.inc_client_response_errors()
+        message = f"{operation} Client Connector Error - failed due host not reachable url [{url}]"
+        for a in e.args:
+            message = message + f"Message {a}"
         return S30Exception(
-            f"{operation} Client Connector Error - failed due host not reachable url [{url}]",
+            message,
             EC_COMMS_ERROR,
             400,
         )
