@@ -150,6 +150,20 @@ LENNOX_DEHUMIDIFICATION_MODES: Final = {
 }
 
 
+LENNOX_FEATURE_UNIT_MODEL_NUMBER: Final = 6
+LENNOX_FEATURE_UNIT_SERIAL_NUMBER: Final = 7
+LENNOX_FEATURE_EQUIPMENT_TYPE_NAME: Final = 15
+
+LENNOX_PARAMETER_EQUIPMENT_NAME: Final = 18
+LENNOX_PARAMETER_SINGLE_SETPOINT_MODE: Final = 525
+
+LENNOX_EQUIPMENT_TYPE_SUBNET_CONTROLLER: Final = 0
+LENNOX_EQUIPMENT_TYPE_FURNACE: Final = 16
+LENNOX_EQUIPMENT_TYPE_AIR_HANDLER: Final = 17
+LENNOX_EQUIPMENT_TYPE_AIR_CONDITIONER: Final = 18
+LENNOX_EQUIPMENT_TYPE_HEAT_PUMP: Final = 19
+LENNOX_EQUIPMENT_TYPE_ZONING_CONTROLLER: Final = 22
+
 # String in lennox JSON representing no value.
 LENNOX_NONE_STR: Final = "none"
 
@@ -1385,14 +1399,32 @@ class lennox_system(object):
                 if "equipType" in eq_equipment:
                     eq.equipType = eq_equipment["equipType"]
             for feature in equipment.get("equipment", {}).get("features", []):
-                if feature.get("feature", {}).get("fid") == 15:
+                if (
+                    feature.get("feature", {}).get("fid")
+                    == LENNOX_FEATURE_EQUIPMENT_TYPE_NAME
+                ):
                     if "values" in feature["feature"]:
                         eq.equipment_type_name = feature["feature"]["values"][0][
                             "value"
                         ]
+                if (
+                    feature.get("feature", {}).get("fid")
+                    == LENNOX_FEATURE_UNIT_MODEL_NUMBER
+                ):
+                    if "values" in feature["feature"]:
+                        eq.unit_model_number = feature["feature"]["values"][0]["value"]
+                if (
+                    feature.get("feature", {}).get("fid")
+                    == LENNOX_FEATURE_UNIT_SERIAL_NUMBER
+                ):
+                    if "values" in feature["feature"]:
+                        eq.unit_serial_number = feature["feature"]["values"][0]["value"]
             for parameter in equipment.get("equipment", {}).get("parameters", []):
                 # 525 is the parameter id for split-setpoint
-                if parameter.get("parameter", {}).get("pid") == 525:
+                if (
+                    parameter.get("parameter", {}).get("pid")
+                    == LENNOX_PARAMETER_SINGLE_SETPOINT_MODE
+                ):
                     value = parameter["parameter"]["value"]
                     if value == 1 or value == "1":
                         self.single_setpoint_mode = True
@@ -1400,6 +1432,12 @@ class lennox_system(object):
                         self.single_setpoint_mode = False
                     self._dirty = True
                     self._dirtyList.append("single_setpoint_mode")
+                if (
+                    parameter.get("parameter", {}).get("pid")
+                    == LENNOX_PARAMETER_EQUIPMENT_NAME
+                ):
+                    # Lennox isn't consistent with capitilization of Subnet Controller
+                    eq.equipment_name = parameter["parameter"]["value"]
             for diagnostic in equipment.get("equipment", {}).get("diagnostics", []):
                 # the diagnostic values sometimes don't have names
                 # so remember where we found important keys

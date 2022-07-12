@@ -12,7 +12,10 @@ class lennox_equipment(object):
     def __init__(self, eq_id: int):
         self.equipment_id: int = eq_id
         self.equipType: int = None
+        self.equipment_name: str = None
         self.equipment_type_name: str = None
+        self.unit_model_number: str = None
+        self.unit_serial_number: str = None
         self.diagnostics = {}
 
     def get_or_create_diagnostic(self, diagnostic_id) -> lennox_equipment_diagnostic:
