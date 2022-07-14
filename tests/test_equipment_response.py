@@ -35,13 +35,10 @@ def test_process_splitsetpoint():
     assert lsystem.single_setpoint_mode == False
 
 
-def test_process_equipments_AC_Furnace_Zone_Controller():
-    api = setup_load_lcc_configuration()
+def test_process_equipments_ac_furnace_zoning(api_system_04_furn_ac_zoning):
+    api = api_system_04_furn_ac_zoning
     system: lennox_system = api.getSystems()[0]
     assert system.sysId == "LCC"
-    assert len(system.equipment) == 0
-    data = loadfile("equipment_response_zoning.json", system.sysId)
-    api.processMessage(data)
 
     assert len(system.equipment) == 4
 
@@ -73,6 +70,36 @@ def test_process_equipments_AC_Furnace_Zone_Controller():
     assert eq.unit_model_number == "103916-03"
     assert eq.unit_serial_number == "BT21B13000"
     assert eq.equipType == LENNOX_EQUIPMENT_TYPE_ZONING_CONTROLLER
+
+    assert system.has_indoor_unit == True
+    assert system.has_outdoor_unit == True
+    assert (
+        system.indoorUnitType.casefold()
+        == system.equipment[2].equipment_type_name.casefold()
+    )
+    assert (
+        system.outdoorUnitType.casefold()
+        == system.equipment[1].equipment_type_name.casefold()
+    )
+
+    eq = system.get_indoor_unit_equipment()
+    assert eq.equipment_id == 2
+
+    system.indoorUnitType = None
+    eq = system.get_indoor_unit_equipment()
+    assert eq == None
+    system.indoorUnitType = "mangled"
+    eq = system.get_indoor_unit_equipment()
+    assert eq.equipment_id == 2
+
+    eq = system.get_outdoor_unit_equipment()
+    assert eq.equipment_id == 1
+    system.outdoorUnitType = None
+    eq = system.get_outdoor_unit_equipment()
+    assert eq == None
+    system.outdoorUnitType = "mangled"
+    eq = system.get_outdoor_unit_equipment()
+    assert eq.equipment_id == 1
 
 
 def test_process_equipments_HeatPump_AirHandler():

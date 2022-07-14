@@ -1033,9 +1033,9 @@ class lennox_system(object):
         # M30 does not send this info, so default to disabled.
         self.single_setpoint_mode: bool = False
         self.temperatureUnit: str = None
-        self.indoorUnitType = None
+        self.indoorUnitType: str = None
         self.productType = None
-        self.outdoorUnitType = None
+        self.outdoorUnitType: str = None
         self.humidifierType = None
         self.dehumidifierType = None
         self.outdoorTemperatureC = None
@@ -1098,7 +1098,7 @@ class lennox_system(object):
             "rgw": self._process_rgw,
         }
 
-        self.equipment = {}
+        self.equipment: dict[int, lennox_equipment] = {}
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
 
     def update(self, api: s30api_async, home: lennox_home, idx: int):
@@ -1160,6 +1160,36 @@ class lennox_system(object):
         if equipment_id not in self.equipment:
             self.equipment[equipment_id] = lennox_equipment(equipment_id)
         return self.equipment[equipment_id]
+
+    def get_indoor_unit_equipment(self) -> lennox_equipment:
+        if self.has_indoor_unit == False:
+            return None
+        eq: lennox_equipment = None
+        # Try to match on the type
+        for k, eq in self.equipment.items():
+            if (
+                eq.equipment_name != None
+                and self.indoorUnitType != None
+                and eq.equipment_type_name.casefold() == self.indoorUnitType.casefold()
+            ):
+                return eq
+        # Otherwise return Eq 2 as this is typically the indoor unit
+        return self.equipment.get(2)
+
+    def get_outdoor_unit_equipment(self) -> lennox_equipment:
+        if self.has_outdoor_unit == False:
+            return None
+        eq: lennox_equipment = None
+        # Try to match on the type
+        for k, eq in self.equipment.items():
+            if (
+                eq.equipment_name != None
+                and self.outdoorUnitType != None
+                and eq.equipment_type_name.casefold() == self.outdoorUnitType.casefold()
+            ):
+                return eq
+        # Otherwise return Eq 1 as this is typically the indoor unit
+        return self.equipment.get(1)
 
     def _processSystemControl(self, systemControl):
         if "diagControl" in systemControl:

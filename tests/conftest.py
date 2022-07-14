@@ -57,3 +57,18 @@ def api(single_setpoint: bool = False) -> s30api_async:
     api.processMessage(data)
 
     return api
+
+
+@pytest.fixture
+def api_system_04_furn_ac_zoning() -> s30api_async:
+    asyncio.set_event_loop(asyncio.new_event_loop())
+    api = s30api_async("myemail@email.com", "mypassword", None, ip_address="10.0.0.1")
+    api.setup_local_homes()
+
+    data = loadfile("system_04_furn_ac_zoning_config.json", "LCC")
+    api.processMessage(data)
+
+    data = loadfile("system_04_furn_ac_zoning_equipment.json", "LCC")
+    api.processMessage(data)
+
+    return api
