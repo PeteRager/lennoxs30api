@@ -1,0 +1,712 @@
+{
+    "MessageId": 0,
+    "SenderID": "LCC",
+    "TargetID": "homeassistant",
+    "MessageType": "PropertyChange",
+    "Data": {
+        "devices": [
+            {
+                "writeAccess": "openAll",
+                "maxItems": 16,
+                "device": {
+                    "features": [
+                        {
+                            "id": 0,
+                            "feature": {
+                                "name": "control model number",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "106151-01"
+                                    }
+                                ],
+                                "fid": 8,
+                                "unit": "",
+                                "format": "nts"
+                            }
+                        },
+                        {
+                            "id": 1,
+                            "feature": {
+                                "name": "control serial number",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "HD20H10111"
+                                    }
+                                ],
+                                "fid": 9
+                            }
+                        },
+                        {
+                            "id": 2,
+                            "feature": {
+                                "name": "control hardware revision",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "VER01 001"
+                                    }
+                                ],
+                                "fid": 10
+                            }
+                        },
+                        {
+                            "id": 3,
+                            "feature": {
+                                "name": "control software revision",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "3.81.213"
+                                    }
+                                ],
+                                "fid": 11
+                            }
+                        },
+                        {
+                            "id": 4,
+                            "feature": {
+                                "name": "Language Support",
+                                "format": "bool8",
+                                "szValues": 8,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 1,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 2,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 3,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 4,
+                                        "value": "0"
+                                    },
+                                    {
+                                        "id": 5,
+                                        "value": "1"
+                                    },
+                                    {
+                                        "id": 6,
+                                        "value": "1"
+                                    },
+                                    {
+                                        "id": 7,
+                                        "value": "1"
+                                    }
+                                ],
+                                "fid": 14
+                            }
+                        },
+                        {
+                            "id": 5,
+                            "feature": {
+                                "name": "Equipment Type Name",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "Thermostat"
+                                    }
+                                ],
+                                "fid": 15
+                            }
+                        },
+                        {
+                            "id": 6,
+                            "feature": {
+                                "name": "Protocol Revision Number",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "03.50.0213"
+                                    }
+                                ],
+                                "fid": 12
+                            }
+                        },
+                        {
+                            "id": 7,
+                            "feature": {
+                                "name": "OS Version",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "14.11"
+                                    }
+                                ],
+                                "fid": 65519
+                            }
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "parameter": {
+                                "name": "System Config Status",
+                                "pid": 5000,
+                                "defaultValue": "0",
+                                "enabled": false,
+                                "value": "1",
+                                "range": {
+                                    "max": "",
+                                    "min": "",
+                                    "inc": ""
+                                },
+                                "radio": {
+                                    "max": "",
+                                    "texts": [
+                                        {
+                                            "text": "",
+                                            "id": 0
+                                        }
+                                    ]
+                                },
+                                "unit": "",
+                                "string": {
+                                    "max": ""
+                                },
+                                "descriptor": "bool"
+                            },
+                            "id": 0
+                        },
+                        {
+                            "parameter": {
+                                "name": "Screen Locked",
+                                "format": "enum",
+                                "pid": 5001,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "3",
+                                    "texts": [
+                                        {
+                                            "text": "unlocked",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "partially locked",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "locked",
+                                            "id": 2
+                                        }
+                                    ]
+                                }
+                            },
+                            "id": 1
+                        },
+                        {
+                            "parameter": {
+                                "name": "Display Outdoor Weather",
+                                "pid": 5002,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "bool"
+                            },
+                            "id": 2
+                        },
+                        {
+                            "parameter": {
+                                "name": "Display Air Quality",
+                                "pid": 5003,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "bool"
+                            },
+                            "id": 3
+                        },
+                        {
+                            "parameter": {
+                                "name": "Outdoor Temperature",
+                                "format": "enum",
+                                "pid": 5004,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "2",
+                                    "texts": [
+                                        {
+                                            "text": "off",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "internet",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "sensor",
+                                            "id": 2
+                                        }
+                                    ]
+                                }
+                            },
+                            "id": 4
+                        },
+                        {
+                            "parameter": {
+                                "name": "Display Indoor Humidity",
+                                "pid": 5005,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "bool"
+                            },
+                            "id": 5
+                        },
+                        {
+                            "parameter": {
+                                "name": "Screen Saver",
+                                "format": "enum",
+                                "pid": 5006,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "radio",
+                                "radio": {
+                                    "max": "4",
+                                    "texts": [
+                                        {
+                                            "text": "off",
+                                            "id": 0
+                                        },
+                                        {
+                                            "text": "weather",
+                                            "id": 1
+                                        },
+                                        {
+                                            "text": "power save",
+                                            "id": 2
+                                        },
+                                        {
+                                            "text": "logo",
+                                            "id": 3
+                                        }
+                                    ]
+                                }
+                            },
+                            "id": 6
+                        },
+                        {
+                            "parameter": {
+                                "name": "Auto Brightness",
+                                "pid": 5007,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "bool"
+                            },
+                            "id": 7
+                        },
+                        {
+                            "parameter": {
+                                "name": "Brightness Value",
+                                "format": "uint8",
+                                "pid": 5008,
+                                "defaultValue": "80",
+                                "enabled": true,
+                                "value": "80",
+                                "descriptor": "range",
+                                "range": {
+                                    "max": "100",
+                                    "min": "10",
+                                    "inc": "10"
+                                }
+                            },
+                            "id": 8
+                        },
+                        {
+                            "parameter": {
+                                "name": "Proximity Control",
+                                "pid": 5009,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "bool"
+                            },
+                            "id": 9
+                        },
+                        {
+                            "parameter": {
+                                "name": "Wide Setpoint",
+                                "pid": 5010,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "bool"
+                            },
+                            "id": 10
+                        },
+                        {
+                            "id": 11
+                        },
+                        {
+                            "id": 12
+                        },
+                        {
+                            "id": 13
+                        },
+                        {
+                            "parameter": {
+                                "name": "Display Pure Air",
+                                "pid": 5014,
+                                "defaultValue": "1",
+                                "enabled": true,
+                                "value": "1",
+                                "descriptor": "bool"
+                            },
+                            "id": 14
+                        }
+                    ],
+                    "szFeatures": 8,
+                    "szParameters": 12,
+                    "deviceType": 500
+                },
+                "id": 0,
+                "publisher": {
+                    "writeAccess": "openAll",
+                    "publisherName": "unknown",
+                    "doNotPersist": true
+                }
+            },
+            {
+                "device": {
+                    "szFeatures": 5,
+                    "szParameters": 0,
+                    "deviceType": 501,
+                    "features": [
+                        {
+                            "id": 0,
+                            "feature": {
+                                "name": "Equipment Type Name",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "Base"
+                                    }
+                                ],
+                                "fid": 15
+                            }
+                        },
+                        {
+                            "id": 1,
+                            "feature": {
+                                "name": "Control Hardware Revision",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "1"
+                                    }
+                                ],
+                                "fid": 10
+                            }
+                        },
+                        {
+                            "id": 2,
+                            "feature": {
+                                "name": "Control Software Revision",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "1.0.107"
+                                    }
+                                ],
+                                "fid": 11
+                            }
+                        },
+                        {
+                            "id": 3,
+                            "feature": {
+                                "name": "Control Serial Number",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "000000290036101153901111"
+                                    }
+                                ],
+                                "fid": 9
+                            }
+                        },
+                        {
+                            "id": 4,
+                            "feature": {
+                                "name": "Control Model Number",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "106151"
+                                    }
+                                ],
+                                "fid": 8
+                            }
+                        }
+                    ]
+                },
+                "id": 1
+            },
+            {
+                "id": 2,
+                "device": {
+                    "szFeatures": 3,
+                    "szParameters": 0,
+                    "deviceType": 502,
+                    "features": [
+                        {
+                            "id": 0,
+                            "feature": {
+                                "name": "control software revision",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "3.66.248"
+                                    }
+                                ],
+                                "fid": 11
+                            }
+                        },
+                        {
+                            "id": 1,
+                            "feature": {
+                                "name": "Equipment Type Name",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "AppMan"
+                                    }
+                                ],
+                                "fid": 15
+                            }
+                        },
+                        {
+                            "id": 2,
+                            "feature": {
+                                "name": "control serial number",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "HD20H11111"
+                                    }
+                                ],
+                                "fid": 9
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 3,
+                "device": {
+                    "szFeatures": 3,
+                    "szParameters": 0,
+                    "deviceType": 503,
+                    "features": [
+                        {
+                            "id": 0,
+                            "feature": {
+                                "name": "control software revision",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "14.11"
+                                    }
+                                ],
+                                "fid": 11
+                            }
+                        },
+                        {
+                            "id": 1,
+                            "feature": {
+                                "name": "Equipment Type Name",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "OS"
+                                    }
+                                ],
+                                "fid": 15
+                            }
+                        },
+                        {
+                            "id": 2,
+                            "feature": {
+                                "name": "control serial number",
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "HD20H11111"
+                                    }
+                                ],
+                                "fid": 9
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 4,
+                "device": {
+                    "szFeatures": 1,
+                    "szParameters": 0,
+                    "deviceType": 504,
+                    "features": [
+                        {
+                            "id": 0,
+                            "feature": {
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0
+                                    }
+                                ],
+                                "fid": 11
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 5,
+                "device": {
+                    "szFeatures": 1,
+                    "szParameters": 0,
+                    "deviceType": 505,
+                    "features": [
+                        {
+                            "id": 0,
+                            "feature": {
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0
+                                    }
+                                ],
+                                "fid": 11
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "device": {
+                    "deviceType": 506,
+                    "features": [
+                        {
+                            "feature": {
+                                "fid": 11,
+                                "format": "nts",
+                                "szValues": 1,
+                                "values": [
+                                    {
+                                        "id": 0,
+                                        "value": "3.55.626"
+                                    }
+                                ]
+                            },
+                            "id": 0
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "id": 0,
+                            "parameter": {
+                                "format": "bool",
+                                "pid": 8000,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "bool"
+                            }
+                        },
+                        {
+                            "id": 1,
+                            "parameter": {
+                                "format": "bool",
+                                "pid": 8001,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "bool"
+                            }
+                        },
+                        {
+                            "id": 2,
+                            "parameter": {
+                                "format": "bool",
+                                "pid": 8002,
+                                "defaultValue": "0",
+                                "enabled": true,
+                                "value": "0",
+                                "descriptor": "bool"
+                            }
+                        },
+                        {
+                            "id": 3,
+                            "parameter": {
+                                "defaultValue": "none",
+                                "enabled": true,
+                                "format": "enum",
+                                "pid": 8003,
+                                "value": "homekit",
+                                "descriptor": "string"
+                            }
+                        }
+                    ],
+                    "szFeatures": 1,
+                    "szParameters": 4
+                },
+                "id": 6
+            }
+        ]
+    }
+}

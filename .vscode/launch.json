@@ -34,6 +34,22 @@
       "console": "integratedTerminal"
     },
     {
+      "name": "Python: Simulator 8082 - System 04",
+      "type": "python",
+      "request": "launch",
+      "module": "aiohttp.web",
+      "args": [
+        "-H",
+        "localhost",
+        "-P",
+        "8082",
+        "simulator.main:init_func",
+        "-c",
+        "${workspaceFolder}/simulator/conf/conf_system_04_ac_furnace_zoning.json"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
       "name": "Python: Module",
       "type": "python",
       "request": "launch",
