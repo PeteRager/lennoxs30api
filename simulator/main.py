@@ -247,6 +247,9 @@ class Simulator(object):
                 if "configFile" in self.config_data:
                     data = self.loadfile(self.config_data["configFile"])
                     app.queue.append(data)
+                if "rgwFile" in self.config_data:
+                    data = self.loadfile(self.config_data["rgwFile"])
+                    app.queue.append(data)
                 if "zonesFile" in self.config_data:
                     data = self.loadfile(self.config_data["zonesFile"])
                     app.queue.append(data)

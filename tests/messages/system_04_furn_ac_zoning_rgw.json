@@ -1,0 +1,88 @@
+{
+    "MessageId": 0,
+    "SenderID": "LCC",
+    "TargetID": "homeassistant",
+    "MessageType": "PropertyChange",
+    "Data": {
+        "rgw": {
+            "aapState": "bound",
+            "IsDealerPublished": true,
+            "writeAccess": "openAll",
+            "configSec": {
+                "retrieveServerUrl": "icretrieveapi.myicomfort.com",
+                "longPollTime": 20000,
+                "requestServerPort": 443,
+                "notificationUriV3_50": "https://IcNotificationService.myicomfort.com:443/LennoxNotificationServer",
+                "requestServerUrl": "icrequestdataapi.myicomfort.com",
+                "publishServerPort": 443,
+                "maxConnectAttempts": 60,
+                "relayServerUrl": "ic3messaging.myicomfort.com",
+                "connectTimeout": 5000,
+                "weatherEpId": "ic3Weather",
+                "publishServerUrl": "icpublishapi.myicomfort.com",
+                "pingUrl": "google.com",
+                "pingInterval": 15000,
+                "deviceManagementPort": 443,
+                "deviceManagementUrl": "IcDeviceManagement.myicomfort.com",
+                "relayServerPort": 443,
+                "retrieveServerPort": 443,
+                "connectRetryPeriod": 5000,
+                "backOffTime": 60000,
+                "pingDuration": 60000,
+                "shortPollRemUser": 5000,
+                "shortPollPeriod": 53000,
+                "updatedToV3_50": false,
+                "updatedToMicroservices": true,
+                "respTimeout": 24000,
+                "urlsConfigured": true,
+                "updatedToV3_80": true
+            },
+            "status": {
+                "utilityConnection": "unknown",
+                "syncAAPState": "ready",
+                "pingInProgress": false,
+                "remoteUserLoggedIn": false,
+                "relayServerConnected": false,
+                "internetStatus": false,
+                "writeAccess": "openAll",
+                "requestConnection": "connected",
+                "retrieveConnection": "connected",
+                "publishConnection": "connected",
+                "doNotPersist": true,
+                "rgwUp": true,
+                "aapConnection": "unknown"
+            },
+            "publisher": {
+                "writeAccess": "openAll",
+                "publisherName": "unknown",
+                "doNotPersist": true
+            },
+            "rgwInternal": {
+                "writeAccess": "openAll",
+                "doNotPersist": true,
+                "lastLogReadTime": 107340
+            },
+            "command": {
+                "code": "getFirmwareList",
+                "doNotPersist": true,
+                "targetId": "",
+                "writeAccess": "openAll",
+                "result": 0,
+                "payload": ""
+            },
+            "diagnostics": [
+                {
+                    "remotePort": 0,
+                    "localPort": 0,
+                    "doNotPersist": true,
+                    "connName": "",
+                    "remoteAddress": "",
+                    "activeOpens": 0,
+                    "localAddress": "",
+                    "id": 0,
+                    "attemptFails": 0
+                }
+            ]
+        }
+    }
+}
