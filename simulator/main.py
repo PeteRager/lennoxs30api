@@ -244,14 +244,24 @@ class Simulator(object):
             app_id = data["SenderID"]
             if app_id in self.appList:
                 app: AppConnection = self.appList[app_id]
-                data = self.loadfile(self.config_data["configFile"])
-                app.queue.append(data)
-                data = self.loadfile(self.config_data["equipmentFile"])
-                app.queue.append(data)
-                data = self.loadfile(self.config_data["deviceFile"])
-                app.queue.append(data)
-                data = self.loadfile(self.config_data["systemFile"])
-                app.queue.append(data)
+                if "configFile" in self.config_data:
+                    data = self.loadfile(self.config_data["configFile"])
+                    app.queue.append(data)
+                if "rgwFile" in self.config_data:
+                    data = self.loadfile(self.config_data["rgwFile"])
+                    app.queue.append(data)
+                if "zonesFile" in self.config_data:
+                    data = self.loadfile(self.config_data["zonesFile"])
+                    app.queue.append(data)
+                if "equipmentFile" in self.config_data:
+                    data = self.loadfile(self.config_data["equipmentFile"])
+                    app.queue.append(data)
+                if "deviceFile" in self.config_data:
+                    data = self.loadfile(self.config_data["deviceFile"])
+                    app.queue.append(data)
+                if "systemFile" in self.config_data:
+                    data = self.loadfile(self.config_data["systemFile"])
+                    app.queue.append(data)
 
                 asyncio.create_task(self.outdoorTempSimulator())
                 asyncio.create_task(self.zoneSimulator())
