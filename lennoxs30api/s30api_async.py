@@ -164,6 +164,13 @@ LENNOX_EQUIPMENT_TYPE_AIR_CONDITIONER: Final = 18
 LENNOX_EQUIPMENT_TYPE_HEAT_PUMP: Final = 19
 LENNOX_EQUIPMENT_TYPE_ZONING_CONTROLLER: Final = 22
 
+LENNOX_VENTILATION_DAMPER: Final = "ventilation"
+LENNOX_VENTILATION_1_SPEED_ERV: Final = "erv"
+LENNOX_VENTILATION_2_SPEED_ERV: Final = "2_stage_erv"
+LENNOX_VENTILATION_1_SPEED_HRV: Final = "hrv"
+LENNOX_VENTILATION_2_SPEED_HRV: Final = "2_stage_hrv"
+
+
 # String in lennox JSON representing no value.
 LENNOX_NONE_STR: Final = "none"
 
@@ -877,6 +884,10 @@ class s30api_async(object):
         _LOGGER.info(
             f"setModeHelper success[{mode}] scheduleId [{scheduleId}] sysId [{sysId}]"
         )
+
+    async def publish_message_helper_dict(self, sysId: str, message: dict):
+        data = '"Data":' + json.dumps(message)
+        await self.publishMessageHelper(sysId, data)
 
     async def publishMessageHelper(self, sysId: str, data: str) -> None:
         _LOGGER.debug(f"publishMessageHelper sysId [{sysId}] data [{data}]")
@@ -1711,25 +1722,41 @@ class lennox_system(object):
             lzone.processMessage(zone)
 
     def supports_ventilation(self) -> bool:
-        return self.ventilationUnitType == "ventilator"
+        return self.is_none(self.ventilationUnitType) == False
 
     async def ventilation_on(self) -> None:
         _LOGGER.debug(f"ventilation_on sysid [{self.sysId}]")
         if self.supports_ventilation() == False:
             err_msg = f"ventilation_on - attempting to turn ventilation on for non-supported equipment ventilatorUnitType [{self.ventilationUnitType}]"
-            _LOGGER.error(err_msg)
-            raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
-        data = '"Data":{"system":{"config":{"ventilationMode":"on"} } }'
-        await self.api.publishMessageHelper(self.sysId, data)
+            raise S30Exception(err_msg, EC_EQUIPMENT_DNS, 1)
+        command = {"system": {"config": {"ventilationMode": "on"}}}
+        await self.api.publish_message_helper_dict(self.sysId, command)
 
     async def ventilation_off(self) -> None:
         _LOGGER.debug(f"ventilation_off sysid [{self.sysId}] ")
-        if self.ventilationUnitType != "ventilator":
+        if self.supports_ventilation() == False:
             err_msg = f"ventilation_off - attempting to turn ventilation off for non-supported equipment ventilatorUnitType [{self.ventilationUnitType}]"
-            _LOGGER.error(err_msg)
+            raise S30Exception(err_msg, EC_EQUIPMENT_DNS, 1)
+        command = {"system": {"config": {"ventilationMode": "off"}}}
+        await self.api.publish_message_helper_dict(self.sysId, command)
+
+    async def ventilation_timed(self, durationSecs: int) -> None:
+        _LOGGER.debug(
+            f"ventilation_timed sysid [{self.sysId}] durationSecs [{durationSecs}] "
+        )
+        try:
+            duration_i = int(durationSecs)
+        except ValueError as v:
+            err_msg = f"ventilation_timed - invalid duration specified must be a positive integer durationSecs [{durationSecs}] valueError [{v}]"
             raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
-        data = '"Data":{"system":{"config":{"ventilationMode":"off"} } }'
-        await self.api.publishMessageHelper(self.sysId, data)
+        if self.supports_ventilation() == False:
+            err_msg = f"ventilation_timed - attempting to set timed ventilation for non-supported equipment ventilatorUnitType [{self.ventilationUnitType}]"
+            raise S30Exception(err_msg, EC_EQUIPMENT_DNS, 1)
+        if duration_i < 0:
+            err_msg = f"ventilation_timed - invalid duration specified must be a positive integer durationSecs [{durationSecs}]"
+            raise S30Exception(err_msg, EC_BAD_PARAMETERS, 2)
+        command = {"systemController": {"command": f"ventilateNow {duration_i}"}}
+        await self.api.publish_message_helper_dict(self.sysId, command)
 
     async def allergenDefender_on(self) -> None:
         _LOGGER.debug(f"allergenDefender_on sysid [{self.sysId}] ")
