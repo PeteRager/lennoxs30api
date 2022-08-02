@@ -170,6 +170,8 @@ LENNOX_VENTILATION_2_SPEED_ERV: Final = "2_stage_erv"
 LENNOX_VENTILATION_1_SPEED_HRV: Final = "hrv"
 LENNOX_VENTILATION_2_SPEED_HRV: Final = "2_stage_hrv"
 
+LENNOX_VENTILATION_CONTROL_MODE_TIMED: Final = "timed"
+LENNOX_VENTILATION_CONTROL_MODE_ASHRAE: Final = "ashrae"
 
 # String in lennox JSON representing no value.
 LENNOX_NONE_STR: Final = "none"
@@ -638,12 +640,7 @@ class s30api_async(object):
         else:
             ref: int = 1
             try:
-                await self.requestDataHelper(
-                    "ic3server",
-                    '"AdditionalParameters":{"publisherpresence":"true"},"Data":{"presence":[{"id":0,"endpointId":"'
-                    + lennoxSystem.sysId
-                    + '"}]}',
-                )
+                await lennoxSystem.update_system_online_cloud()
                 ref = 2
                 await self.requestDataHelper(
                     lennoxSystem.sysId,
@@ -767,7 +764,7 @@ class s30api_async(object):
     def getNewMessageID(self):
         return str(uuid.uuid4())
 
-    async def requestDataHelper(self, sysId: str, additionalParameters: str) -> None:
+    async def requestDataHelper(self, sysId: str, additionalParameters: str) -> json:
         _LOGGER.debug("requestDataHelper - Enter")
         try:
             url = self.url_requestdata
@@ -794,9 +791,13 @@ class s30api_async(object):
             if resp.status == 200:
                 # TODO we should be inspecting the return body?
                 if self._isLANConnection == True:
-                    _LOGGER.debug(await resp.text())
+                    txt = await resp.text()
+                    _LOGGER.debug(txt)
+                    return txt
                 else:
-                    self.message_logger(await resp.json())
+                    txt = await resp.json()
+                    self.message_logger(txt)
+                    return txt
             else:
                 txt = await resp.text()
                 err_msg = f"requestDataHelper failed response code [{resp.status}] text [{txt}]"
@@ -1094,6 +1095,8 @@ class lennox_system(object):
         # Internet status
         self.relayServerConnected: bool = None
         self.internetStatus: bool = None
+        # Cloud Connected  "online" or "offline"
+        self.cloud_status: str = None
 
         self._dirty = False
         self._dirtyList = []
@@ -1111,6 +1114,43 @@ class lennox_system(object):
 
         self.equipment: dict[int, lennox_equipment] = {}
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
+
+    async def update_system_online_cloud(self):
+        response = await self.api.requestDataHelper(
+            "ic3server",
+            '"AdditionalParameters":{"publisherpresence":"true"},"Data":{"presence":[{"id":0,"endpointId":"'
+            + self.sysId
+            + '"}]}',
+        )
+        if response != None:
+            message_txt = response.get("message")
+            if message_txt != None:
+                try:
+                    message = json.loads(message_txt)
+                except Exception as e:
+                    _LOGGER.warning(
+                        f"update_system_online_cloud - Failed to obtain presence status from cloud message [{message}] exception [{e}]"
+                    )
+                    return
+                presence = message.get("presence")
+                if presence != None:
+                    sysId = presence[0].get("endpointId")
+                    if sysId != self.sysId:
+                        _LOGGER.error(
+                            f"update_system_online_cloud - get_system_online_cloud sysId [{self.sysId}] received unexpected sysId [{sysId}]"
+                        )
+                    else:
+                        self.attr_updater(presence[0], "status", "cloud_status")
+                else:
+                    _LOGGER.warning(
+                        f"update_system_online_cloud - No presense element in response [{response}]"
+                    )
+            else:
+                _LOGGER.warning(
+                    f"update_system_online_cloud - No message element in response [{response}]"
+                )
+        else:
+            _LOGGER.warning(f"update_system_online_cloud - No Response Received")
 
     def update(self, api: s30api_async, home: lennox_home, idx: int):
         self.api = api
