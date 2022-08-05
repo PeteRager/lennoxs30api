@@ -1141,6 +1141,7 @@ class lennox_system(object):
                         )
                     else:
                         self.attr_updater(presence[0], "status", "cloud_status")
+                        self.executeOnUpdateCallbacks()
                 else:
                     _LOGGER.warning(
                         f"update_system_online_cloud - No presense element in response [{response}]"

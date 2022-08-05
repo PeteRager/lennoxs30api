@@ -35,10 +35,20 @@ class GoodResponse:
         return "this is the error"
 
 
+class DirtySubscription:
+    def __init__(self, system: lennox_system, attr_name: str):
+        self.triggered_count = 0
+        system.registerOnUpdateCallback(self.update_callback, [attr_name])
+
+    def update_callback(self):
+        self.triggered_count += 1
+
+
 def test_get_system_online_cloud(api: s30api_async):
     system: lennox_system = api.getSystems()[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     with patch.object(api, "post") as mock_post:
+        ds = DirtySubscription(system, "cloud_status")
         mock_post.return_value = GoodResponse(200)
         loop = asyncio.get_event_loop()
         ex = None
@@ -58,13 +68,14 @@ def test_get_system_online_cloud(api: s30api_async):
         assert message["Data"]["presence"][0]["id"] == 0
         assert message["Data"]["presence"][0]["endpointId"] == system.sysId
         assert system.cloud_status == "online"
-        assert "cloud_status" in system._dirtyList
+        assert ds.triggered_count == 1
 
 
 def test_get_system_online_cloud_400(api: s30api_async, caplog):
     system: lennox_system = api.getSystems()[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     with patch.object(api, "post") as mock_post:
+        ds = DirtySubscription(system, "cloud_status")
         caplog.clear()
         with caplog.at_level(logging.WARNING):
             mock_post.return_value = GoodResponse(400)
@@ -79,7 +90,7 @@ def test_get_system_online_cloud_400(api: s30api_async, caplog):
             assert "400" in ex.message
             assert "this is the error" in ex.message
             assert system.cloud_status == None
-            assert "cloud_status" not in system._dirtyList
+            assert ds.triggered_count == 0
 
 
 class BadResponse_DiffSysId:
@@ -107,6 +118,7 @@ def test_get_system_online_cloud_diff_sysid(api: s30api_async, caplog):
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     with patch.object(api, "post") as mock_post:
         caplog.clear()
+        ds = DirtySubscription(system, "cloud_status")
         with caplog.at_level(logging.WARNING):
             mock_post.return_value = BadResponse_DiffSysId(200)
             loop = asyncio.get_event_loop()
@@ -121,7 +133,7 @@ def test_get_system_online_cloud_diff_sysid(api: s30api_async, caplog):
             assert "0000000-0000-0000-0000-000000000002" in caplog.messages[0]
             assert "unexpected sysId" in caplog.messages[0]
             assert system.cloud_status == None
-            assert "cloud_status" not in system._dirtyList
+            assert ds.triggered_count == 0
 
 
 class BadResponse_NoMessage:
@@ -148,6 +160,7 @@ def test_get_system_online_cloud_no_message(api: s30api_async, caplog):
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     with patch.object(api, "post") as mock_post:
         caplog.clear()
+        ds = DirtySubscription(system, "cloud_status")
         with caplog.at_level(logging.WARNING):
             mock_post.return_value = BadResponse_NoMessage(200)
             loop = asyncio.get_event_loop()
@@ -160,6 +173,7 @@ def test_get_system_online_cloud_no_message(api: s30api_async, caplog):
             assert len(caplog.records) == 1
             assert "No message element in response" in caplog.messages[0]
             assert "code" in caplog.messages[0]
+            assert ds.triggered_count == 0
 
 
 class BadResponse_NoPresence:
@@ -187,6 +201,7 @@ def test_get_system_online_cloud_no_presence(api: s30api_async, caplog):
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     with patch.object(api, "post") as mock_post:
         caplog.clear()
+        ds = DirtySubscription(system, "cloud_status")
         with caplog.at_level(logging.WARNING):
             mock_post.return_value = BadResponse_NoPresence(200)
             loop = asyncio.get_event_loop()
@@ -200,7 +215,7 @@ def test_get_system_online_cloud_no_presence(api: s30api_async, caplog):
             assert "No presense element in response" in caplog.messages[0]
             assert "nopresense" in caplog.messages[0]
             assert system.cloud_status == None
-            assert "cloud_status" not in system._dirtyList
+            assert ds.triggered_count == 0
 
 
 def test_get_system_online_cloud_no_result(api: s30api_async, caplog):
@@ -208,6 +223,7 @@ def test_get_system_online_cloud_no_result(api: s30api_async, caplog):
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     with patch.object(api, "requestDataHelper") as requestDataHelper:
         caplog.clear()
+        ds = DirtySubscription(system, "cloud_status")
         with caplog.at_level(logging.WARNING):
             requestDataHelper.return_value = None
             loop = asyncio.get_event_loop()
@@ -220,7 +236,7 @@ def test_get_system_online_cloud_no_result(api: s30api_async, caplog):
             assert len(caplog.records) == 1
             assert "No Response Received" in caplog.messages[0]
             assert system.cloud_status == None
-            assert "cloud_status" not in system._dirtyList
+            assert ds.triggered_count == 0
 
 
 def test_get_system_online_cloud_comm_exception(api: s30api_async, caplog):
@@ -228,6 +244,7 @@ def test_get_system_online_cloud_comm_exception(api: s30api_async, caplog):
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     with patch.object(api, "post") as mock_post:
         caplog.clear()
+        ds = DirtySubscription(system, "cloud_status")
         with caplog.at_level(logging.WARNING):
             mock_post.side_effect = aiohttp.ClientResponseError(
                 status=400,
@@ -250,3 +267,4 @@ def test_get_system_online_cloud_comm_exception(api: s30api_async, caplog):
             assert "some other error" in ex.message
             assert "ClientResponseError" in ex.message
             assert len(caplog.records) == 0
+            assert ds.triggered_count == 0
