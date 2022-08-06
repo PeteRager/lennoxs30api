@@ -1,4 +1,4 @@
-__version__ = "0.1.13"
+__version__ = "0.1.14"
 from .lennox_home import *
 from .lennox_period import *
 from .lennox_schedule import *
