@@ -1162,6 +1162,9 @@ class lennox_system(object):
     def processMessage(self, message) -> None:
         try:
             if "Data" in message:
+                # By definition if we receive a message for a cloud connected system, it is online.
+                if self.api._isLANConnection == False:
+                    self.attr_updater({"status": "online"}, "status", "cloud_status")
                 data = message["Data"]
                 for key in self.message_processing_list:
                     try:

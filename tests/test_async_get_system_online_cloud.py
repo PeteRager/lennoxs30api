@@ -13,6 +13,7 @@ import asyncio
 from unittest.mock import patch
 
 from lennoxs30api.s30exception import S30Exception
+from tests.conftest import loadfile
 
 
 class GoodResponse:
@@ -268,3 +269,29 @@ def test_get_system_online_cloud_comm_exception(api: s30api_async, caplog):
             assert "ClientResponseError" in ex.message
             assert len(caplog.records) == 0
             assert ds.triggered_count == 0
+
+
+def test_get_system_online_cloud_process_message(api: s30api_async):
+    system: lennox_system = api.getSystems()[0]
+    assert system.sysId == "0000000-0000-0000-0000-000000000001"
+    system.cloud_status = "offline"
+
+    ds = DirtySubscription(system, "cloud_status")
+    data = loadfile("mut_sys1_zone1_cool_sched.json", system.sysId)
+    api.processMessage(data)
+    assert system.cloud_status == "online"
+    assert ds.triggered_count == 1
+
+    ds = DirtySubscription(system, "cloud_status")
+    data = loadfile("mut_sys1_zone1_cool_sched.json", system.sysId)
+    api.processMessage(data)
+    assert system.cloud_status == "online"
+    assert ds.triggered_count == 0
+
+    system.cloud_status = None
+    api._isLANConnection = True
+    ds = DirtySubscription(system, "cloud_status")
+    data = loadfile("mut_sys1_zone1_cool_sched.json", system.sysId)
+    api.processMessage(data)
+    assert system.cloud_status == None
+    assert ds.triggered_count == 0
