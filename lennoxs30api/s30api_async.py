@@ -164,6 +164,15 @@ LENNOX_EQUIPMENT_TYPE_AIR_CONDITIONER: Final = 18
 LENNOX_EQUIPMENT_TYPE_HEAT_PUMP: Final = 19
 LENNOX_EQUIPMENT_TYPE_ZONING_CONTROLLER: Final = 22
 
+LENNOX_VENTILATION_DAMPER: Final = "ventilation"
+LENNOX_VENTILATION_1_SPEED_ERV: Final = "erv"
+LENNOX_VENTILATION_2_SPEED_ERV: Final = "2_stage_erv"
+LENNOX_VENTILATION_1_SPEED_HRV: Final = "hrv"
+LENNOX_VENTILATION_2_SPEED_HRV: Final = "2_stage_hrv"
+
+LENNOX_VENTILATION_CONTROL_MODE_TIMED: Final = "timed"
+LENNOX_VENTILATION_CONTROL_MODE_ASHRAE: Final = "ashrae"
+
 # String in lennox JSON representing no value.
 LENNOX_NONE_STR: Final = "none"
 
@@ -631,12 +640,7 @@ class s30api_async(object):
         else:
             ref: int = 1
             try:
-                await self.requestDataHelper(
-                    "ic3server",
-                    '"AdditionalParameters":{"publisherpresence":"true"},"Data":{"presence":[{"id":0,"endpointId":"'
-                    + lennoxSystem.sysId
-                    + '"}]}',
-                )
+                await lennoxSystem.update_system_online_cloud()
                 ref = 2
                 await self.requestDataHelper(
                     lennoxSystem.sysId,
@@ -760,7 +764,7 @@ class s30api_async(object):
     def getNewMessageID(self):
         return str(uuid.uuid4())
 
-    async def requestDataHelper(self, sysId: str, additionalParameters: str) -> None:
+    async def requestDataHelper(self, sysId: str, additionalParameters: str) -> json:
         _LOGGER.debug("requestDataHelper - Enter")
         try:
             url = self.url_requestdata
@@ -787,9 +791,13 @@ class s30api_async(object):
             if resp.status == 200:
                 # TODO we should be inspecting the return body?
                 if self._isLANConnection == True:
-                    _LOGGER.debug(await resp.text())
+                    txt = await resp.text()
+                    _LOGGER.debug(txt)
+                    return txt
                 else:
-                    self.message_logger(await resp.json())
+                    txt = await resp.json()
+                    self.message_logger(txt)
+                    return txt
             else:
                 txt = await resp.text()
                 err_msg = f"requestDataHelper failed response code [{resp.status}] text [{txt}]"
@@ -877,6 +885,10 @@ class s30api_async(object):
         _LOGGER.info(
             f"setModeHelper success[{mode}] scheduleId [{scheduleId}] sysId [{sysId}]"
         )
+
+    async def publish_message_helper_dict(self, sysId: str, message: dict):
+        data = '"Data":' + json.dumps(message)
+        await self.publishMessageHelper(sysId, data)
 
     async def publishMessageHelper(self, sysId: str, data: str) -> None:
         _LOGGER.debug(f"publishMessageHelper sysId [{sysId}] data [{data}]")
@@ -1083,6 +1095,8 @@ class lennox_system(object):
         # Internet status
         self.relayServerConnected: bool = None
         self.internetStatus: bool = None
+        # Cloud Connected  "online" or "offline"
+        self.cloud_status: str = None
 
         self._dirty = False
         self._dirtyList = []
@@ -1100,6 +1114,44 @@ class lennox_system(object):
 
         self.equipment: dict[int, lennox_equipment] = {}
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
+
+    async def update_system_online_cloud(self):
+        response = await self.api.requestDataHelper(
+            "ic3server",
+            '"AdditionalParameters":{"publisherpresence":"true"},"Data":{"presence":[{"id":0,"endpointId":"'
+            + self.sysId
+            + '"}]}',
+        )
+        if response != None:
+            message_txt = response.get("message")
+            if message_txt != None:
+                try:
+                    message = json.loads(message_txt)
+                except Exception as e:
+                    _LOGGER.warning(
+                        f"update_system_online_cloud - Failed to obtain presence status from cloud message [{message}] exception [{e}]"
+                    )
+                    return
+                presence = message.get("presence")
+                if presence != None:
+                    sysId = presence[0].get("endpointId")
+                    if sysId != self.sysId:
+                        _LOGGER.error(
+                            f"update_system_online_cloud - get_system_online_cloud sysId [{self.sysId}] received unexpected sysId [{sysId}]"
+                        )
+                    else:
+                        self.attr_updater(presence[0], "status", "cloud_status")
+                        self.executeOnUpdateCallbacks()
+                else:
+                    _LOGGER.warning(
+                        f"update_system_online_cloud - No presense element in response [{response}]"
+                    )
+            else:
+                _LOGGER.warning(
+                    f"update_system_online_cloud - No message element in response [{response}]"
+                )
+        else:
+            _LOGGER.warning(f"update_system_online_cloud - No Response Received")
 
     def update(self, api: s30api_async, home: lennox_home, idx: int):
         self.api = api
@@ -1711,25 +1763,41 @@ class lennox_system(object):
             lzone.processMessage(zone)
 
     def supports_ventilation(self) -> bool:
-        return self.ventilationUnitType == "ventilator"
+        return self.is_none(self.ventilationUnitType) == False
 
     async def ventilation_on(self) -> None:
         _LOGGER.debug(f"ventilation_on sysid [{self.sysId}]")
         if self.supports_ventilation() == False:
             err_msg = f"ventilation_on - attempting to turn ventilation on for non-supported equipment ventilatorUnitType [{self.ventilationUnitType}]"
-            _LOGGER.error(err_msg)
-            raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
-        data = '"Data":{"system":{"config":{"ventilationMode":"on"} } }'
-        await self.api.publishMessageHelper(self.sysId, data)
+            raise S30Exception(err_msg, EC_EQUIPMENT_DNS, 1)
+        command = {"system": {"config": {"ventilationMode": "on"}}}
+        await self.api.publish_message_helper_dict(self.sysId, command)
 
     async def ventilation_off(self) -> None:
         _LOGGER.debug(f"ventilation_off sysid [{self.sysId}] ")
-        if self.ventilationUnitType != "ventilator":
+        if self.supports_ventilation() == False:
             err_msg = f"ventilation_off - attempting to turn ventilation off for non-supported equipment ventilatorUnitType [{self.ventilationUnitType}]"
-            _LOGGER.error(err_msg)
+            raise S30Exception(err_msg, EC_EQUIPMENT_DNS, 1)
+        command = {"system": {"config": {"ventilationMode": "off"}}}
+        await self.api.publish_message_helper_dict(self.sysId, command)
+
+    async def ventilation_timed(self, durationSecs: int) -> None:
+        _LOGGER.debug(
+            f"ventilation_timed sysid [{self.sysId}] durationSecs [{durationSecs}] "
+        )
+        try:
+            duration_i = int(durationSecs)
+        except ValueError as v:
+            err_msg = f"ventilation_timed - invalid duration specified must be a positive integer durationSecs [{durationSecs}] valueError [{v}]"
             raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
-        data = '"Data":{"system":{"config":{"ventilationMode":"off"} } }'
-        await self.api.publishMessageHelper(self.sysId, data)
+        if self.supports_ventilation() == False:
+            err_msg = f"ventilation_timed - attempting to set timed ventilation for non-supported equipment ventilatorUnitType [{self.ventilationUnitType}]"
+            raise S30Exception(err_msg, EC_EQUIPMENT_DNS, 1)
+        if duration_i < 0:
+            err_msg = f"ventilation_timed - invalid duration specified must be a positive integer durationSecs [{durationSecs}]"
+            raise S30Exception(err_msg, EC_BAD_PARAMETERS, 2)
+        command = {"systemController": {"command": f"ventilateNow {duration_i}"}}
+        await self.api.publish_message_helper_dict(self.sysId, command)
 
     async def allergenDefender_on(self) -> None:
         _LOGGER.debug(f"allergenDefender_on sysid [{self.sysId}] ")
