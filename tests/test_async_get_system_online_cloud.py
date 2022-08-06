@@ -48,6 +48,7 @@ class DirtySubscription:
 def test_get_system_online_cloud(api: s30api_async):
     system: lennox_system = api.getSystems()[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
+    system.cloud_status = None
     with patch.object(api, "post") as mock_post:
         ds = DirtySubscription(system, "cloud_status")
         mock_post.return_value = GoodResponse(200)
@@ -75,6 +76,8 @@ def test_get_system_online_cloud(api: s30api_async):
 def test_get_system_online_cloud_400(api: s30api_async, caplog):
     system: lennox_system = api.getSystems()[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
+    system.cloud_status = None
+
     with patch.object(api, "post") as mock_post:
         ds = DirtySubscription(system, "cloud_status")
         caplog.clear()
@@ -117,6 +120,8 @@ class BadResponse_DiffSysId:
 def test_get_system_online_cloud_diff_sysid(api: s30api_async, caplog):
     system: lennox_system = api.getSystems()[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
+    system.cloud_status = None
+
     with patch.object(api, "post") as mock_post:
         caplog.clear()
         ds = DirtySubscription(system, "cloud_status")
@@ -200,6 +205,8 @@ class BadResponse_NoPresence:
 def test_get_system_online_cloud_no_presence(api: s30api_async, caplog):
     system: lennox_system = api.getSystems()[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
+    system.cloud_status = None
+
     with patch.object(api, "post") as mock_post:
         caplog.clear()
         ds = DirtySubscription(system, "cloud_status")
@@ -222,6 +229,8 @@ def test_get_system_online_cloud_no_presence(api: s30api_async, caplog):
 def test_get_system_online_cloud_no_result(api: s30api_async, caplog):
     system: lennox_system = api.getSystems()[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
+    system.cloud_status = None
+
     with patch.object(api, "requestDataHelper") as requestDataHelper:
         caplog.clear()
         ds = DirtySubscription(system, "cloud_status")
