@@ -47,7 +47,11 @@ from .lennox_schedule import lennox_schedule
 from .lennox_home import lennox_home
 from .metrics import Metrics
 from .message_logger import MessageLogger
-from .lennox_equipment import lennox_equipment, lennox_equipment_diagnostic
+from .lennox_equipment import (
+    lennox_equipment,
+    lennox_equipment_diagnostic,
+    lennox_equipment_parameter,
+)
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -626,14 +630,24 @@ class s30api_async(object):
             try:
                 await self.requestDataHelper(
                     lennoxSystem.sysId,
-                    '"AdditionalParameters":{"JSONPath":"1;/systemControl;/reminderSensors;/reminders;/alerts/active;/alerts/meta;/fwm;/rgw;/devices;/zones;/equipments;/schedules;/occupancy;/system"}',
+                    '"AdditionalParameters":{"JSONPath":"1;/systemControl;/systemController;/reminderSensors;/reminders;/alerts/active;/alerts/meta;/fwm;/rgw;/devices;/zones;/equipments;/schedules;/occupancy;/system"}',
                 )
+            # For future use, full set of subscription topics.
+            #                ref = 2
+            #
+            #                await self.requestDataHelper(
+            #                    lennoxSystem.sysId,
+            #                    '"AdditionalParameters":{"JSONPath":"1;/automatedTest;/zoneTestControl;/homes;/reminders;/algorithm;/historyReportFileDetails;/interfaces;/logs"}',
+            #                )
+
             except S30Exception as e:
-                err_msg = f"subscribe fail loca [{ref}] {e.as_string()}"
+                err_msg = f"subscribe fail loca [{ref}] sysId [{lennoxSystem.sysId}] {e.as_string()}"
                 _LOGGER.error(err_msg)
                 raise e
             except Exception as e:
-                err_msg = f"subscribe fail locb [{ref}] "
+                err_msg = (
+                    f"subscribe fail locb [{ref}] sysId [{lennoxSystem.sysId}] [{e}] "
+                )
                 _LOGGER.exception(err_msg)
                 raise S30Exception(err_msg, EC_SUBSCRIBE, 3)
 
@@ -652,11 +666,13 @@ class s30api_async(object):
                     '"AdditionalParameters":{"JSONPath":"1;/reminderSensors;/reminders;/alerts/active;/alerts/meta;/dealers;/devices;/equipments;/fwm;/ocst;"}',
                 )
             except S30Exception as e:
-                err_msg = f"subscribe fail locc [{ref}] {e.as_string()}"
+                err_msg = f"subscribe fail locc [{ref}] sysId [{lennoxSystem.sysId}] {e.as_string()}"
                 _LOGGER.error(err_msg)
                 raise e
             except Exception as e:
-                err_msg = f"subscribe fail locd [{ref}] "
+                err_msg = (
+                    f"subscribe fail locd [{ref}] sysId [{lennoxSystem.sysId}] [{e}]"
+                )
                 _LOGGER.exception(err_msg)
                 raise S30Exception(err_msg, EC_SUBSCRIBE, 3)
 
@@ -1028,6 +1044,7 @@ class lennox_system(object):
         self._schedules: List[lennox_schedule] = []
         self._callbacks = []
         self._diagcallbacks = []
+        self._eqParametersCallbacks = []
         self.outdoorTemperature = None
         self.name: str = None
         self.allergenDefender = None
@@ -1328,32 +1345,57 @@ class lennox_system(object):
         self._dirty = False
         self._dirtyList = []
 
+    def registerOnUpdateCallbackEqParameters(self, callbackfunc, match=None):
+        # match is f'{eid}_{pid}'
+        self._eqParametersCallbacks.append({"func": callbackfunc, "match": match})
+
+    def executeOnUpdateCallbacksEqParameters(self, id):
+        for callback in self._eqParametersCallbacks:
+            callbackfunc = callback["func"]
+            match = callback["match"]
+            matches = False
+            if match is None:
+                matches = True
+            else:
+                for m in match:
+                    if m == id:
+                        matches = True
+                        break
+            try:
+                if matches == True:
+                    # Adding ID to the callback, since you can pass in an array
+                    # of IDs to register for the callback, the callback needs to
+                    # know which id the value belongs to.
+                    callbackfunc(id)
+            except Exception as e:
+                # Log and eat this exception so we can process other callbacks
+                _LOGGER.exception("executeOnUpdateCallbacksEqParameters - failed ")
+
     def registerOnUpdateCallbackDiag(self, callbackfunc, match=None):
         # match is f'{eid}_{did}'
         self._diagcallbacks.append({"func": callbackfunc, "match": match})
 
     def executeOnUpdateCallbacksDiag(self, id, newval):
-        if True:
-            for callback in self._diagcallbacks:
-                callbackfunc = callback["func"]
-                match = callback["match"]
-                matches = False
-                if match is None:
-                    matches = True
-                else:
-                    for m in match:
-                        if m == id:
-                            matches = True
-                            break
-                try:
-                    if matches == True:
-                        # Adding ID to the callback, since you can pass in an array
-                        # of IDs to register for the callback, the callback needs to
-                        # know which id the value belongs to.
-                        callbackfunc(id, newval)
-                except Exception as e:
-                    # Log and eat this exception so we can process other callbacks
-                    _LOGGER.exception("executeOnUpdateCallback - failed ")
+        for callback in self._diagcallbacks:
+            callbackfunc = callback["func"]
+            match = callback["match"]
+            matches = False
+            if match is None:
+                matches = True
+            else:
+                for m in match:
+                    if m == id:
+                        matches = True
+                        break
+            try:
+                if matches == True:
+                    # Adding ID to the callback, since you can pass in an array
+                    # of IDs to register for the callback, the callback needs to
+                    # know which id the value belongs to.
+                    callbackfunc(id, newval)
+            except Exception as e:
+                # Log and eat this exception so we can process other callbacks
+                _LOGGER.exception("executeOnUpdateCallbacksDiag - failed")
 
     def attr_updater(self, set, attr: str, propertyName: str = None) -> bool:
         if attr in set:
@@ -1523,6 +1565,15 @@ class lennox_system(object):
                 ):
                     # Lennox isn't consistent with capitilization of Subnet Controller
                     eq.equipment_name = parameter["parameter"]["value"]
+                if "parameter" in parameter:
+                    if "pid" in parameter["parameter"]:
+                        pid = parameter["parameter"]["pid"]
+                        par = eq.get_or_create_parameter(pid)
+                        par.fromJson(parameter["parameter"])
+                        self.executeOnUpdateCallbacksEqParameters(
+                            f"{equipment_id}_{pid}"
+                        )
+
             for diagnostic in equipment.get("equipment", {}).get("diagnostics", []):
                 # the diagnostic values sometimes don't have names
                 # so remember where we found important keys
@@ -1978,6 +2029,52 @@ class lennox_system(object):
         await self.api.requestDataHelper(
             self.sysId,
             '"AdditionalParameters":{"JSONPath":"/systemControl"}',
+        )
+
+    async def _internal_set_equipment_parameter_value(
+        self, et: int, pid: int, value: str
+    ):
+        _LOGGER.debug(
+            f"_internal_set_equipment_parameter_value sysid [{self.sysId}] et [{et}] pid [{pid}] value [{value}]"
+        )
+        command = {
+            "systemControl": {
+                "parameterUpdate": {"et": et, "pid": pid, "value": str(value)}
+            }
+        }
+        await self.api.publish_message_helper_dict(self.sysId, command)
+
+    async def set_equipment_parameter_value(
+        self, equipment_id: int, pid: int, value: str
+    ):
+        _LOGGER.debug(
+            f"set_equipment_parameter_value sysid [{self.sysId}] equipment_id [{equipment_id}] pid [{pid}] value [{value}]"
+        )
+        equipment = self.equipment.get(equipment_id)
+        if equipment is None:
+            raise S30Exception(
+                f"set_equipment_parameter_value cannot find equipment with equipment_id [{equipment_id}] pid [{pid}] value [{value}]",
+                EC_BAD_PARAMETERS,
+                1,
+            )
+        parameter = equipment.parameters.get(pid)
+        if parameter is None:
+            raise S30Exception(
+                f"set_equipment_parameter_value cannot find parameter with equipment_id [{equipment_id}] pid [{pid}] value [{value}]",
+                EC_BAD_PARAMETERS,
+                2,
+            )
+
+        if parameter.enabled != True:
+            raise S30Exception(
+                f"set_equipment_parameter_value cannot set disabled parameter equipment_id [{equipment_id}] pid [{pid}] value [{value}]",
+                EC_BAD_PARAMETERS,
+                3,
+            )
+
+        call_value = parameter.validate_and_translate(value)
+        await self._internal_set_equipment_parameter_value(
+            equipment.equipType, pid, call_value
         )
 
     @property

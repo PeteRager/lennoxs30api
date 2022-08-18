@@ -1,0 +1,41 @@
+{
+    "Data": {
+        "equipments": [
+            {
+                "equipment": {
+                    "equipType": 0,
+                    "parameters": [
+                        {
+                            "id": 15,
+                            "parameter": {
+                                "defaultValue": "1.5",
+                                "descriptor": "range",
+                                "enabled": false,
+                                "format": "16q4",
+                                "name": "Minimum Gas Heating Off Time",
+                                "pid": 114,
+                                "range": {
+                                    "inc": "0.5",
+                                    "max": "10",
+                                    "min": "1.5"
+                                },
+                                "unit": "min",
+                                "value": "15"
+                            }
+                        }
+                    ]
+                },
+                "id": 0,
+                "publisher": {
+                    "doNotPersist": true,
+                    "publisherName": "unknown",
+                    "writeAccess": "openAll"
+                }
+            }
+        ]
+    },
+    "MessageId": 0,
+    "MessageType": "PropertyChange",
+    "SenderID": "LCC",
+    "TargetID": "python_client"
+}
