@@ -1,3 +1,4 @@
+from typing import Final
 from .s30exception import EC_BAD_PARAMETERS, S30Exception
 
 
@@ -11,8 +12,8 @@ class lennox_equipment_diagnostic(object):
         self.valid: bool = True
 
 
-LENNOX_EQUIPMENT_PARAMETER_FORMAT_RANGE = "range"
-LENNOX_EQUIPMENT_PARAMETER_FORMAT_RADIO = "radio"
+LENNOX_EQUIPMENT_PARAMETER_FORMAT_RANGE: Final = "range"
+LENNOX_EQUIPMENT_PARAMETER_FORMAT_RADIO: Final = "radio"
 
 
 class lennox_equipment_parameter(object):
