@@ -1,6 +1,7 @@
 import asyncio
 import json
 from tkinter import E
+from unittest import mock
 from unittest.mock import patch
 from lennoxs30api.lennox_equipment import (
     lennox_equipment_parameter,
@@ -521,7 +522,10 @@ def test_internal_set_equipment_parameter_value(api):
         assert mock_message_helper.await_args[0][0] == system.sysId
         arg1 = mock_message_helper.await_args[0][1]
         jsbody = json.loads("{" + arg1 + "}")
-
+        assert (
+            mock_message_helper.call_args_list[0][1]["additional_parameters"]
+            == "/systemControl"
+        )
         par_update = jsbody["Data"]["systemControl"]["parameterUpdate"]
         assert par_update["et"] == 19
         assert par_update["pid"] == 44

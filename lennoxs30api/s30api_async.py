@@ -632,7 +632,6 @@ class s30api_async(object):
                     lennoxSystem.sysId,
                     '"AdditionalParameters":{"JSONPath":"1;/systemControl;/systemController;/reminderSensors;/reminders;/alerts/active;/alerts/meta;/fwm;/rgw;/devices;/zones;/equipments;/schedules;/occupancy;/system"}',
                 )
-            # For future use, full set of subscription topics.
             #                ref = 2
             #
             #                await self.requestDataHelper(
@@ -902,11 +901,17 @@ class s30api_async(object):
             f"setModeHelper success[{mode}] scheduleId [{scheduleId}] sysId [{sysId}]"
         )
 
-    async def publish_message_helper_dict(self, sysId: str, message: dict):
+    async def publish_message_helper_dict(
+        self, sysId: str, message: dict, additional_parameters=None
+    ):
         data = '"Data":' + json.dumps(message)
-        await self.publishMessageHelper(sysId, data)
+        await self.publishMessageHelper(
+            sysId, data, additional_parameters=additional_parameters
+        )
 
-    async def publishMessageHelper(self, sysId: str, data: str) -> None:
+    async def publishMessageHelper(
+        self, sysId: str, data: str, additional_parameters=None
+    ) -> None:
         _LOGGER.debug(f"publishMessageHelper sysId [{sysId}] data [{data}]")
         try:
             url = self.url_publish
@@ -924,6 +929,8 @@ class s30api_async(object):
             body += '"SenderID":"' + self.getClientId() + '",'
             body += '"MessageID":"' + self.getNextMessageId() + '",'
             body += '"TargetID":"' + sysId + '",'
+            if additional_parameters != None:
+                body += '"AdditionalParameters":"' + additional_parameters + '",'
             body += data
             body += "}"
 
@@ -2042,7 +2049,9 @@ class lennox_system(object):
                 "parameterUpdate": {"et": et, "pid": pid, "value": str(value)}
             }
         }
-        await self.api.publish_message_helper_dict(self.sysId, command)
+        await self.api.publish_message_helper_dict(
+            self.sysId, command, additional_parameters="/systemControl"
+        )
 
     async def set_equipment_parameter_value(
         self, equipment_id: int, pid: int, value: str

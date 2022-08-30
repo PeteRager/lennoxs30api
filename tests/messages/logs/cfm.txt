@@ -8150,3 +8150,15 @@ AC Low normal cooling airflow
         }
     ]
 }
+
+
+{
+ "MessageType":"Command",
+ "SenderID":"dca_71824885284",
+ "MessageID":"00000000-0000-0000-0000-000000000001",
+ "TargetID":"LCC",
+ "AdditionalParameters":"\/systemControl",
+ "Data":{"systemControl":{"parameterUpdate":{"pid":19,"et":17,"value":"540.00"}}}}
+
+
+
