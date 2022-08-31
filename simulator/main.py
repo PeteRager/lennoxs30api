@@ -291,6 +291,9 @@ class Simulator(object):
 
     async def request_data(self, request: Request):
         data = await request.json()
+        return self.process_request_data(data)
+
+    def process_request_data(self, data):
         if "SenderID" in data:
             app_id = data["SenderID"]
             if app_id in self.appList:
@@ -342,6 +345,11 @@ class Simulator(object):
                     data = self.perform_substitutions(data)
                     return web.Response(status=200, body=data)
                 await asyncio.sleep(1.0)
+        else:
+            data = {}
+            self.appList[app_id] = AppConnection(app_id)
+            data["SenderID"] = app_id
+            self.process_request_data(data)
         return web.Response(status=204)
 
     def process_message(self, msg):
@@ -394,6 +402,7 @@ def init_func(argv):
                     web.post("/Endpoints/{app_id}/Disconnect", simulator.disconnect),
                     web.post("/Messages/RequestData", simulator.request_data),
                     web.get("/Messages/{app_id}/Retrieve", simulator.retrieve),
+                    web.get("/v1/Messages/{app_id}/Retrieve", simulator.retrieve),
                     web.post("/Messages/Publish", simulator.publish),
                 ]
             )
