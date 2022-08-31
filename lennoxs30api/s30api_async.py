@@ -177,6 +177,10 @@ LENNOX_VENTILATION_2_SPEED_HRV: Final = "2_stage_hrv"
 LENNOX_VENTILATION_CONTROL_MODE_TIMED: Final = "timed"
 LENNOX_VENTILATION_CONTROL_MODE_ASHRAE: Final = "ashrae"
 
+# Parameter range for zoneTestControl
+PID_ZONE_1_BLOWER_CFM = 256
+PID_ZONE_8_HEATING_CFM = 279
+
 # String in lennox JSON representing no value.
 LENNOX_NONE_STR: Final = "none"
 
@@ -2085,6 +2089,62 @@ class lennox_system(object):
         await self._internal_set_equipment_parameter_value(
             equipment.equipType, pid, call_value
         )
+
+    async def _internal_set_zone_test_parameter_value(
+        self, pid: int, value: str, enabled: bool
+    ):
+        _LOGGER.debug(
+            f"_internal_set_zone_test_parameter_value sysid [{self.sysId}] enabled [{enabled}] pid [{pid}] value [{value}]"
+        )
+        command = {
+            "systemControl": {
+                "zoneTestControl": {
+                    "enable": enabled,
+                    "parameterNumber": pid,
+                    "value": str(value),
+                }
+            }
+        }
+        await self.api.publish_message_helper_dict(
+            self.sysId, command, additional_parameters="/systemControl"
+        )
+
+    async def set_zone_test_parameter_value(self, pid: int, value: str, enabled: bool):
+        _LOGGER.debug(
+            f"set_zone_test_parameter_value sysid [{self.sysId}] pid [{pid}] value [{value}] enabled [{enabled}]"
+        )
+        equipment = self.equipment.get(0)
+        if equipment is None:
+            raise S30Exception(
+                f"set_zone_test_parameter_value cannot find equipment with equipment_id 0 pid [{pid}] value [{value}]",
+                EC_BAD_PARAMETERS,
+                1,
+            )
+
+        if pid < PID_ZONE_1_BLOWER_CFM or pid > PID_ZONE_8_HEATING_CFM:
+            raise S30Exception(
+                f"set_zone_test_parameter_value pid [{pid}] must be between {PID_ZONE_1_BLOWER_CFM} and {PID_ZONE_8_HEATING_CFM} value [{value}]",
+                EC_BAD_PARAMETERS,
+                2,
+            )
+
+        parameter = equipment.parameters.get(pid)
+        if parameter is None:
+            raise S30Exception(
+                f"set_zone_test_parameter_value cannot find parameter with equipment_id 0 pid [{pid}] value [{value}]",
+                EC_BAD_PARAMETERS,
+                3,
+            )
+
+        if parameter.enabled != True:
+            raise S30Exception(
+                f"set_zone_test_parameter_value cannot set disabled parameter equipment_id 0 pid [{pid}] value [{value}]",
+                EC_BAD_PARAMETERS,
+                4,
+            )
+
+        call_value = parameter.validate_and_translate(value)
+        await self._internal_set_zone_test_parameter_value(pid, call_value, enabled)
 
     @property
     def has_indoor_unit(self) -> bool:

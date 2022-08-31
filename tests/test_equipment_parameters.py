@@ -1,6 +1,5 @@
 import asyncio
 import json
-from tkinter import E
 from unittest import mock
 from unittest.mock import patch
 from lennoxs30api.lennox_equipment import (
