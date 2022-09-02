@@ -57,11 +57,16 @@ def test_subscribe_200(api: s30api_async):
         except S30Exception as e:
             ex = e
         assert ex == None
-        assert requestDataHelper.call_count == 1
-        assert requestDataHelper.call_args[0][0] == system.sysId
+        assert requestDataHelper.call_count == 2
+        assert requestDataHelper.mock_calls[0].args[0] == system.sysId
         assert (
-            requestDataHelper.call_args[0][1]
+            requestDataHelper.mock_calls[0].args[1]
             == '"AdditionalParameters":{"JSONPath":"1;/systemControl;/systemController;/reminderSensors;/reminders;/alerts/active;/alerts/meta;/fwm;/rgw;/devices;/zones;/equipments;/schedules;/occupancy;/system"}'
+        )
+        assert requestDataHelper.mock_calls[1].args[0] == system.sysId
+        assert (
+            requestDataHelper.mock_calls[1].args[1]
+            == '"AdditionalParameters":{"JSONPath":"1;/automatedTest;/zoneTestControl;/homes;/reminders;/algorithm;/historyReportFileDetails;/interfaces;/logs"}'
         )
 
     api._isLANConnection = False

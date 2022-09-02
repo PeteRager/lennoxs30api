@@ -636,12 +636,11 @@ class s30api_async(object):
                     lennoxSystem.sysId,
                     '"AdditionalParameters":{"JSONPath":"1;/systemControl;/systemController;/reminderSensors;/reminders;/alerts/active;/alerts/meta;/fwm;/rgw;/devices;/zones;/equipments;/schedules;/occupancy;/system"}',
                 )
-            #                ref = 2
-            #
-            #                await self.requestDataHelper(
-            #                    lennoxSystem.sysId,
-            #                    '"AdditionalParameters":{"JSONPath":"1;/automatedTest;/zoneTestControl;/homes;/reminders;/algorithm;/historyReportFileDetails;/interfaces;/logs"}',
-            #                )
+                ref = 2
+                await self.requestDataHelper(
+                    lennoxSystem.sysId,
+                    '"AdditionalParameters":{"JSONPath":"1;/automatedTest;/zoneTestControl;/homes;/reminders;/algorithm;/historyReportFileDetails;/interfaces;/logs"}',
+                )
 
             except S30Exception as e:
                 err_msg = f"subscribe fail loca [{ref}] sysId [{lennoxSystem.sysId}] {e.as_string()}"
