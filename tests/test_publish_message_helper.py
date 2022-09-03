@@ -50,15 +50,13 @@ def test_publish_message_helper_200(api: s30api_async):
 
     with patch.object(api, "post") as mock_post:
         level = 2
-        additionalParameters = (
-            '"Data":{"systemControl":{"diagControl":{"level":' + str(level) + "} } }"
-        )
+        data = '"Data":{"systemControl":{"diagControl":{"level":' + str(level) + "} } }"
         mock_post.return_value = GoodResponse(status=200, app_id=api._applicationid)
         loop = asyncio.get_event_loop()
         error = False
         try:
             result = loop.run_until_complete(
-                api.publishMessageHelper(system.sysId, additionalParameters)
+                api.publishMessageHelper(system.sysId, data)
             )
         except S30Exception as e:
             error = True
@@ -71,6 +69,37 @@ def test_publish_message_helper_200(api: s30api_async):
         assert message["SenderID"] == api.getClientId()
         assert message["MessageID"] == "00000000-0000-0000-0000-000000000002"
         assert message["TargetID"] == system.sysId
+        assert message["Data"]["systemControl"]["diagControl"]["level"] == 2
+        assert "AdditionalParameters" not in message
+
+
+def test_publish_message_helper_200_additional_params(api: s30api_async):
+    system: lennox_system = api.getSystem("0000000-0000-0000-0000-000000000001")
+
+    with patch.object(api, "post") as mock_post:
+        level = 2
+        data = '"Data":{"systemControl":{"diagControl":{"level":' + str(level) + "} } }"
+        mock_post.return_value = GoodResponse(status=200, app_id=api._applicationid)
+        loop = asyncio.get_event_loop()
+        error = False
+        try:
+            result = loop.run_until_complete(
+                api.publishMessageHelper(
+                    system.sysId, data, additional_parameters="/systemControl"
+                )
+            )
+        except S30Exception as e:
+            error = True
+        assert error == False
+        assert mock_post.call_count == 1
+        url = mock_post.call_args_list[0][0][0]
+        data = mock_post.call_args_list[0][1]["data"]
+        message = json.loads(data)
+        assert message["MessageType"] == "Command"
+        assert message["SenderID"] == api.getClientId()
+        assert message["MessageID"] == "00000000-0000-0000-0000-000000000002"
+        assert message["TargetID"] == system.sysId
+        assert message["AdditionalParameters"] == "/systemControl"
         assert message["Data"]["systemControl"]["diagControl"]["level"] == 2
 
 

@@ -27,6 +27,7 @@ class Simulator(object):
         self.zoneSim = False
         self.siblingSim = False
         self.diagSim = False
+        self.equipment = None
         with open(configfile) as f:
             self.config_data = json.load(f)
             if "outdoorTempSim" in self.config_data:
@@ -106,6 +107,56 @@ class Simulator(object):
             for appName, appObject in self.appList.items():
                 appObject.queue.append(message)
             await asyncio.sleep(1.0)
+
+    async def parameterUpdate(self, pu: dict) -> None:
+        await asyncio.sleep(8.0)
+        message = {
+            "MessageId": 0,
+            "SenderID": "LCC",
+            "TargetID": "ha_dev",
+            "MessageType": "PropertyChange",
+            "Data": {
+                "system": {
+                    "status": {"rsbusMode": "commissioning"},
+                    "publisher": {"publisherName": "lcc"},
+                }
+            },
+        }
+        for appName, appObject in self.appList.items():
+            appObject.queue.append(message)
+        await asyncio.sleep(0.5)
+        for eq in self.equipment["Data"]["equipments"]:
+            equip = eq["equipment"]
+            if pu["et"] == equip["equipType"]:
+                message = {
+                    "MessageId": 0,
+                    "SenderID": "LCC",
+                    "TargetID": "ha_dev",
+                    "MessageType": "PropertyChange",
+                    "Data": {
+                        "equipments": [
+                            {
+                                "publisher": {"publisherName": "lcc"},
+                                "equipment": {
+                                    "parameters": [
+                                        {
+                                            "parameter": {
+                                                "pid": pu["pid"],
+                                                "enabled": True,
+                                                "value": pu["value"],
+                                            },
+                                        }
+                                    ],
+                                    "equipType": pu["et"],
+                                },
+                                "id": eq["id"],
+                            }
+                        ]
+                    },
+                }
+                for appName, appObject in self.appList.items():
+                    appObject.queue.append(message)
+                break
 
     async def zoneSimulator(self):
         if self.zoneSim == False or self.zoneSimRunning == True:
@@ -240,6 +291,9 @@ class Simulator(object):
 
     async def request_data(self, request: Request):
         data = await request.json()
+        return self.process_request_data(data)
+
+    def process_request_data(self, data):
         if "SenderID" in data:
             app_id = data["SenderID"]
             if app_id in self.appList:
@@ -255,6 +309,7 @@ class Simulator(object):
                     app.queue.append(data)
                 if "equipmentFile" in self.config_data:
                     data = self.loadfile(self.config_data["equipmentFile"])
+                    self.equipment = data
                     app.queue.append(data)
                 if "deviceFile" in self.config_data:
                     data = self.loadfile(self.config_data["deviceFile"])
@@ -290,6 +345,11 @@ class Simulator(object):
                     data = self.perform_substitutions(data)
                     return web.Response(status=200, body=data)
                 await asyncio.sleep(1.0)
+        else:
+            data = {}
+            self.appList[app_id] = AppConnection(app_id)
+            data["SenderID"] = app_id
+            self.process_request_data(data)
         return web.Response(status=204)
 
     def process_message(self, msg):
@@ -311,6 +371,10 @@ class Simulator(object):
                                 "config": {"centralMode": mode},
                             }
                         }
+            if "systemControl" in data:
+                if "parameterUpdate" in data["systemControl"]:
+                    parameterUpdate = data["systemControl"]["parameterUpdate"]
+                    asyncio.create_task(self.parameterUpdate(parameterUpdate))
         return msg
 
     async def publish(self, request):
@@ -338,6 +402,7 @@ def init_func(argv):
                     web.post("/Endpoints/{app_id}/Disconnect", simulator.disconnect),
                     web.post("/Messages/RequestData", simulator.request_data),
                     web.get("/Messages/{app_id}/Retrieve", simulator.retrieve),
+                    web.get("/v1/Messages/{app_id}/Retrieve", simulator.retrieve),
                     web.post("/Messages/Publish", simulator.publish),
                 ]
             )

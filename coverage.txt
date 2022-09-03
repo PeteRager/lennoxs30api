@@ -1,0 +1,5 @@
+ ~/.pyenv/versions/3.10.0/bin/python -m pytest --rootdir . --cov=. ./tests --cov-report xml:coverage.xml
+
+--cov=. tests/ --cov-report xml:coverage.xml
+
+cwd: .
