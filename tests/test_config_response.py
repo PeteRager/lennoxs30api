@@ -1,4 +1,6 @@
 from lennoxs30api.s30api_async import (
+    LENNOX_ALERT_MINOR,
+    LENNOX_ALERT_NONE,
     LENNOX_DEHUMIDIFICATION_MODE_AUTO,
     LENNOX_HUMIDIFICATION_MODE_BASIC,
     LENNOX_HVAC_COOL,
@@ -117,6 +119,7 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.enhancedDehumidificationOvercoolingF_min == 0
     assert lsystem.enhancedDehumidificationOvercoolingF_enable == True
     assert lsystem.enhancedDehumidificationOvercoolingC_enable == True
+    assert lsystem.alert == LENNOX_ALERT_MINOR
 
     zones = lsystem.getZoneList()
     assert len(zones) == 4
@@ -352,6 +355,13 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.enhancedDehumidificationOvercoolingF_inc == 1
     assert lsystem.enhancedDehumidificationOvercoolingF_max == 4
     assert lsystem.enhancedDehumidificationOvercoolingF_min == 0
+    assert lsystem.alert == LENNOX_ALERT_NONE
+
+    assert lsystem.alerts_num_cleared == None
+    assert lsystem.alerts_num_active == None
+    assert lsystem.alerts_last_cleared_id == None
+    assert lsystem.alerts_num_in_active_array == None
+    assert lsystem.active_alerts == {}
 
     zone_5: lennox_zone = lsystem.getZoneList()[0]
     assert zone_5.name == "Zone 1"

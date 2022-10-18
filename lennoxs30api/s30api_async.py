@@ -34,6 +34,11 @@ from .s30exception import (
     S30Exception,
     s30exception_from_comm_exception,
 )
+from .lennox_errors import (
+    lennox_error_get_message_from_code,
+    lennox_error_messages,
+    LennoxErrorCodes,
+)
 from datetime import datetime
 import logging
 import json
@@ -137,6 +142,12 @@ LENNOX_STATUS: Final = {
     LENNOX_STATUS_NOT_EXIST,
     LENNOX_STATUS_NOT_AVAILABLE,
 }
+
+# Alert Modes
+LENNOX_ALERT_CRITICAL = "critical"
+LENNOX_ALERT_MODERATE = "moderate"
+LENNOX_ALERT_MINOR = "minor"
+LENNOX_ALERT_NONE = "none"
 
 # Percentage
 # Minimum Time in UI is 9 minutes =  9/60 = 15%
@@ -1069,6 +1080,13 @@ class lennox_system(object):
         self.feelsLikeMode = None
         self.manualAwayMode: bool = None
         self.serialNumber: str = None
+        self.alert: str = None
+        self.active_alerts = []
+        self.alerts_num_cleared = None
+        self.alerts_num_active = None
+        self.alerts_last_cleared_id = None
+        self.alerts_num_in_active_array = None
+
         # M30 does not send this info, so default to disabled.
         self.single_setpoint_mode: bool = False
         self.temperatureUnit: str = None
@@ -1137,6 +1155,7 @@ class lennox_system(object):
             "systemControl": self._processSystemControl,
             "siblings": self._processSiblings,
             "rgw": self._process_rgw,
+            "alerts": self._process_alerts,
         }
 
         self.equipment: dict[int, lennox_equipment] = {}
@@ -1300,6 +1319,30 @@ class lennox_system(object):
             status = rgw["status"]
             self.attr_updater(status, "relayServerConnected")
             self.attr_updater(status, "internetStatus")
+
+    def _process_alerts(self, alerts):
+        if "active" in alerts:
+            self.active_alerts = []
+            for alert in alerts["active"]:
+                if (t_alert := alert.get("alert", None)) != None:
+                    if (code := t_alert.get("code", None)) != None and code != 0:
+                        t_alert["message"] = lennox_error_get_message_from_code(code)
+                        self.active_alerts.append(alert)
+            self._dirtyList.append("active_alerts")
+        if "meta" in alerts:
+            meta = alerts["meta"]
+            self.attr_updater(meta, "numClearedAlerts", "alerts_num_cleared")
+            self.attr_updater(meta, "numActiveAlerts", "alerts_num_active")
+            self.attr_updater(meta, "lastClearedAlertId", "alerts_last_cleared_id")
+            self.attr_updater(
+                meta, "numAlertsInActiveArray", "alerts_num_in_active_array"
+            )
+            if (
+                "numAlertsInActiveArray" in meta
+                and self.alerts_num_in_active_array == 0
+            ):
+                self.active_alerts = []
+                self._dirtyList.append("active_alerts")
 
     def _processSchedules(self, schedules):
         """Processes the schedule messages, throws base exceptions if a problem is encoutered"""
@@ -1500,6 +1543,7 @@ class lennox_system(object):
             self.attr_updater(status, "ventilationRemainingTime")
             self.attr_updater(status, "ventilatingUntilTime")
             self.attr_updater(status, "feelsLikeMode")
+            self.attr_updater(status, "alert")
 
         if "time" in message:
             time = message["time"]
