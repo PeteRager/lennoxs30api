@@ -23,7 +23,7 @@ def loadfile(name) -> json:
 
 
 def test_get_diagnostic_level(api: s30api_async):
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.diagLevel == None
 

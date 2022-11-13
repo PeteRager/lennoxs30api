@@ -16,7 +16,7 @@ from lennoxs30api.s30exception import EC_BAD_PARAMETERS, S30Exception
 
 
 def test_set_humidity_mode_humidify(api):
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     zone: lennox_zone = lsystem.getZone(0)
     zone.humidificationOption = False
@@ -53,7 +53,7 @@ def test_set_humidity_mode_humidify(api):
 
 
 def test_set_humidity_mode_dehumidify(api):
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     zone: lennox_zone = lsystem.getZone(0)
     zone.dehumidificationOption = False
@@ -90,7 +90,7 @@ def test_set_humidity_mode_dehumidify(api):
 
 
 def test_set_humidity_mode_off(api):
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     zone: lennox_zone = lsystem.getZone(0)
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
@@ -110,7 +110,7 @@ def test_set_humidity_mode_off(api):
 
 
 def test_set_humidity_mode_bad_mode(api):
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     zone: lennox_zone = lsystem.getZone(0)
     zone.dehumidificationOption = False

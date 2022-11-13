@@ -8,7 +8,7 @@ from tests.conftest import loadfile
 
 
 def test_process_sibling_message(api: s30api_async):
-    lsystem: lennox_system = api.getSystems()[1]
+    lsystem: lennox_system = api.system_list[1]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000002"
 
     assert lsystem.sibling_self_identifier == None
@@ -30,7 +30,7 @@ def test_process_sibling_message(api: s30api_async):
 
 
 def test_process_multiple_sibling_message(api: s30api_async, caplog):
-    lsystem: lennox_system = api.getSystems()[1]
+    lsystem: lennox_system = api.system_list[1]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000002"
 
     assert lsystem.sibling_self_identifier == None
@@ -58,7 +58,7 @@ def test_process_multiple_sibling_message(api: s30api_async, caplog):
 
 
 def test_process_zero_sibling_message(api: s30api_async, caplog):
-    lsystem: lennox_system = api.getSystems()[1]
+    lsystem: lennox_system = api.system_list[1]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000002"
 
     assert lsystem.sibling_self_identifier == None

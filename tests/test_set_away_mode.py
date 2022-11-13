@@ -11,7 +11,7 @@ from lennoxs30api.s30exception import EC_BAD_PARAMETERS, S30Exception
 
 
 def test_set_manual_mode(api):
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
 
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
@@ -38,7 +38,7 @@ def test_set_manual_mode(api):
 
 
 def test_set_smart_away_cancel(api):
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.sa_enabled == True
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
@@ -67,7 +67,7 @@ def test_set_smart_away_cancel(api):
 
 
 def test_enable_smart_away(api):
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         loop = asyncio.get_event_loop()

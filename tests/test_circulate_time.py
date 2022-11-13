@@ -13,7 +13,7 @@ from lennoxs30api.s30exception import EC_BAD_PARAMETERS, S30Exception
 
 
 def test_set_circulate_time(api):
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.numberOfZones > 1
     with patch.object(api, "publishMessageHelper") as mock_message_helper:

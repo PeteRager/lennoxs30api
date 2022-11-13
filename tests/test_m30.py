@@ -46,7 +46,7 @@ def api_m30(single_setpoint: bool = False) -> s30api_async:
 
 def test_process_setpoint(api_m30):
     api = api_m30
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode == False
     zone: lennox_zone = lsystem.getZone(0)
@@ -74,7 +74,7 @@ def test_process_setpoint(api_m30):
 
 def test_process_configuration_message(api_m30):
     api = api_m30
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.productType == "M30"
     assert lsystem.name == "Downstairs"
@@ -119,7 +119,7 @@ def test_process_configuration_message(api_m30):
     assert lsystem.enhancedDehumidificationOvercoolingF_enable == False
     assert lsystem.enhancedDehumidificationOvercoolingC_enable == False
 
-    zones = lsystem.getZoneList()
+    zones = lsystem.zone_list
     assert len(zones) == 4
 
     zone_1: lennox_zone = zones[0]

@@ -32,7 +32,7 @@ def setup_load_configuration() -> s30api_async:
 def test_system_uptime(caplog):
     api = setup_load_configuration()
 
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.sysUpTime == 698820
 

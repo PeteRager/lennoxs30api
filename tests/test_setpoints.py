@@ -47,7 +47,7 @@ def setup_load_configuration(single_setpoint: bool = False) -> s30api_async:
 
 def test_hsp_f():
     api = setup_load_configuration()
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode == False
     zone: lennox_zone = lsystem.getZone(0)
@@ -75,7 +75,7 @@ def test_hsp_f():
 
 def test_hsp_c():
     api = setup_load_configuration()
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode == False
     zone: lennox_zone = lsystem.getZone(0)
@@ -103,7 +103,7 @@ def test_hsp_c():
 
 def test_csp_f():
     api = setup_load_configuration()
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode == False
     zone: lennox_zone = lsystem.getZone(0)
@@ -131,7 +131,7 @@ def test_csp_f():
 
 def test_csp_c():
     api = setup_load_configuration()
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.single_setpoint_mode == False
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     zone: lennox_zone = lsystem.getZone(0)
@@ -159,7 +159,7 @@ def test_csp_c():
 
 def test_hcsp_f():
     api = setup_load_configuration()
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode == False
 
@@ -186,7 +186,7 @@ def test_hcsp_f():
 
 def test_hcsp_c():
     api = setup_load_configuration()
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode == False
 
@@ -213,7 +213,7 @@ def test_hcsp_c():
 
 def test_sp_f():
     api = setup_load_configuration(single_setpoint=True)
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode == True
     zone: lennox_zone = lsystem.getZone(0)
@@ -237,7 +237,7 @@ def test_sp_f():
 
 def test_sp_c():
     api = setup_load_configuration(True)
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode == True
     zone: lennox_zone = lsystem.getZone(0)
@@ -261,7 +261,7 @@ def test_sp_c():
 
 def test_override():
     api = setup_load_configuration()
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode == False
     zone: lennox_zone = lsystem.getZone(0)
@@ -339,7 +339,7 @@ def test_override():
 
 def test_perform_schedule_setpoint_no_values():
     api = setup_load_configuration()
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode == False
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
@@ -356,7 +356,7 @@ def test_perform_schedule_setpoint_no_values():
 
 def test_set_humidify_setpoint():
     api = setup_load_configuration(True)
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode == True
     zone: lennox_zone = lsystem.getZone(0)
@@ -405,7 +405,7 @@ def test_set_humidify_setpoint():
 
 def test_set_dehumidify_setpoint():
     api = setup_load_configuration(True)
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode == True
     zone: lennox_zone = lsystem.getZone(0)

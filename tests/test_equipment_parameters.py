@@ -180,7 +180,7 @@ def test_equipment_parameter():
 
 
 def test_process_equipment_parameters(api):
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert len(lsystem.equipment) == 3
 
     assert len(lsystem.equipment[0].parameters) == 164
@@ -262,7 +262,7 @@ class DirtySubscription:
 
 
 def test_process_equipment_parameters_subscription(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert len(system.equipment) == 3
 
     assert len(system.equipment[0].parameters) == 164
@@ -282,7 +282,7 @@ def test_process_equipment_parameters_subscription(api):
 
 
 def test_equipment_parameters_validate_and_translate_radio(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[0]
     parameter = equipment.parameters[107]
 
@@ -307,7 +307,7 @@ def test_equipment_parameters_validate_and_translate_radio(api):
 
 
 def test_equipment_parameters_validate_and_translate_range(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[0]
     parameter = equipment.parameters[114]
 
@@ -378,7 +378,7 @@ def test_equipment_parameters_validate_and_translate_range(api):
 
 
 def test_equipment_parameters_validate_and_translate_bad_descriptor(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[0]
     parameter = equipment.parameters[114]
     parameter.descriptor = "bad_type"
@@ -396,7 +396,7 @@ def test_equipment_parameters_validate_and_translate_bad_descriptor(api):
 
 
 def test_set_equipment_parameter_value(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[1]
     parameter = equipment.parameters[44]
     with patch.object(
@@ -421,7 +421,7 @@ def test_set_equipment_parameter_value(api):
 
 
 def test_set_equipment_parameter_value_bad_equipment(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[1]
     parameter = equipment.parameters[44]
     with patch.object(
@@ -443,7 +443,7 @@ def test_set_equipment_parameter_value_bad_equipment(api):
 
 
 def test_set_equipment_parameter_value_bad_pid(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[1]
     parameter = equipment.parameters[44]
     with patch.object(
@@ -466,7 +466,7 @@ def test_set_equipment_parameter_value_bad_pid(api):
 
 
 def test_set_equipment_parameter_value_disabled_pid(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[1]
     parameter = equipment.parameters[44]
     parameter.enabled = False
@@ -490,7 +490,7 @@ def test_set_equipment_parameter_value_disabled_pid(api):
 
 
 def test_set_equipment_parameter_value_bad_value(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[1]
     parameter = equipment.parameters[44]
     with patch.object(
@@ -511,7 +511,7 @@ def test_set_equipment_parameter_value_bad_value(api):
 
 
 def test_internal_set_equipment_parameter_value(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         loop = asyncio.get_event_loop()
         result = loop.run_until_complete(

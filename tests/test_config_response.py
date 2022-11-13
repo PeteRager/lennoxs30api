@@ -57,7 +57,7 @@ def api_with_configuration() -> s30api_async:
 
 def test_process_configuration_message(api_with_configuration):
     api = api_with_configuration
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.productType == "S30"
     assert lsystem.name == "Moetown North"
@@ -121,7 +121,7 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.enhancedDehumidificationOvercoolingC_enable == True
     assert lsystem.alert == LENNOX_ALERT_MINOR
 
-    zones = lsystem.getZoneList()
+    zones = lsystem.zone_list
     assert len(zones) == 4
 
     zone_1: lennox_zone = zones[0]
@@ -307,7 +307,7 @@ def test_process_configuration_message(api_with_configuration):
 
     assert zone_4._system.sysId == "0000000-0000-0000-0000-000000000001"
 
-    lsystem: lennox_system = api.getSystems()[1]
+    lsystem: lennox_system = api.system_list[1]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000002"
     assert lsystem.productType == "S30"
     assert lsystem.name == "South Moetown"
@@ -363,7 +363,7 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.alerts_num_in_active_array == None
     assert len(lsystem.active_alerts) == 0
 
-    zone_5: lennox_zone = lsystem.getZoneList()[0]
+    zone_5: lennox_zone = lsystem.zone_list[0]
     assert zone_5.name == "Zone 1"
     assert zone_5.id == 0
     assert zone_5.coolingOption == True
@@ -400,7 +400,7 @@ def test_process_configuration_message(api_with_configuration):
 
 def test_process_configuration_heatpump(api_with_configuration):
     api = api_with_configuration
-    lsystem: lennox_system = api.getSystems()[2]
+    lsystem: lennox_system = api.system_list[2]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000003"
     assert lsystem.productType == "S30"
     assert lsystem.name == "West Moetown"

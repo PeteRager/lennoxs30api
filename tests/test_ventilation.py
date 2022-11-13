@@ -17,7 +17,7 @@ from lennoxs30api.s30exception import EC_BAD_PARAMETERS, EC_EQUIPMENT_DNS, S30Ex
 
 
 def test_has_ventilation(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     system.ventilationUnitType = LENNOX_NONE_STR
     assert system.supports_ventilation() == False
@@ -36,7 +36,7 @@ def test_has_ventilation(api):
 
 
 def test_set_ventilation_on(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     assert system.supports_ventilation()
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
@@ -72,7 +72,7 @@ def test_set_ventilation_on(api):
 
 
 def test_set_ventilation_off(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     assert system.supports_ventilation()
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
@@ -109,7 +109,7 @@ def test_set_ventilation_off(api):
 
 
 def test_set_ventilation_timed(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     assert system.supports_ventilation()
     with patch.object(api, "publishMessageHelper") as mock_message_helper:

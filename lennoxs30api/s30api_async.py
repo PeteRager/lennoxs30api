@@ -288,7 +288,7 @@ class s30api_async(object):
         self.loginBearerToken = None
         self.authBearerToken = None
         self._homeList: List[lennox_home] = []
-        self._systemList: List["lennox_system"] = []
+        self.system_list: List["lennox_system"] = []
         self._badSenderDict: dict = {}
 
     def initialize_urls_cloud(self):
@@ -554,7 +554,7 @@ class s30api_async(object):
                 f"login failed due to unexpected exception [{e}]", EC_LOGIN, 7
             )
         _LOGGER.info(
-            f"login Success homes [{len(self._homeList)}] systems [{len(self._systemList)}]"
+            f"login Success homes [{len(self._homeList)}] systems [{len(self.system_list)}]"
         )
 
     def process_login_response(self, resp_json: json):
@@ -855,17 +855,14 @@ class s30api_async(object):
                 7,
             )
 
-    def getSystems(self) -> List["lennox_system"]:
-        return self._systemList
-
     def getSystem(self, sysId) -> "lennox_system":
-        for system in self._systemList:
+        for system in self.system_list:
             if system.sysId == sysId:
                 return system
         return None
 
     def getSystemSibling(self, sysId: str) -> "lennox_system":
-        for system in self._systemList:
+        for system in self.system_list:
             if system.sibling_identifier == sysId:
                 return system
         return None
@@ -875,7 +872,7 @@ class s30api_async(object):
         if system != None:
             return system
         system = lennox_system(sysId)
-        self._systemList.append(system)
+        self.system_list.append(system)
         return system
 
     # When publishing data, app uses a GUID that counts up from 1.
@@ -1061,7 +1058,7 @@ class lennox_system(object):
         self.api: s30api_async = None
         self.idx: int = None
         self.home: lennox_home = None
-        self._zoneList: List["lennox_zone"] = []
+        self.zone_list: List["lennox_zone"] = []
         self._schedules: List[lennox_schedule] = []
         self._callbacks = []
         self._diagcallbacks = []
@@ -1765,16 +1762,10 @@ class lennox_system(object):
         await self.api.enable_smart_away(self.sysId, mode)
 
     def getZone(self, id):
-        for zone in self._zoneList:
+        for zone in self.zone_list:
             if zone.id == id:
                 return zone
         return None
-
-    def getZones(self):
-        return self._zoneList
-
-    def getZoneList(self):
-        return self._zoneList
 
     async def setHVACMode(self, mode, scheduleId):
         return await self.api.setHVACMode(self.sysId, mode, scheduleId)
@@ -1885,7 +1876,7 @@ class lennox_system(object):
         if zone != None:
             return zone
         zone = lennox_zone(self, id)
-        self._zoneList.append(zone)
+        self.zone_list.append(zone)
         return zone
 
     def _processZonesMessage(self, message):

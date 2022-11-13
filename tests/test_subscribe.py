@@ -46,7 +46,7 @@ class GoodResponse:
 
 
 def test_subscribe_200(api: s30api_async):
-    system = api._systemList[0]
+    system = api.system_list[0]
 
     api._isLANConnection = True
     with patch.object(api, "requestDataHelper") as requestDataHelper:
@@ -102,7 +102,7 @@ def test_subscribe_200(api: s30api_async):
 
 
 def test_subscribe_exception(api: s30api_async, caplog):
-    system = api._systemList[0]
+    system = api.system_list[0]
 
     api._isLANConnection = True
     with caplog.at_level(logging.ERROR):

@@ -35,7 +35,7 @@ def setup_load_configuration() -> s30api_async:
 
 def test_process_equipment_energy():
     api = setup_load_configuration()
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     dirtyVoltage = DirtySubscription(lsystem, "diagInverterInputVoltage")
     dirtyCurrent = DirtySubscription(lsystem, "diagInverterInputCurrent")
     assert lsystem.diagInverterInputVoltage == None
@@ -69,7 +69,7 @@ def test_process_equipment_energy():
 
 def test_process_equipment_energy_invalid():
     api = setup_load_configuration()
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     dirtyVoltage = DirtySubscription(lsystem, "diagInverterInputVoltage")
     dirtyCurrent = DirtySubscription(lsystem, "diagInverterInputCurrent")
     assert lsystem.diagInverterInputVoltage == None
@@ -94,7 +94,7 @@ def test_process_equipment_energy_invalid():
 
 def test_process_equipment_energy_unnamed():
     api = setup_load_configuration()
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     dirtyVoltage = DirtySubscription(lsystem, "diagInverterInputVoltage")
     dirtyCurrent = DirtySubscription(lsystem, "diagInverterInputCurrent")
     assert lsystem.diagInverterInputVoltage == None
@@ -140,7 +140,7 @@ def test_process_equipment_energy_unnamed():
 
 def test_process_diagnostics():
     api = setup_load_configuration()
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert len(lsystem.diagnosticPaths) == 0
     assert len(lsystem.equipment) == 0
 
@@ -219,7 +219,7 @@ class DirtyDiagnosticsSubscription:
 
 def test_diagnostics_subscription():
     api = setup_load_configuration()
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert len(lsystem.diagnosticPaths) == 0
     assert len(lsystem.equipment) == 0
 

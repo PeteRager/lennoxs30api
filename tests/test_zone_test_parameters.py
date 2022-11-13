@@ -16,7 +16,7 @@ from tests.conftest import loadfile
 
 def test_set_zone_test_parameter_value(api_system_04_furn_ac_zoning):
     api = api_system_04_furn_ac_zoning
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
 
     with patch.object(
         system, "_internal_set_zone_test_parameter_value"
@@ -65,7 +65,7 @@ def test_set_zone_test_parameter_value(api_system_04_furn_ac_zoning):
 
 def test_set_zone_test_parameter_value_bad_pid(api_system_04_furn_ac_zoning):
     api = api_system_04_furn_ac_zoning
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[0]
     with patch.object(
         system, "_internal_set_zone_test_parameter_value"
@@ -110,7 +110,7 @@ def test_set_zone_test_parameter_value_bad_pid(api_system_04_furn_ac_zoning):
 
 
 def test_set_zone_test_parameter_value_no_eq_0(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     system.equipment.pop(0)
     with patch.object(
         system, "_internal_set_zone_test_parameter_value"
@@ -131,7 +131,7 @@ def test_set_zone_test_parameter_value_no_eq_0(api):
 
 
 def test_set_zone_test_parameter_value_disabled_pid(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[0]
     with patch.object(
         system, "_internal_set_zone_test_parameter_value"
@@ -154,7 +154,7 @@ def test_set_zone_test_parameter_value_disabled_pid(api):
 
 def test_set_zone_test_parameter_value_bad_value(api_system_04_furn_ac_zoning):
     api = api_system_04_furn_ac_zoning
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     with patch.object(
         system, "_internal_set_zone_test_parameter_value"
     ) as _internal_set_zone_test_parameter_value:
@@ -175,7 +175,7 @@ def test_set_zone_test_parameter_value_bad_value(api_system_04_furn_ac_zoning):
 
 
 def test_internal_set_zone_test_parameter_value(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         loop = asyncio.get_event_loop()
         result = loop.run_until_complete(

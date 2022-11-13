@@ -15,7 +15,7 @@ class DirtySubscription:
 
 def test_alerts(api_system_04_furn_ac_zoning):
     api = api_system_04_furn_ac_zoning
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "LCC"
 
     assert system.alerts_num_cleared == 46
@@ -39,7 +39,7 @@ def test_alerts(api_system_04_furn_ac_zoning):
 
 def test_alerts_unknown_alert(api_system_04_furn_ac_zoning):
     api = api_system_04_furn_ac_zoning
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "LCC"
 
     sub = DirtySubscription(system, "active_alerts")
@@ -67,7 +67,7 @@ def test_alerts_unknown_alert(api_system_04_furn_ac_zoning):
 
 def test_alerts_no_active_alerts(api_system_04_furn_ac_zoning):
     api = api_system_04_furn_ac_zoning
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "LCC"
 
     message = loadfile("system_04_furn_ac_zoning_alerts.json", "LCC")
@@ -87,7 +87,7 @@ def test_alerts_no_active_alerts(api_system_04_furn_ac_zoning):
 # An alert code of zero indicates no alert.
 def test_alerts_alert_code_0(api_system_04_furn_ac_zoning):
     api = api_system_04_furn_ac_zoning
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "LCC"
 
     message = loadfile("system_04_furn_ac_zoning_alerts.json", "LCC")
@@ -99,7 +99,7 @@ def test_alerts_alert_code_0(api_system_04_furn_ac_zoning):
 
 def test_alerts_lockouts(api_system_04_furn_ac_zoning):
     api = api_system_04_furn_ac_zoning
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "LCC"
 
     message = loadfile("alert_lockouts.json", "LCC")

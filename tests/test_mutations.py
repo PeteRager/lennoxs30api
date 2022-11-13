@@ -215,7 +215,7 @@ def test_hvac_mode_change_zone_5():
 def test_hvac_mode_change_zone_2():
     api = setup_load_configuration()
 
-    zone_2: lennox_zone = api.getSystems()[0].getZoneList()[1]
+    zone_2: lennox_zone = api.system_list[0].zone_list[1]
 
     zone_2_callback_all = callback_handler()
     zone_2.registerOnUpdateCallback(zone_2_callback_all.update_callback)
