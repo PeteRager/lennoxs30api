@@ -361,7 +361,7 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.alerts_num_active == None
     assert lsystem.alerts_last_cleared_id == None
     assert lsystem.alerts_num_in_active_array == None
-    assert lsystem.active_alerts == {}
+    assert len(lsystem.active_alerts) == 0
 
     zone_5: lennox_zone = lsystem.getZoneList()[0]
     assert zone_5.name == "Zone 1"

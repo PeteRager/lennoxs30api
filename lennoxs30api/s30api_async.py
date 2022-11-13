@@ -1082,10 +1082,13 @@ class lennox_system(object):
         self.serialNumber: str = None
         self.alert: str = None
         self.active_alerts = []
-        self.alerts_num_cleared = None
-        self.alerts_num_active = None
-        self.alerts_last_cleared_id = None
-        self.alerts_num_in_active_array = None
+        self.alerts_num_cleared: int = None
+        self.alerts_num_active: int = None
+        self.alerts_last_cleared_id: int = None
+        self.alerts_num_in_active_array: int = None
+
+        self.heatpump_low_ambient_lockout: bool = False
+        self.aux_heat_high_ambient_lockout: bool = False
 
         # M30 does not send this info, so default to disabled.
         self.single_setpoint_mode: bool = False
@@ -1324,10 +1327,30 @@ class lennox_system(object):
         if "active" in alerts:
             self.active_alerts = []
             for alert in alerts["active"]:
-                if (t_alert := alert.get("alert", None)) != None:
+                if (alert1 := alert.get("alert", None)) != None:
+                    t_alert = alert1.copy()
+                    # A code of zero indicates a non-alert, lennox seems to put one of these in by default.
                     if (code := t_alert.get("code", None)) != None and code != 0:
                         t_alert["message"] = lennox_error_get_message_from_code(code)
-                        self.active_alerts.append(alert)
+                        if (
+                            code
+                            == LennoxErrorCodes.lx_alarm_id_Low_Ambient_HP_Heat_Lockout.value
+                        ):
+                            self.attr_updater(
+                                t_alert, "isStillActive", "heatpump_low_ambient_lockout"
+                            )
+                        elif (
+                            code
+                            == LennoxErrorCodes.lx_alarm_id_High_Ambient_Auxiliary_Heat_Lockout.value
+                        ):
+                            self.attr_updater(
+                                t_alert,
+                                "isStillActive",
+                                "aux_heat_high_ambient_lockout",
+                            )
+                        if t_alert.get("isStillActive", True) != False:
+                            self.active_alerts.append(t_alert)
+            self._dirty = True
             self._dirtyList.append("active_alerts")
         if "meta" in alerts:
             meta = alerts["meta"]
@@ -1342,6 +1365,7 @@ class lennox_system(object):
                 and self.alerts_num_in_active_array == 0
             ):
                 self.active_alerts = []
+                self._dirty = True
                 self._dirtyList.append("active_alerts")
 
     def _processSchedules(self, schedules):
