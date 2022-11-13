@@ -168,7 +168,7 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_1.coolCoast == False
     assert zone_1.ssr == False
 
-    assert zone_1._system.sysId == "0000000-0000-0000-0000-000000000001"
+    assert zone_1.system.sysId == "0000000-0000-0000-0000-000000000001"
 
     assert zone_1.getTargetTemperatureF() == zone_1.hsp
     assert zone_1.getTargetTemperatureC() == zone_1.hspC
@@ -237,7 +237,7 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_2.temperature == 78 == zone_2.getTemperature()
     assert zone_2.temperatureC == 25.5 == zone_2.getTemperatureC()
     assert zone_2.temperatureStatus == LENNOX_STATUS_GOOD
-    assert zone_2._system.sysId == "0000000-0000-0000-0000-000000000001"
+    assert zone_2.system.sysId == "0000000-0000-0000-0000-000000000001"
 
     zone_3: lennox_zone = zones[2]
 
@@ -271,7 +271,7 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_3.tempOperation == "cooling"
     assert zone_3.temperature == 71 == zone_3.getTemperature()
     assert zone_3.temperatureStatus == LENNOX_STATUS_GOOD
-    assert zone_3._system.sysId == "0000000-0000-0000-0000-000000000001"
+    assert zone_3.system.sysId == "0000000-0000-0000-0000-000000000001"
 
     zone_4: lennox_zone = zones[3]
     assert zone_4.name == "Zone 4"
@@ -305,7 +305,7 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_4.temperature == 76 == zone_4.getTemperature()
     assert zone_4.temperatureStatus == LENNOX_STATUS_GOOD
 
-    assert zone_4._system.sysId == "0000000-0000-0000-0000-000000000001"
+    assert zone_4.system.sysId == "0000000-0000-0000-0000-000000000001"
 
     lsystem: lennox_system = api.system_list[1]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000002"
@@ -395,7 +395,7 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_5.tempOperation == "off"
     assert zone_5.temperature == 79 == zone_5.getTemperature()
     assert zone_5.temperatureStatus == LENNOX_STATUS_GOOD
-    assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
+    assert zone_5.system.sysId == "0000000-0000-0000-0000-000000000002"
 
 
 def test_process_configuration_heatpump(api_with_configuration):

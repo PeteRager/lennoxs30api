@@ -168,7 +168,7 @@ def test_process_configuration_message(api_m30):
     assert zone_1.coolCoast == False
     assert zone_1.ssr == False
 
-    assert zone_1._system.sysId == "0000000-0000-0000-0000-000000000001"
+    assert zone_1.system.sysId == "0000000-0000-0000-0000-000000000001"
 
     assert zone_1.getTargetTemperatureF() == zone_1.hsp
     assert zone_1.getTargetTemperatureC() == zone_1.hspC

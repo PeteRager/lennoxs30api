@@ -2291,7 +2291,7 @@ class lennox_zone(object):
 
         self.id: int = id
         self.name: str = None
-        self._system: lennox_system = system
+        self.system: lennox_system = system
         self._dirty = False
         self._dirtyList = []
 
@@ -2299,7 +2299,7 @@ class lennox_zone(object):
 
     @property
     def unique_id(self) -> str:
-        return (self._system.unique_id() + "_" + str(self.id)).replace("-", "") + "_T"
+        return (self.system.unique_id() + "_" + str(self.id)).replace("-", "") + "_T"
 
     def registerOnUpdateCallback(self, callbackfunc, match=None):
         self._callbacks.append({"func": callbackfunc, "match": match})
@@ -2345,8 +2345,8 @@ class lennox_zone(object):
         # When zoning is disabled, only zone 0 is enabled
         if (
             self.id == 0
-            or self._system.zoningMode is None
-            or self._system.zoningMode == LENNOX_ZONING_MODE_ZONED
+            or self.system.zoningMode is None
+            or self.system.zoningMode == LENNOX_ZONING_MODE_ZONED
         ):
             return False
         return True
@@ -2462,7 +2462,7 @@ class lennox_zone(object):
         if self.systemMode == LENNOX_HVAC_OFF:
             return None
         # In single setpoint mode there is only one target.
-        if self._system.single_setpoint_mode == True:
+        if self.system.single_setpoint_mode == True:
             return self.sp
 
         if self.systemMode == LENNOX_HVAC_COOL:
@@ -2482,7 +2482,7 @@ class lennox_zone(object):
         if self.systemMode == LENNOX_HVAC_OFF:
             return None
         # In single setpoint mode there is only one target.
-        if self._system.single_setpoint_mode == True:
+        if self.system.single_setpoint_mode == True:
             return self.spC
 
         if self.heatingOption == True and self.coolingOption == True:
@@ -2522,14 +2522,14 @@ class lennox_zone(object):
 
         if (
             r_sp != None or r_spC != None
-        ) and self._system.single_setpoint_mode == False:
+        ) and self.system.single_setpoint_mode == False:
             raise S30Exception(
                 f"validate_setpoints: r_sp or r_spC can only be specified when system is in single setpoint mode",
                 EC_BAD_PARAMETERS,
                 2,
             )
 
-        if r_sp == None and r_spC == None and self._system.single_setpoint_mode == True:
+        if r_sp == None and r_spC == None and self.system.single_setpoint_mode == True:
             raise S30Exception(
                 f"validate_setpoints: r_sp or r_spC must be specified when system is in single setpoint mode",
                 EC_BAD_PARAMETERS,
@@ -2538,7 +2538,7 @@ class lennox_zone(object):
 
         if (
             r_hsp != None or r_hspC != None or r_csp != None or r_cspC != None
-        ) and self._system.single_setpoint_mode == True:
+        ) and self.system.single_setpoint_mode == True:
             raise S30Exception(
                 f"validate_setpoints: r_hsp, r_hspC, r_csp and r_cspC must not be specified when system is in single setpoint mode",
                 EC_BAD_PARAMETERS,
@@ -2550,7 +2550,7 @@ class lennox_zone(object):
             and r_hspC == None
             and r_csp == None
             and r_cspC == None
-            and self._system.single_setpoint_mode == False
+            and self.system.single_setpoint_mode == False
         ):
             raise S30Exception(
                 f"validate_setpoints: r_hsp, r_hspC, r_csp or r_cspC must be specified when system is in single setpoint mode",
@@ -2626,7 +2626,7 @@ class lennox_zone(object):
         self, r_hsp=None, r_hspC=None, r_csp=None, r_cspC=None, r_sp=None, r_spC=None
     ):
         _LOGGER.debug(
-            f"lennox_zone:perform_setpoint  id [{self.id}] hsp [{r_hsp}] hspC [{r_hspC}] csp [{r_csp}] cspC [{r_cspC}] sp [{r_sp}] spC [{r_spC}] single_setpoint_mode [{self._system.single_setpoint_mode}]"
+            f"lennox_zone:perform_setpoint  id [{self.id}] hsp [{r_hsp}] hspC [{r_hspC}] csp [{r_csp}] cspC [{r_cspC}] sp [{r_sp}] spC [{r_spC}] single_setpoint_mode [{self.system.single_setpoint_mode}]"
         )
 
         self.validate_setpoints(
@@ -2642,48 +2642,48 @@ class lennox_zone(object):
 
         # When in this mode, the lennox app always sends hsp,hspC,csp and cspC in the message.  The code fills
         # in the parameters by either converting faren to celsius or by copying the current setpoint value from the zone
-        if self._system.single_setpoint_mode == False:
+        if self.system.single_setpoint_mode == False:
             if r_hsp != None:
-                hsp = self._system.faren_round(r_hsp)
+                hsp = self.system.faren_round(r_hsp)
             else:
                 if r_hspC != None:
-                    hsp = self._system.convertCtoF(r_hspC)
+                    hsp = self.system.convertCtoF(r_hspC)
                 else:
                     hsp = self.hsp
 
             if r_hspC != None:
-                hspC = self._system.celsius_round(r_hspC)
+                hspC = self.system.celsius_round(r_hspC)
             else:
                 if r_hsp != None:
-                    hspC = self._system.convertFtoC(r_hsp)
+                    hspC = self.system.convertFtoC(r_hsp)
                 else:
                     hspC = self.hspC
 
             if r_csp != None:
-                csp = self._system.faren_round(r_csp)
+                csp = self.system.faren_round(r_csp)
             else:
                 if r_cspC != None:
-                    csp = self._system.convertCtoF(r_cspC)
+                    csp = self.system.convertCtoF(r_cspC)
                 else:
                     csp = self.csp
 
             if r_cspC != None:
-                cspC = self._system.celsius_round(r_cspC)
+                cspC = self.system.celsius_round(r_cspC)
             else:
                 if r_csp != None:
-                    cspC = self._system.convertFtoC(r_csp)
+                    cspC = self.system.convertFtoC(r_csp)
                 else:
                     cspC = self.cspC
         else:
             if r_sp != None:
-                sp = self._system.faren_round(r_sp)
+                sp = self.system.faren_round(r_sp)
             elif r_spC != None:
-                sp = self._system.convertCtoF(r_spC)
+                sp = self.system.convertCtoF(r_spC)
 
             if r_spC != None:
-                spC = self._system.celsius_round(r_spC)
+                spC = self.system.celsius_round(r_spC)
             elif r_sp != None:
-                spC = self._system.convertFtoC(r_sp)
+                spC = self.system.convertFtoC(r_sp)
 
         await self._execute_setpoints(
             hsp=hsp, hspC=hspC, csp=csp, cspC=cspC, sp=sp, spC=spC
@@ -2707,7 +2707,7 @@ class lennox_zone(object):
             _LOGGER.info(
                 f"lennox_zone:_execute_setpoints zone already in manual mode id [{self.id}]"
             )
-            await self._system.perform_schedule_setpoint(
+            await self.system.perform_schedule_setpoint(
                 zoneId=self.id,
                 scheduleId=self.getManualModeScheduleId(),
                 hsp=hsp,
@@ -2727,7 +2727,7 @@ class lennox_zone(object):
             _LOGGER.info(
                 f"lennox_zone:_execute_setpoints zone already in overridemode id [{self.id}]"
             )
-            await self._system.perform_schedule_setpoint(
+            await self.system.perform_schedule_setpoint(
                 zoneId=self.id,
                 scheduleId=self.getOverrideScheduleId(),
                 hsp=hsp,
@@ -2782,7 +2782,7 @@ class lennox_zone(object):
         data += '}]},"id":' + str(self.getOverrideScheduleId()) + "}]}"
 
         try:
-            await self._system.api.publishMessageHelper(self._system.sysId, data)
+            await self.system.api.publishMessageHelper(self.system.sysId, data)
         except S30Exception as e:
             _LOGGER.error(
                 f"lennox_zone:_execute_setpoints failed to create override {info_str}"
@@ -2855,7 +2855,7 @@ class lennox_zone(object):
         data += '"expiresOn":"0","expirationMode":"nextPeriod"}'
         data += '},"id":' + str(self.id) + "}]}"
         try:
-            await self._system.api.publishMessageHelper(self._system.sysId, data)
+            await self.system.api.publishMessageHelper(self.system.sysId, data)
         except S30Exception as e:
             _LOGGER.error(
                 "lennox_zone:setScheduleHold failed zone ["
@@ -2867,11 +2867,11 @@ class lennox_zone(object):
             raise e
 
     async def setManualMode(self) -> None:
-        await self._system.setSchedule(self.id, self.getManualModeScheduleId())
+        await self.system.setSchedule(self.id, self.getManualModeScheduleId())
 
     async def setSchedule(self, scheduleName: str) -> None:
         scheduleId = None
-        for schedule in self._system.getSchedules():
+        for schedule in self.system.getSchedules():
             if schedule.name == scheduleName:
                 scheduleId = schedule.id
                 break
@@ -2882,11 +2882,11 @@ class lennox_zone(object):
             )
             raise S30Exception(err_msg, EC_NO_SCHEDULE, 1)
 
-        await self._system.setSchedule(self.id, scheduleId)
+        await self.system.setSchedule(self.id, scheduleId)
 
     async def setFanMode(self, fan_mode: str) -> None:
         if self.isZoneManualMode() == True:
-            await self._system.setFanMode(fan_mode, self.getManualModeScheduleId())
+            await self.system.setFanMode(fan_mode, self.getManualModeScheduleId())
             return
 
         if self.isZoneOveride() == False:
@@ -2905,9 +2905,9 @@ class lennox_zone(object):
             data += '"fanMode":"' + self.fanMode + '"}'
             data += '}]},"id":' + str(self.getOverrideScheduleId()) + "}]}"
 
-            await self._system.api.publishMessageHelper(self._system.sysId, data)
+            await self.system.api.publishMessageHelper(self.system.sysId, data)
             await self.setScheduleHold(True)
-        await self._system.setFanMode(fan_mode, self.getOverrideScheduleId())
+        await self.system.setFanMode(fan_mode, self.getOverrideScheduleId())
 
     async def setHVACMode(self, hvac_mode: str) -> None:
         # We want to be careful passing modes to the controller that it does not support.  We don't want to brick the controller.
@@ -2933,10 +2933,7 @@ class lennox_zone(object):
                     3,
                 )
         elif hvac_mode == LENNOX_HVAC_EMERGENCY_HEAT:
-            if (
-                self.heatingOption == False
-                or self._system.has_emergency_heat() == False
-            ):
+            if self.heatingOption == False or self.system.has_emergency_heat() == False:
                 raise S30Exception(
                     f"setHvacMode - invalid hvac mode - zone [{self.id}]  does not support [{hvac_mode}]",
                     EC_BAD_PARAMETERS,
@@ -2952,8 +2949,8 @@ class lennox_zone(object):
             )
 
         if self.isZoneManualMode() == False:
-            await self._system.setSchedule(self.id, self.getManualModeScheduleId())
-        await self._system.setHVACMode(hvac_mode, self.getManualModeScheduleId())
+            await self.system.setSchedule(self.id, self.getManualModeScheduleId())
+        await self.system.setHVACMode(hvac_mode, self.getManualModeScheduleId())
 
     async def setHumidityMode(self, mode: str) -> None:
         # We want to be careful passing modes to the controller that it does not support.  We don't want to brick the controller.
@@ -2981,5 +2978,5 @@ class lennox_zone(object):
             )
 
         if self.isZoneManualMode() == False:
-            await self._system.setSchedule(self.id, self.getManualModeScheduleId())
-        await self._system.setHumidityMode(mode, self.getManualModeScheduleId())
+            await self.system.setSchedule(self.id, self.getManualModeScheduleId())
+        await self.system.setHumidityMode(mode, self.getManualModeScheduleId())
