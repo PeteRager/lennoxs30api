@@ -319,7 +319,7 @@ def test_data_before_config() -> s30api_async:
     assert zone_5.temperature == None == zone_5.getTemperature()
     assert zone_5.temperatureC == None == zone_5.getTemperatureC()
     assert zone_5.temperatureStatus == None
-    assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
+    assert zone_5.system.sysId == "0000000-0000-0000-0000-000000000002"
 
     data = loadfile("config_response_system_02.json")
     api.processMessage(data)
@@ -354,7 +354,7 @@ def test_data_before_config() -> s30api_async:
     assert zone_5.tempOperation == "off"
     assert zone_5.temperature == 79 == zone_5.getTemperature()
     assert zone_5.temperatureStatus == LENNOX_STATUS_GOOD
-    assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
+    assert zone_5.system.sysId == "0000000-0000-0000-0000-000000000002"
 
 
 def test_ventilation_zone_status():
