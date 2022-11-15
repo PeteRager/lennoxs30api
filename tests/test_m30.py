@@ -85,7 +85,7 @@ def test_process_configuration_message(api_m30):
     assert lsystem.temperatureUnit == "F"
 
     assert lsystem.serialNumber == "A220K00436"
-    assert lsystem.unique_id() == lsystem.sysId
+    assert lsystem.unique_id == lsystem.sysId
     assert lsystem.softwareVersion == "03.00.0384"
 
     assert lsystem.indoorUnitType == "none"

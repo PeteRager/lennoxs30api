@@ -1700,6 +1700,7 @@ class lennox_system(object):
             return True
         return False
 
+    @property
     def unique_id(self) -> str:
         # This returns a unique identifier.  When connected ot the cloud we use the sysid which is a GUID; when
         # connected to the LAN the sysid is alway "LCC" - which is not unique - so in this case we use the device serial number.
@@ -2299,7 +2300,7 @@ class lennox_zone(object):
 
     @property
     def unique_id(self) -> str:
-        return (self.system.unique_id() + "_" + str(self.id)).replace("-", "") + "_T"
+        return (self.system.unique_id + "_" + str(self.id)).replace("-", "") + "_T"
 
     def registerOnUpdateCallback(self, callbackfunc, match=None):
         self._callbacks.append({"func": callbackfunc, "match": match})
