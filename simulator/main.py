@@ -317,6 +317,9 @@ class Simulator(object):
                 if "systemFile" in self.config_data:
                     data = self.loadfile(self.config_data["systemFile"])
                     app.queue.append(data)
+                if "alertFile" in self.config_data:
+                    data = self.loadfile(self.config_data["alertFile"])
+                    app.queue.append(data)
 
                 asyncio.create_task(self.outdoorTempSimulator())
                 asyncio.create_task(self.zoneSimulator())

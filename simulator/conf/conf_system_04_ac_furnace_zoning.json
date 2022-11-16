@@ -5,6 +5,7 @@
     "zonesFile" :     "tests/messages/system_04_furn_ac_zoning_zones.json",
     "systemFile" :    "tests/messages/systemControl_diag_level_2.json",
     "rgwFile" :       "tests/messages/system_04_furn_ac_zoning_rgw.json",
+    "alertFile" :     "tests/messages/system_04_furn_ac_zoning_alerts.json",
     "outdoorTempSim" : false,
     "zoneSim" : false,
     "diagSim" : false                   

@@ -56,6 +56,14 @@
                     }
                 }
             ],
+            "meta": {
+                "numClearedAlerts": 46,
+                "numActiveAlerts": 1,
+                "lastClearedAlertId": 45,
+                "szClearedAlerts": 256,
+                "firstClearedAlertId": 0,
+                "numAlertsInActiveArray": 1
+            },
             "publisher": {
                 "publisherName": "lcc"
             }

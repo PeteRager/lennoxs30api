@@ -19,12 +19,30 @@ def test_alerts(api_system_04_furn_ac_zoning):
     assert system.sysId == "LCC"
 
     assert system.alerts_num_cleared == 46
-    assert system.alerts_num_active == 1
+    assert system.alerts_num_active == 2
     assert system.alerts_last_cleared_id == 45
-    assert system.alerts_num_in_active_array == 1
+    assert system.alerts_num_in_active_array == 2
 
     assert system.heatpump_low_ambient_lockout == False
-    assert system.aux_heat_high_ambient_lockout == False
+    assert system.aux_heat_high_ambient_lockout == True
+
+    alert = system.active_alerts[1]
+    assert alert["code"] == 19
+    assert alert["userMessageID"] == 0
+    assert alert["userMessage"] == ""
+    assert alert["isStillActive"] == True
+    assert alert["timestampLast"] == "1636473073"
+    assert alert["priority"] == "info"
+    assert alert["equipmentType"] == 0
+    assert alert["message"] == "High Ambient Auxiliary Heat Lockout"
+    assert alert["code"] == 19
+    assert alert["userMessageID"] == 0
+    assert alert["userMessage"] == ""
+    assert alert["isStillActive"] == True
+    assert alert["timestampLast"] == "1636473073"
+    assert alert["priority"] == "info"
+    assert alert["equipmentType"] == 0
+    assert alert["message"] == "High Ambient Auxiliary Heat Lockout"
 
     alert = system.active_alerts[0]
     assert alert["code"] == 434
@@ -50,9 +68,9 @@ def test_alerts_unknown_alert(api_system_04_furn_ac_zoning):
 
     assert sub.triggered == 1
     assert system.alerts_num_cleared == 46
-    assert system.alerts_num_active == 1
+    assert system.alerts_num_active == 2
     assert system.alerts_last_cleared_id == 45
-    assert system.alerts_num_in_active_array == 1
+    assert system.alerts_num_in_active_array == 2
 
     alert = system.active_alerts[0]
     assert alert["code"] == 998
@@ -77,7 +95,7 @@ def test_alerts_no_active_alerts(api_system_04_furn_ac_zoning):
     system.processMessage(message)
 
     assert system.alerts_num_cleared == 46
-    assert system.alerts_num_active == 1
+    assert system.alerts_num_active == 2
     assert system.alerts_last_cleared_id == 45
     assert system.alerts_num_in_active_array == 0
 
@@ -92,6 +110,8 @@ def test_alerts_alert_code_0(api_system_04_furn_ac_zoning):
 
     message = loadfile("system_04_furn_ac_zoning_alerts.json", "LCC")
     message["Data"]["alerts"]["active"][0]["alert"]["code"] = 0
+    message["Data"]["alerts"]["active"][1]["alert"]["code"] = 0
+    message["Data"]["alerts"]["active"][2]["alert"]["code"] = 0
     system.processMessage(message)
 
     assert len(system.active_alerts) == 0
