@@ -298,7 +298,7 @@ def test_get_system_online_cloud_process_message(api: s30api_async):
     assert ds.triggered_count == 0
 
     system.cloud_status = None
-    api._isLANConnection = True
+    api.isLANConnection = True
     ds = DirtySubscription(system, "cloud_status")
     data = loadfile("mut_sys1_zone1_cool_sched.json", system.sysId)
     api.processMessage(data)

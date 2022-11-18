@@ -267,12 +267,12 @@ class s30api_async(object):
                 f"__init__ using provided applicationId [{self._applicationid}]"
             )
         if ip_address == None:
-            self._isLANConnection = False
+            self.isLANConnection = False
             self.ssl = True
             self.initialize_urls_cloud()
         else:
             self.ip = ip_address
-            self._isLANConnection = True
+            self.isLANConnection = True
             # The certificate on the S30 cannot be validated.  It is self issued by Lennox
             # Default ciphers needed as of python 3.10
             context = ssl.create_default_context()
@@ -328,13 +328,13 @@ class s30api_async(object):
         )
 
     def getClientId(self) -> str:
-        if self._isLANConnection == True:
+        if self.isLANConnection == True:
             return self._applicationid
         # Cloud appends email address for uniqueness
         return self._applicationid + "_" + self._username
 
     async def shutdown(self) -> None:
-        if self._isLANConnection == True or self.loginBearerToken != None:
+        if self.isLANConnection == True or self.loginBearerToken != None:
             await self.logout()
         await self._close_session()
 
@@ -397,7 +397,7 @@ class s30api_async(object):
         """Authenticate with Lennox Server by presenting a certificate.  Throws S30Exception on failure"""
         # The only reason this function would fail is if the certificate is no longer valid or the URL is not longer valid.
         _LOGGER.debug("authenticate - Enter")
-        if self._isLANConnection == True:
+        if self.isLANConnection == True:
             return
         url = self.url_authenticate
         body = CERTIFICATE
@@ -465,7 +465,7 @@ class s30api_async(object):
 
     async def post(self, url, headers=None, data=None):
         # LAN Connections do not send headers
-        if self._isLANConnection:
+        if self.isLANConnection:
             headers = None
         if data != None:
             self.metrics.inc_send_count(len(data))
@@ -476,7 +476,7 @@ class s30api_async(object):
 
     async def get(self, url, headers=None, params=None):
         # LAN Connections do not send headers
-        if self._isLANConnection:
+        if self.isLANConnection:
             headers = None
         resp = await self._session.get(
             url, headers=headers, params=params, ssl=self.ssl
@@ -490,7 +490,7 @@ class s30api_async(object):
         _LOGGER.debug("login - Enter")
         url: str = self.url_login
         try:
-            if self._isLANConnection == True:
+            if self.isLANConnection == True:
                 resp = await self.post(url)
                 if resp.status != 200 and resp.status != 204:
                     raise S30Exception(
@@ -585,7 +585,7 @@ class s30api_async(object):
     async def negotiate(self) -> None:
         _LOGGER.debug("Negotiate - Enter")
         try:
-            if self._isLANConnection == True:
+            if self.isLANConnection == True:
                 return
             url = self.url_negotiate
             # This sets the version of the client protocol, at some point Lenox could obsolete this version
@@ -640,7 +640,7 @@ class s30api_async(object):
     # These appear to be JSON topics that correspond to the returned JSON.  For now we will do what the web app does.
     async def subscribe(self, lennoxSystem: "lennox_system") -> None:
 
-        if self._isLANConnection == True:
+        if self.isLANConnection == True:
             ref: int = 1
             try:
                 await self.requestDataHelper(
@@ -710,7 +710,7 @@ class s30api_async(object):
                 "MessageCount": "10",
                 "StartTime": "1",
             }
-            if self._isLANConnection:
+            if self.isLANConnection:
                 params["LongPollingTimeout"] = "15"
             else:
                 params["LongPollingTimeout"] = "0"
@@ -819,7 +819,7 @@ class s30api_async(object):
             resp = await self.post(url, headers=headers, data=body)
             if resp.status == 200:
                 # TODO we should be inspecting the return body?
-                if self._isLANConnection == True:
+                if self.isLANConnection == True:
                     txt = await resp.text()
                     _LOGGER.debug(txt)
                     return txt
@@ -1209,7 +1209,7 @@ class lennox_system(object):
         try:
             if "Data" in message:
                 # By definition if we receive a message for a cloud connected system, it is online.
-                if self.api._isLANConnection == False:
+                if self.api.isLANConnection == False:
                     self.attr_updater({"status": "online"}, "status", "cloud_status")
                 data = message["Data"]
                 for key in self.message_processing_list:
@@ -1711,7 +1711,7 @@ class lennox_system(object):
     def config_complete(self) -> bool:
         if self.name is None:
             return False
-        if self.api._isLANConnection and self.serialNumber is None:
+        if self.api.isLANConnection and self.serialNumber is None:
             return False
         return True
 
