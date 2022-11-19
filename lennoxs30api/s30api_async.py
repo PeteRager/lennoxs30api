@@ -2105,11 +2105,9 @@ class lennox_system(object):
         command = {"resetLcc": {"state": "reset"}}
         await self.api.publish_message_helper_dict(self.sysId, command)
 
-    async def _internal_set_equipment_parameter_value(
-        self, et: int, pid: int, value: str
-    ):
+    async def set_parameter_value(self, et: int, pid: int, value: str):
         _LOGGER.debug(
-            f"_internal_set_equipment_parameter_value sysid [{self.sysId}] et [{et}] pid [{pid}] value [{value}]"
+            f"set_parameter_value sysid [{self.sysId}] et [{et}] pid [{pid}] value [{value}]"
         )
         command = {
             "systemControl": {
@@ -2149,9 +2147,7 @@ class lennox_system(object):
             )
 
         call_value = parameter.validate_and_translate(value)
-        await self._internal_set_equipment_parameter_value(
-            equipment.equipType, pid, call_value
-        )
+        await self.set_parameter_value(equipment.equipType, pid, call_value)
 
     async def _internal_set_zone_test_parameter_value(
         self, pid: int, value: str, enabled: bool
