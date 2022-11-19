@@ -36,7 +36,6 @@ from .s30exception import (
 )
 from .lennox_errors import (
     lennox_error_get_message_from_code,
-    lennox_error_messages,
     LennoxErrorCodes,
 )
 from datetime import datetime
@@ -2100,6 +2099,11 @@ class lennox_system(object):
             self.sysId,
             '"AdditionalParameters":{"JSONPath":"/systemControl"}',
         )
+
+    async def reset_smart_controller(self) -> None:
+        _LOGGER.debug("reset_smart_controller sysid [%]", self.sysId)
+        command = {"resetLcc": {"state": "reset"}}
+        await self.api.publish_message_helper_dict(self.sysId, command)
 
     async def _internal_set_equipment_parameter_value(
         self, et: int, pid: int, value: str
