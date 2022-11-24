@@ -2103,7 +2103,7 @@ class lennox_system(object):
     async def reset_smart_controller(self) -> None:
         _LOGGER.debug("reset_smart_controller sysid [%s]", self.sysId)
         command = {"resetLcc": {"state": "reset"}}
-        await self.api.publish_message_helper_dict(self.sysId, command)
+        await self.api.publish_message_helper_dict(self.sysId, command, "/resetLcc")
 
     async def set_parameter_value(self, et: int, pid: int, value: str):
         _LOGGER.debug(

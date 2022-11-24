@@ -22,6 +22,10 @@ def test_reset_smart_controller(api):
         assert arg0 == lsystem.sysId
         arg1 = mock_message_helper.await_args[0][1]
         jsbody = json.loads("{" + arg1 + "}")
+        assert (
+            mock_message_helper.call_args_list[0][1]["additional_parameters"]
+            == "/resetLcc"
+        )
 
         state = jsbody["Data"]["resetLcc"]["state"]
         assert state == "reset"

@@ -1,0 +1,12 @@
+{
+    "MessageType":"Command",
+    "SenderID":"dca_71824885284",
+    "MessageID":"00000000-0000-0000-0000-000000000001",
+    "TargetID":"LCC",
+    "AdditionalParameters":"\/resetLcc",
+    "Data": {
+        "resetLcc": {
+            "state":"reset"
+        }
+    }
+}

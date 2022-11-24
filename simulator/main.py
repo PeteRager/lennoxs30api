@@ -407,6 +407,7 @@ def init_func(argv):
                     web.get("/Messages/{app_id}/Retrieve", simulator.retrieve),
                     web.get("/v1/Messages/{app_id}/Retrieve", simulator.retrieve),
                     web.post("/Messages/Publish", simulator.publish),
+                    web.post("/v1/messages/publish", simulator.publish),
                 ]
             )
     return app
