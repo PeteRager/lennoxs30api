@@ -35,7 +35,7 @@ async def cloud_message_pump_task(s30api: s30api_async) -> None:
         # Login and establish connection
         await s30api.serverConnect()
         # For each S30 found, initiate the data subscriptions.
-        for lsystem in s30api.getSystems():
+        for lsystem in s30api.system_list:
             s30api.subscribe(lsystem)
     # Catch errors and exit this task.
     except S30Exception as e:
@@ -59,9 +59,9 @@ async def api_poller_task(s30api):
     while True:
         print("Poller Awake")
         try:
-            for lsystem in s30api.getSystems():
+            for lsystem in s30api.system_list:
                 print(f"Outdoor - Temp [{lsystem.outdoorTemperature}]")
-                for zone in lsystem.getZoneList():
+                for zone in lsystem.zone_list:
                     if zone.getTemperature() != None:
                         message = f"[{zone.name}] Temp [{zone.getTemperature()}] Humidity [{zone.getHumidity()}]"
                         message += f" SystemMode [{zone.getSystemMode()}] FanMode [{zone.getFanMode()}] HumidityMode [{zone.getHumidityMode()}] "
@@ -104,8 +104,8 @@ async def command_reader_task(s30api):
             print("Result [" + res + "]")
             # By default we'll use Zone_1 on the first S30 found
             zone: lennox_zone = None
-            if s30api.getSystems() != None and len(s30api.getSystems()) > 0:
-                system: lennox_system = s30api.getSystems()[0]
+            if s30api.system_list != None and len(s30api.system_list) > 0:
+                system: lennox_system = s30api.system_list[0]
                 zone = system.getZone(0)
                 # Zone configuration usually arrives within 5-10 seconds.  In a real program you may wait for it to come in
                 # before really starting up.

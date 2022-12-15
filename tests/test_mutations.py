@@ -123,7 +123,7 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.temperatureC == 26 == zone_5.getTemperatureC()
     assert zone_5.temperatureStatus == LENNOX_STATUS_GOOD
 
-    assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
+    assert zone_5.system.sysId == "0000000-0000-0000-0000-000000000002"
 
     # This file does not change anything.  Sometimes this message is not received.
     data = loadfile("mut_sys1_zone1_status.json")
@@ -167,7 +167,7 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.temperature == 79 == zone_5.getTemperature()
     assert zone_5.temperatureC == 26 == zone_5.getTemperatureC()
     assert zone_5.temperatureStatus == LENNOX_STATUS_GOOD
-    assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
+    assert zone_5.system.sysId == "0000000-0000-0000-0000-000000000002"
 
     # The system now goes into cooling mode
     data = loadfile("mut_sys1_zone1_cooling_on.json")
@@ -209,13 +209,13 @@ def test_hvac_mode_change_zone_5():
     assert zone_5.temperature == 79 == zone_5.getTemperature()
     assert zone_5.temperatureC == 26 == zone_5.getTemperatureC()
     assert zone_5.temperatureStatus == LENNOX_STATUS_GOOD
-    assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
+    assert zone_5.system.sysId == "0000000-0000-0000-0000-000000000002"
 
 
 def test_hvac_mode_change_zone_2():
     api = setup_load_configuration()
 
-    zone_2: lennox_zone = api.getSystems()[0].getZoneList()[1]
+    zone_2: lennox_zone = api.system_list[0].zone_list[1]
 
     zone_2_callback_all = callback_handler()
     zone_2.registerOnUpdateCallback(zone_2_callback_all.update_callback)
@@ -268,7 +268,7 @@ def test_hvac_mode_change_zone_2():
     assert zone_2.tempOperation == "off"
     assert zone_2.temperature == 78 == zone_2.getTemperature()
     assert zone_2.temperatureStatus == LENNOX_STATUS_GOOD
-    assert zone_2._system.sysId == "0000000-0000-0000-0000-000000000001"
+    assert zone_2.system.sysId == "0000000-0000-0000-0000-000000000001"
 
 
 # Sometimes an config update message arrives before the full config, this
@@ -319,7 +319,7 @@ def test_data_before_config() -> s30api_async:
     assert zone_5.temperature == None == zone_5.getTemperature()
     assert zone_5.temperatureC == None == zone_5.getTemperatureC()
     assert zone_5.temperatureStatus == None
-    assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
+    assert zone_5.system.sysId == "0000000-0000-0000-0000-000000000002"
 
     data = loadfile("config_response_system_02.json")
     api.processMessage(data)
@@ -354,7 +354,7 @@ def test_data_before_config() -> s30api_async:
     assert zone_5.tempOperation == "off"
     assert zone_5.temperature == 79 == zone_5.getTemperature()
     assert zone_5.temperatureStatus == LENNOX_STATUS_GOOD
-    assert zone_5._system.sysId == "0000000-0000-0000-0000-000000000002"
+    assert zone_5.system.sysId == "0000000-0000-0000-0000-000000000002"
 
 
 def test_ventilation_zone_status():

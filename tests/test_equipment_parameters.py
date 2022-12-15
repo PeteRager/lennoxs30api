@@ -180,7 +180,7 @@ def test_equipment_parameter():
 
 
 def test_process_equipment_parameters(api):
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert len(lsystem.equipment) == 3
 
     assert len(lsystem.equipment[0].parameters) == 164
@@ -262,7 +262,7 @@ class DirtySubscription:
 
 
 def test_process_equipment_parameters_subscription(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert len(system.equipment) == 3
 
     assert len(system.equipment[0].parameters) == 164
@@ -282,7 +282,7 @@ def test_process_equipment_parameters_subscription(api):
 
 
 def test_equipment_parameters_validate_and_translate_radio(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[0]
     parameter = equipment.parameters[107]
 
@@ -307,7 +307,7 @@ def test_equipment_parameters_validate_and_translate_radio(api):
 
 
 def test_equipment_parameters_validate_and_translate_range(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[0]
     parameter = equipment.parameters[114]
 
@@ -378,7 +378,7 @@ def test_equipment_parameters_validate_and_translate_range(api):
 
 
 def test_equipment_parameters_validate_and_translate_bad_descriptor(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[0]
     parameter = equipment.parameters[114]
     parameter.descriptor = "bad_type"
@@ -396,12 +396,10 @@ def test_equipment_parameters_validate_and_translate_bad_descriptor(api):
 
 
 def test_set_equipment_parameter_value(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[1]
     parameter = equipment.parameters[44]
-    with patch.object(
-        system, "_internal_set_equipment_parameter_value"
-    ) as _internal_set_equipment_parameter_value:
+    with patch.object(system, "set_parameter_value") as set_parameter_value:
         loop = asyncio.get_event_loop()
         ex = None
         try:
@@ -411,22 +409,17 @@ def test_set_equipment_parameter_value(api):
         except S30Exception as e:
             ex = e
         assert ex is None
-        assert _internal_set_equipment_parameter_value.call_count == 1
-        assert (
-            _internal_set_equipment_parameter_value.call_args[0][0]
-            == equipment.equipType
-        )
-        assert _internal_set_equipment_parameter_value.call_args[0][1] == 44
-        assert _internal_set_equipment_parameter_value.call_args[0][2] == "325"
+        assert set_parameter_value.call_count == 1
+        assert set_parameter_value.call_args[0][0] == equipment.equipType
+        assert set_parameter_value.call_args[0][1] == 44
+        assert set_parameter_value.call_args[0][2] == "325"
 
 
 def test_set_equipment_parameter_value_bad_equipment(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[1]
     parameter = equipment.parameters[44]
-    with patch.object(
-        system, "_internal_set_equipment_parameter_value"
-    ) as _internal_set_equipment_parameter_value:
+    with patch.object(system, "set_parameter_value") as set_parameter_value:
         loop = asyncio.get_event_loop()
         ex = None
         try:
@@ -436,19 +429,17 @@ def test_set_equipment_parameter_value_bad_equipment(api):
         except S30Exception as e:
             ex = e
         assert ex != None
-        assert _internal_set_equipment_parameter_value.call_count == 0
+        assert set_parameter_value.call_count == 0
         assert "cannot find equipment" in ex.message
         assert "10" in ex.message
         assert ex.error_code == EC_BAD_PARAMETERS
 
 
 def test_set_equipment_parameter_value_bad_pid(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[1]
     parameter = equipment.parameters[44]
-    with patch.object(
-        system, "_internal_set_equipment_parameter_value"
-    ) as _internal_set_equipment_parameter_value:
+    with patch.object(system, "set_parameter_value") as set_parameter_value:
         loop = asyncio.get_event_loop()
         ex = None
         try:
@@ -458,7 +449,7 @@ def test_set_equipment_parameter_value_bad_pid(api):
         except S30Exception as e:
             ex = e
         assert ex != None
-        assert _internal_set_equipment_parameter_value.call_count == 0
+        assert set_parameter_value.call_count == 0
         assert "cannot find parameter" in ex.message
         assert "1" in ex.message
         assert "325" in ex.message
@@ -466,13 +457,11 @@ def test_set_equipment_parameter_value_bad_pid(api):
 
 
 def test_set_equipment_parameter_value_disabled_pid(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[1]
     parameter = equipment.parameters[44]
     parameter.enabled = False
-    with patch.object(
-        system, "_internal_set_equipment_parameter_value"
-    ) as _internal_set_equipment_parameter_value:
+    with patch.object(system, "set_parameter_value") as set_parameter_value:
         loop = asyncio.get_event_loop()
         ex = None
         try:
@@ -482,7 +471,7 @@ def test_set_equipment_parameter_value_disabled_pid(api):
         except S30Exception as e:
             ex = e
         assert ex != None
-        assert _internal_set_equipment_parameter_value.call_count == 0
+        assert set_parameter_value.call_count == 0
         assert "cannot set disabled parameter" in ex.message
         assert "1" in ex.message
         assert "325" in ex.message
@@ -490,12 +479,10 @@ def test_set_equipment_parameter_value_disabled_pid(api):
 
 
 def test_set_equipment_parameter_value_bad_value(api):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     equipment = system.equipment[1]
     parameter = equipment.parameters[44]
-    with patch.object(
-        system, "_internal_set_equipment_parameter_value"
-    ) as _internal_set_equipment_parameter_value:
+    with patch.object(system, "set_parameter_value") as set_parameter_value:
         loop = asyncio.get_event_loop()
         ex = None
         try:
@@ -505,18 +492,16 @@ def test_set_equipment_parameter_value_bad_value(api):
         except S30Exception as e:
             ex = e
         assert ex != None
-        assert _internal_set_equipment_parameter_value.call_count == 0
+        assert set_parameter_value.call_count == 0
         assert "32500" in ex.message
         assert ex.error_code == EC_BAD_PARAMETERS
 
 
-def test_internal_set_equipment_parameter_value(api):
-    system: lennox_system = api.getSystems()[0]
+def test_set_parameter_value(api):
+    system: lennox_system = api.system_list[0]
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         loop = asyncio.get_event_loop()
-        result = loop.run_until_complete(
-            system._internal_set_equipment_parameter_value(19, 44, "325")
-        )
+        result = loop.run_until_complete(system.set_parameter_value(19, 44, "325"))
         assert mock_message_helper.call_count == 1
         assert mock_message_helper.await_args[0][0] == system.sysId
         arg1 = mock_message_helper.await_args[0][1]

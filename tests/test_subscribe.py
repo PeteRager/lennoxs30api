@@ -46,9 +46,9 @@ class GoodResponse:
 
 
 def test_subscribe_200(api: s30api_async):
-    system = api._systemList[0]
+    system = api.system_list[0]
 
-    api._isLANConnection = True
+    api.isLANConnection = True
     with patch.object(api, "requestDataHelper") as requestDataHelper:
         loop = asyncio.get_event_loop()
         ex = None
@@ -69,7 +69,7 @@ def test_subscribe_200(api: s30api_async):
             == '"AdditionalParameters":{"JSONPath":"1;/automatedTest;/zoneTestControl;/homes;/reminders;/algorithm;/historyReportFileDetails;/interfaces;/logs"}'
         )
 
-    api._isLANConnection = False
+    api.isLANConnection = False
     with patch.object(api, "requestDataHelper") as requestDataHelper:
         with patch.object(
             system, "update_system_online_cloud"
@@ -102,9 +102,9 @@ def test_subscribe_200(api: s30api_async):
 
 
 def test_subscribe_exception(api: s30api_async, caplog):
-    system = api._systemList[0]
+    system = api.system_list[0]
 
-    api._isLANConnection = True
+    api.isLANConnection = True
     with caplog.at_level(logging.ERROR):
         caplog.clear()
         with patch.object(api, "requestDataHelper") as requestDataHelper:
@@ -139,7 +139,7 @@ def test_subscribe_exception(api: s30api_async, caplog):
             assert "subscribe fail locb [1]" in caplog.messages[0]
             assert "bad key" in caplog.messages[0]
 
-    api._isLANConnection = False
+    api.isLANConnection = False
     with caplog.at_level(logging.ERROR):
         caplog.clear()
         with patch.object(api, "requestDataHelper") as requestDataHelper:

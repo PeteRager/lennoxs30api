@@ -29,7 +29,7 @@ def setup_load_configuration() -> s30api_async:
 def test_celsius_round():
     api = setup_load_configuration()
 
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
 
     assert lsystem.celsius_round(20.7) == 20.5
@@ -40,7 +40,7 @@ def test_celsius_round():
 def test_faren_round():
     api = setup_load_configuration()
 
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
 
     assert lsystem.faren_round(75.0) == 75

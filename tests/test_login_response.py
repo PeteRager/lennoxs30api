@@ -22,11 +22,11 @@ def test_process_login_message():
     assert lhome.name == "MoetownHouse"
     assert lhome.json != None
 
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.home.id == lhome.id
 
-    lsystem: lennox_system = api.getSystems()[1]
+    lsystem: lennox_system = api.system_list[1]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000002"
     assert lsystem.home.id == lhome.id
 

@@ -21,7 +21,7 @@ def setup_load_lcc_configuration() -> s30api_async:
 
 def test_process_splitsetpoint():
     api = setup_load_lcc_configuration()
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "LCC"
 
     data = loadfile("equipments_lcc_singlesetpoint.json")
@@ -37,7 +37,7 @@ def test_process_splitsetpoint():
 
 def test_process_equipments_ac_furnace_zoning(api_system_04_furn_ac_zoning):
     api = api_system_04_furn_ac_zoning
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "LCC"
 
     assert len(system.equipment) == 4
@@ -104,7 +104,7 @@ def test_process_equipments_ac_furnace_zoning(api_system_04_furn_ac_zoning):
 
 def test_process_equipments_HeatPump_AirHandler():
     api = setup_load_lcc_configuration()
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "LCC"
     assert len(system.equipment) == 0
 

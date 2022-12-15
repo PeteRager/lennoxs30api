@@ -161,7 +161,7 @@
                 "configProblem": false,
                 "zoningMode": "zoned",
                 "replacementPart": false,
-                "alert": "none",
+                "alert": "critical",
                 "feelsLikeMode": false,
                 "numberOfZones": 3,
                 "singleSetpointMode": false,

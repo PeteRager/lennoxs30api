@@ -16,7 +16,7 @@ from lennoxs30api.s30exception import EC_BAD_PARAMETERS, EC_EQUIPMENT_DNS, S30Ex
 
 
 def test_set_dehumidification_mode(api):
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.is_none(lsystem.dehumidifierType) == False
     for mode in LENNOX_DEHUMIDIFICATION_MODES:

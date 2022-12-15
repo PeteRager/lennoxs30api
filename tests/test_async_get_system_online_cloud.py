@@ -46,7 +46,7 @@ class DirtySubscription:
 
 
 def test_get_system_online_cloud(api: s30api_async):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     system.cloud_status = None
     with patch.object(api, "post") as mock_post:
@@ -74,7 +74,7 @@ def test_get_system_online_cloud(api: s30api_async):
 
 
 def test_get_system_online_cloud_400(api: s30api_async, caplog):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     system.cloud_status = None
 
@@ -118,7 +118,7 @@ class BadResponse_DiffSysId:
 
 
 def test_get_system_online_cloud_diff_sysid(api: s30api_async, caplog):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     system.cloud_status = None
 
@@ -162,7 +162,7 @@ class BadResponse_NoMessage:
 
 
 def test_get_system_online_cloud_no_message(api: s30api_async, caplog):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     with patch.object(api, "post") as mock_post:
         caplog.clear()
@@ -203,7 +203,7 @@ class BadResponse_NoPresence:
 
 
 def test_get_system_online_cloud_no_presence(api: s30api_async, caplog):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     system.cloud_status = None
 
@@ -227,7 +227,7 @@ def test_get_system_online_cloud_no_presence(api: s30api_async, caplog):
 
 
 def test_get_system_online_cloud_no_result(api: s30api_async, caplog):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     system.cloud_status = None
 
@@ -250,7 +250,7 @@ def test_get_system_online_cloud_no_result(api: s30api_async, caplog):
 
 
 def test_get_system_online_cloud_comm_exception(api: s30api_async, caplog):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     with patch.object(api, "post") as mock_post:
         caplog.clear()
@@ -281,7 +281,7 @@ def test_get_system_online_cloud_comm_exception(api: s30api_async, caplog):
 
 
 def test_get_system_online_cloud_process_message(api: s30api_async):
-    system: lennox_system = api.getSystems()[0]
+    system: lennox_system = api.system_list[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     system.cloud_status = "offline"
 
@@ -298,7 +298,7 @@ def test_get_system_online_cloud_process_message(api: s30api_async):
     assert ds.triggered_count == 0
 
     system.cloud_status = None
-    api._isLANConnection = True
+    api.isLANConnection = True
     ds = DirtySubscription(system, "cloud_status")
     data = loadfile("mut_sys1_zone1_cool_sched.json", system.sysId)
     api.processMessage(data)

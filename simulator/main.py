@@ -24,6 +24,7 @@ class Simulator(object):
         self.diagSimRunning = False
         self.siblingSimRunning = False
         self.outdoorTempSim = False
+        self.heatpumpLockoutSim = None
         self.zoneSim = False
         self.siblingSim = False
         self.diagSim = False
@@ -38,6 +39,25 @@ class Simulator(object):
                 self.siblingSim = self.config_data["siblingSim"]
             if "diagSim" in self.config_data:
                 self.diagSim = self.config_data["diagSim"]
+            if "heatpumpLockoutSim" in self.config_data:
+                self.heatpumpLockoutSim = self.config_data["heatpumpLockoutSim"]
+
+    async def heatpumpLockoutSimulator(self):
+
+        active: bool = False
+        while True:
+            message = self.loadfile(self.heatpumpLockoutSim)
+            await asyncio.sleep(15.0)
+            message["Data"]["alerts"]["active"][0]["alert"]["isStillActive"] = active
+            message["Data"]["alerts"]["active"][1]["alert"]["isStillActive"] = active
+            if not active:
+                message["Data"]["alerts"]["meta"]["numActiveAlerts"] = 0
+            else:
+                message["Data"]["alerts"]["meta"]["numActiveAlerts"] = 2
+
+            active = not active
+            for _, appObject in self.appList.items():
+                appObject.queue.append(message)
 
     async def outdoorTempSimulator(self):
         if self.outdoorTempSim == False or self.outdoorTempSimRunning == True:
@@ -317,11 +337,15 @@ class Simulator(object):
                 if "systemFile" in self.config_data:
                     data = self.loadfile(self.config_data["systemFile"])
                     app.queue.append(data)
+                if "alertFile" in self.config_data:
+                    data = self.loadfile(self.config_data["alertFile"])
+                    app.queue.append(data)
 
                 asyncio.create_task(self.outdoorTempSimulator())
                 asyncio.create_task(self.zoneSimulator())
                 asyncio.create_task(self.siblingSimulator())
                 asyncio.create_task(self.diagSimulator())
+                asyncio.create_task(self.heatpumpLockoutSimulator())
                 return web.Response(text="Simulator Success")
         return web.Response(status=404, text="Simulator Failuer")
 
@@ -404,6 +428,7 @@ def init_func(argv):
                     web.get("/Messages/{app_id}/Retrieve", simulator.retrieve),
                     web.get("/v1/Messages/{app_id}/Retrieve", simulator.retrieve),
                     web.post("/Messages/Publish", simulator.publish),
+                    web.post("/v1/messages/publish", simulator.publish),
                 ]
             )
     return app

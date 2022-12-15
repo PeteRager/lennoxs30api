@@ -8,7 +8,7 @@ from tests.conftest import loadfile
 
 
 def test_api_process_sibling_message(api: s30api_async, caplog):
-    lsystem: lennox_system = api.getSystems()[1]
+    lsystem: lennox_system = api.system_list[1]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000002"
 
     message = loadfile("sibling.json")
@@ -38,7 +38,7 @@ def test_api_process_sibling_message(api: s30api_async, caplog):
 
 
 def test_api_process_unknown_sender(api: s30api_async, caplog):
-    lsystem: lennox_system = api.getSystems()[1]
+    lsystem: lennox_system = api.system_list[1]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000002"
     message = loadfile("mut_sys1_zone1_status.json")
     message["SenderId"] = "KL21J00002"

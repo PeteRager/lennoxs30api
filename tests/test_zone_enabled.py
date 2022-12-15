@@ -9,7 +9,7 @@ from tests.conftest import loadfile
 
 
 def test_test_zone_enabled(api: s30api_async):
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     zone0 = lsystem.getZone(0)
     zone1 = lsystem.getZone(1)
     zone2 = lsystem.getZone(2)

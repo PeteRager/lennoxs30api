@@ -7,30 +7,6 @@
         "alerts": {
             "active": [
                 {
-                    "id": 2,
-                    "alert": {
-                        "userMessageID": 49153,
-                        "timestampClear": "5273292495",
-                        "code": 434,
-                        "notifyDealer": false,
-                        "userMessage": "Problem",
-                        "isStillActive": true,
-                        "timestampLast": "1665497389",
-                        "clearableByDealer": false,
-                        "update": false,
-                        "priority": "moderate",
-                        "action": "set",
-                        "clearedBy": "active",
-                        "timestampFirst": "1665497389",
-                        "count": 1,
-                        "optionalfieldType": "null",
-                        "notifyUser": false,
-                        "optionalfieldData": "",
-                        "clearableByUser": false,
-                        "equipmentType": 18
-                    }
-                },
-                {
                     "alert": {
                         "userMessageID": 0,
                         "timestampClear": "5273299695",
@@ -82,11 +58,11 @@
             ],
             "meta": {
                 "numClearedAlerts": 46,
-                "numActiveAlerts": 2,
+                "numActiveAlerts": 1,
                 "lastClearedAlertId": 45,
                 "szClearedAlerts": 256,
                 "firstClearedAlertId": 0,
-                "numAlertsInActiveArray": 2
+                "numAlertsInActiveArray": 1
             },
             "publisher": {
                 "publisherName": "lcc"

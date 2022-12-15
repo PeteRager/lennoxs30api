@@ -1,0 +1,153 @@
+2021-11-09 11:45:49 DEBUG (MainThread) [lennoxs30api.s30api_async] {
+               "alerts": {
+                    "active": [
+                        {
+                            "alert": {
+                                "userMessageID": 0,
+                                "timestampClear": "5273299695",
+                                "code": 19,								***************Code 19 = high balance point
+                                "notifyDealer": false,
+                                "userMessage": "",
+                                "isStillActive": true,					************** Active
+                                "update": false,
+                                "clearableByDealer": false,
+                                "timestampLast": "1636473073",
+                                "priority": "info",
+                                "notifyUser": false,
+                                "clearedBy": "active",
+                                "timestampFirst": "1636473073",
+                                "equipmentType": 0,
+                                "optionalfieldData": "4.518750e+01",
+                                "action": "set",
+                                "optionalfieldType": "temperature",
+                                "clearableByUser": false,
+                                "count": 1
+                            },
+                            "maxItems": 256,
+                            "id": 0
+                        },
+                        {
+                            "id": 1,
+                            "alert": {
+                                "userMessageID": 0,
+                                "timestampClear": "1636420745",
+                                "code": 18,								***************Code 18 = low balance point
+                                "notifyDealer": false,
+                                "userMessage": "Low Ambient HP Heat Lockout",
+                                "isStillActive": false,					*************** not active 
+                                "timestampLast": "1636460248",
+                                "clearableByDealer": false,
+                                "update": false,
+                                "priority": "info",
+                                "action": "clear",
+                                "clearedBy": "device",
+                                "timestampFirst": "1636420745",
+                                "count": 1,
+                                "optionalfieldType": "null",
+                                "notifyUser": false,
+                                "optionalfieldData": "",
+                                "clearableByUser": false,
+                                "equipmentType": 0
+                            }
+                        }
+2021-11-09 16:53:20 DEBUG (MainThread) [lennoxs30api.s30api_async] {
+           "Data": {
+                "system": {
+                    "status": {
+                        "outdoorTemperatureStatus": "good",
+                        "outdoorTemperature": 45,
+                        "outdoorTemperatureC": 7
+ 
+            "Data": {
+                "alerts": {
+                    "active": [
+                        {
+                            "id": 0,
+                            "alert": {
+                                "userMessageID": 0,
+                                "timestampClear": "1636473073",
+                                "code": 19,
+                                "notifyDealer": false,
+                                "userMessage": "High Ambient Auxiliary Heat Lockout",
+                                "isStillActive": false,							************************** 19 not active
+                                "timestampLast": "1636501993",
+                                "clearableByDealer": false,
+                                "update": false,
+                                "priority": "info",
+                                "action": "clear",
+                                "clearedBy": "device",
+                                "timestampFirst": "1636473073",
+                                "count": 1,
+2021-11-09 21:39:50 DEBUG (MainThread) [lennoxs30api.s30api_async] {
+            "Data": {
+                "system": {
+                    "status": {
+                        "outdoorTemperatureStatus": "good",
+                        "outdoorTemperature": 35,
+                        "outdoorTemperatureC": 1.5
+       
+						
+ 2021-11-09 21:44:02 DEBUG (MainThread) [lennoxs30api.s30api_async] {
+    "messages": [
+        {
+            "MessageId": "637721162421199627|9a694f3c58f847d596fb83cb760948e3",
+            "SenderId": "d4c4059a-f46c-475f-b38e-832002ba0f5c",
+            "TargetID": "mapp079372367644467046827001_Undisclosed ",
+            "MessageType": "PropertyChange",
+            "Data": {
+                "alerts": {
+                    "active": [
+                        {
+                            "id": 1,
+                            "alert": {
+                                "userMessageID": 0,
+                                "timestampClear": "5273299695",
+                                "code": 18,
+                                "notifyDealer": false,
+                                "userMessage": "",
+                                "isStillActive": true,							**************** Low active
+                                "timestampLast": "1636519393",
+                                "clearableByDealer": false,
+                                "update": false,
+                                "priority": "info",
+                                "action": "set",
+								
+2021-11-10 07:34:34 DEBUG (MainThread) [lennoxs30api.s30api_async] {
+            "MessageType": "PropertyChange",
+            "Data": {
+                "equipments": [
+                    {
+                        "publisher": {
+                            "publisherName": "lcc"
+                        },
+                        "equipment": {
+                            "parameters": [
+                                {
+                                    "parameter": {
+                                        "pid": 129,
+                                        "enabled": true,
+                                        "value": "27"						********************** Here I set the low balance point to 27
+                                    },										************ I also changed the high but I don't expect we'll reach it today
+                                    "id": 61
+
+
+2021-11-10 07:34:34 DEBUG (MainThread) [lennoxs30api.s30api_async] {
+            "Data": {
+                "alerts": {
+                    "active": [
+                        {
+                            "id": 1,
+                            "alert": {
+                                "userMessageID": 0,
+                                "timestampClear": "1636519393",
+                                "code": 18,
+                                "notifyDealer": false,
+                                "userMessage": "Low Ambient HP Heat Lockout",
+                                "isStillActive": false,							**************** Low not active
+                                "timestampLast": "1636554844",
+                                "clearableByDealer": false,
+                                "update": false,
+                                "priority": "info",
+                                "action": "clear",
+								
+								

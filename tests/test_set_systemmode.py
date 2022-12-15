@@ -13,7 +13,7 @@ from lennoxs30api.s30exception import S30Exception
 
 
 def test_set_systemMode_emergency_heat(api):
-    lsystem: lennox_system = api.getSystems()[0]
+    lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     # This system has emergency heat, therefore we should be able to set it
     assert lsystem.has_emergency_heat() == False
@@ -30,7 +30,7 @@ def test_set_systemMode_emergency_heat(api):
         assert error == True
         assert mock_message_helper.call_count == 0
 
-    lsystem: lennox_system = api.getSystems()[2]
+    lsystem: lennox_system = api.system_list[2]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000003"
     # This system does not have emergency heat, therefore we should not be able to set it.
     assert lsystem.has_emergency_heat() == True
