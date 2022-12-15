@@ -62,13 +62,9 @@ _LOGGER = logging.getLogger(__name__)
 
 CLOUD_AUTHENTICATE_URL = "https://ic3messaging.myicomfort.com/v1/mobile/authenticate"
 CLOUD_LOGIN_URL = "https://ic3messaging.myicomfort.com/v2/user/login"
-CLOUD_NEGOTIATE_URL = (
-    "https://icnotificationservice.myicomfort.com/LennoxNotificationServer/negotiate"
-)
+CLOUD_NEGOTIATE_URL = "https://icnotificationservice.myicomfort.com/LennoxNotificationServer/negotiate"
 CLOUD_RETRIEVE_URL = "https://icretrieveapi.myicomfort.com/v1/messages/retrieve"
-CLOUD_REQUESTDATA_URL = (
-    "https://icrequestdataapi.myicomfort.com/v1/Messages/RequestData"
-)
+CLOUD_REQUESTDATA_URL = "https://icrequestdataapi.myicomfort.com/v1/Messages/RequestData"
 CLOUD_PUBLISH_URL = "https://icpublishapi.myicomfort.com/v1/messages/publish"
 CLOUD_LOGOUT_URL = "https://ic3messaging.myicomfort.com/v1/user/logout"
 
@@ -246,9 +242,7 @@ class s30api_async(object):
         self._password = password
         self._protocol = protocol
         self._pii_message_logs = pii_message_logs
-        self.message_log = MessageLogger(
-            _LOGGER, message_debug_logging, message_logging_file
-        )
+        self.message_log = MessageLogger(_LOGGER, message_debug_logging, message_logging_file)
         self.timeout: int = 300 if timeout is None else timeout
         # Generate a unique app id, following the existing formatting
         if app_id is None:
@@ -257,14 +251,10 @@ class s30api_async(object):
             appPrefix = APPLICATION_ID[: len(APPLICATION_ID) - len(epoch_time)]
             app_id = appPrefix + epoch_time
             self._applicationid: str = app_id
-            _LOGGER.info(
-                f"__init__  generating unique applicationId [{self._applicationid}]"
-            )
+            _LOGGER.info(f"__init__  generating unique applicationId [{self._applicationid}]")
         else:
             self._applicationid: str = app_id
-            _LOGGER.info(
-                f"__init__ using provided applicationId [{self._applicationid}]"
-            )
+            _LOGGER.info(f"__init__ using provided applicationId [{self._applicationid}]")
         if ip_address == None:
             self.isLANConnection = False
             self.ssl = True
@@ -309,22 +299,12 @@ class s30api_async(object):
 
     def initialize_urls_local(self):
         self.url_authenticate: str = None
-        self.url_login: str = self.set_url_protocol(
-            f"https://{self.ip}/Endpoints/{self._applicationid}/Connect"
-        )
+        self.url_login: str = self.set_url_protocol(f"https://{self.ip}/Endpoints/{self._applicationid}/Connect")
         self.url_negotiate: str = None
-        self.url_retrieve: str = self.set_url_protocol(
-            f"https://{self.ip}/Messages/{self._applicationid}/Retrieve"
-        )
-        self.url_requestdata: str = self.set_url_protocol(
-            f"https://{self.ip}/Messages/RequestData"
-        )
-        self.url_publish: str = self.set_url_protocol(
-            f"https://{self.ip}/Messages/Publish"
-        )
-        self.url_logout: str = self.set_url_protocol(
-            f"https://{self.ip}/Endpoints/{self._applicationid}/Disconnect"
-        )
+        self.url_retrieve: str = self.set_url_protocol(f"https://{self.ip}/Messages/{self._applicationid}/Retrieve")
+        self.url_requestdata: str = self.set_url_protocol(f"https://{self.ip}/Messages/RequestData")
+        self.url_publish: str = self.set_url_protocol(f"https://{self.ip}/Messages/Publish")
+        self.url_logout: str = self.set_url_protocol(f"https://{self.ip}/Endpoints/{self._applicationid}/Disconnect")
 
     def getClientId(self) -> str:
         if self.isLANConnection == True:
@@ -357,9 +337,7 @@ class s30api_async(object):
         except S30Exception as e:
             raise e
         except Exception as e:
-            s30e = s30exception_from_comm_exception(
-                e, operation="logout", url=url, metrics=self.metrics
-            )
+            s30e = s30exception_from_comm_exception(e, operation="logout", url=url, metrics=self.metrics)
             if s30e != None:
                 raise s30e
             _LOGGER.exception("logout exception - please raise as issue")
@@ -410,9 +388,7 @@ class s30api_async(object):
                 if resp.status == 200:
                     resp_json = await resp.json()
                     self.message_logger(resp_json)
-                    self.authBearerToken = resp_json["serverAssigned"]["security"][
-                        "certificateToken"
-                    ]["encoded"]
+                    self.authBearerToken = resp_json["serverAssigned"]["security"]["certificateToken"]["encoded"]
                     _LOGGER.info("authenticated with Lennox Cloud")
                     # Success branch - return from here
                     return
@@ -431,9 +407,7 @@ class s30api_async(object):
                 2,
             )
         except Exception as e:
-            s30e = s30exception_from_comm_exception(
-                e, operation="authenticate", url=url, metrics=self.metrics
-            )
+            s30e = s30exception_from_comm_exception(e, operation="authenticate", url=url, metrics=self.metrics)
             if s30e != None:
                 raise s30e
             _LOGGER.exception("authenticate exception - please raise as issue ")
@@ -477,9 +451,7 @@ class s30api_async(object):
         # LAN Connections do not send headers
         if self.isLANConnection:
             headers = None
-        resp = await self._session.get(
-            url, headers=headers, params=params, ssl=self.ssl
-        )
+        resp = await self._session.get(url, headers=headers, params=params, ssl=self.ssl)
         self.metrics.process_http_code(resp.status)
         self.metrics.inc_receive_count()
         return resp
@@ -541,26 +513,16 @@ class s30api_async(object):
                 2,
             )
         except Exception as e:
-            s30e = s30exception_from_comm_exception(
-                e, operation="login", url=url, metrics=self.metrics
-            )
+            s30e = s30exception_from_comm_exception(e, operation="login", url=url, metrics=self.metrics)
             if s30e != None:
                 raise s30e
-            _LOGGER.exception(
-                f"login - unexpected exception - please raise an issue to track [{e}]"
-            )
-            raise S30Exception(
-                f"login failed due to unexpected exception [{e}]", EC_LOGIN, 7
-            )
-        _LOGGER.info(
-            f"login Success homes [{len(self._homeList)}] systems [{len(self.system_list)}]"
-        )
+            _LOGGER.exception(f"login - unexpected exception - please raise an issue to track [{e}]")
+            raise S30Exception(f"login failed due to unexpected exception [{e}]", EC_LOGIN, 7)
+        _LOGGER.info(f"login Success homes [{len(self._homeList)}] systems [{len(self.system_list)}]")
 
     def process_login_response(self, resp_json: json):
         # Grab the bearer token
-        self.loginBearerToken = resp_json["ServerAssignedRoot"]["serverAssigned"][
-            "security"
-        ]["userToken"]["encoded"]
+        self.loginBearerToken = resp_json["ServerAssignedRoot"]["serverAssigned"]["security"]["userToken"]["encoded"]
         # Split off the "bearer" part of the token, as we need to use just the token part later in the URL.  Format is "Bearer <token>"
         split = self.loginBearerToken.split(" ")
         self.loginToken = split[1]
@@ -608,11 +570,7 @@ class s30api_async(object):
             self._tryWebsockets = resp_json["TryWebSockets"]
             self._streamURL = resp_json["Url"]
             _LOGGER.debug(
-                "Negotiate Success tryWebSockets ["
-                + str(self._tryWebsockets)
-                + "] streamUrl ["
-                + self._streamURL
-                + "]"
+                "Negotiate Success tryWebSockets [" + str(self._tryWebsockets) + "] streamUrl [" + self._streamURL + "]"
             )
         except S30Exception as e:
             raise e
@@ -623,17 +581,11 @@ class s30api_async(object):
                 2,
             )
         except Exception as e:
-            s30e = s30exception_from_comm_exception(
-                e, operation="negotiate", url=url, metrics=self.metrics
-            )
+            s30e = s30exception_from_comm_exception(e, operation="negotiate", url=url, metrics=self.metrics)
             if s30e != None:
                 raise s30e
-            _LOGGER.exception(
-                "negotiate - unexpected exception - please raise an issue to track"
-            )
-            raise S30Exception(
-                "negotiate failed due to unexpected exception", EC_COMMS_ERROR, 7
-            )
+            _LOGGER.exception("negotiate - unexpected exception - please raise an issue to track")
+            raise S30Exception("negotiate failed due to unexpected exception", EC_COMMS_ERROR, 7)
 
     # The topics subscribed to here are based on the topics that the WebApp subscribes to.  We likely don't need to subscribe to all of them
     # These appear to be JSON topics that correspond to the returned JSON.  For now we will do what the web app does.
@@ -657,9 +609,7 @@ class s30api_async(object):
                 _LOGGER.error(err_msg)
                 raise e
             except Exception as e:
-                err_msg = (
-                    f"subscribe fail locb [{ref}] sysId [{lennoxSystem.sysId}] [{e}] "
-                )
+                err_msg = f"subscribe fail locb [{ref}] sysId [{lennoxSystem.sysId}] [{e}] "
                 _LOGGER.exception(err_msg)
                 raise S30Exception(err_msg, EC_SUBSCRIBE, 3)
 
@@ -682,9 +632,7 @@ class s30api_async(object):
                 _LOGGER.error(err_msg)
                 raise e
             except Exception as e:
-                err_msg = (
-                    f"subscribe fail locd [{ref}] sysId [{lennoxSystem.sysId}] [{e}]"
-                )
+                err_msg = f"subscribe fail locd [{ref}] sysId [{lennoxSystem.sysId}] [{e}]"
                 _LOGGER.exception(err_msg)
                 raise S30Exception(err_msg, EC_SUBSCRIBE, 3)
 
@@ -741,18 +689,12 @@ class s30api_async(object):
             raise e
         except Exception as e:
             self.metrics.inc_receive_message_error()
-            s30e = s30exception_from_comm_exception(
-                e, operation="messagePump", url=url, metrics=self.metrics
-            )
+            s30e = s30exception_from_comm_exception(e, operation="messagePump", url=url, metrics=self.metrics)
             if s30e != None:
                 raise s30e
             # should not be here, these are unexpected exceptions that should be handled better
-            _LOGGER.exception(
-                "messagePump - unexpected exception - please raise an issue to track"
-            )
-            raise S30Exception(
-                "messagePump failed due to unexpected exception", EC_COMMS_ERROR, 7
-            )
+            _LOGGER.exception("messagePump - unexpected exception - please raise an issue to track")
+            raise S30Exception("messagePump failed due to unexpected exception", EC_COMMS_ERROR, 7)
 
     def processMessage(self, message):
         self.metrics.inc_message_count()
@@ -769,9 +711,7 @@ class s30api_async(object):
             if system == None:
                 self.metrics.inc_sender_message_drop()
                 if sysId in self._badSenderDict:
-                    _LOGGER.debug(
-                        f"processMessage dropping messages from unknown SenderId/SystemId [{sysId}]"
-                    )
+                    _LOGGER.debug(f"processMessage dropping messages from unknown SenderId/SystemId [{sysId}]")
                 else:
                     _LOGGER.error(
                         f"processMessage dropping message from unknown SenderId/SystemId [{sysId}] - please consult https://github.com/PeteRager/lennoxs30/blob/master/docs/sibling.md for configuration assistance"
@@ -784,9 +724,7 @@ class s30api_async(object):
                         f"processMessage dropping message from sibling [{sysId}] for system [{system.sysId}] - please consult https://github.com/PeteRager/lennoxs30/blob/master/docs/sibling.md for configuration assistance"
                     )
                 else:
-                    _LOGGER.debug(
-                        f"processMessage dropping message from sibling [{sysId}] for system [{system.sysId}]"
-                    )
+                    _LOGGER.debug(f"processMessage dropping message from sibling [{sysId}] for system [{system.sysId}]")
 
     # Messages seem to use unique GUIDS, here we create one
     def getNewMessageID(self):
@@ -840,14 +778,10 @@ class s30api_async(object):
                 3,
             )
         except Exception as e:
-            s30e = s30exception_from_comm_exception(
-                e, operation="requestDataHelper", url=url, metrics=self.metrics
-            )
+            s30e = s30exception_from_comm_exception(e, operation="requestDataHelper", url=url, metrics=self.metrics)
             if s30e != None:
                 raise s30e
-            _LOGGER.exception(
-                "requestDataHelper - unexpected exception - please raise an issue to track"
-            )
+            _LOGGER.exception("requestDataHelper - unexpected exception - please raise an issue to track")
             raise S30Exception(
                 "requestDataHelper failed due to unexpected exception",
                 EC_COMMS_ERROR,
@@ -880,15 +814,13 @@ class s30api_async(object):
         messageUUID = uuid.UUID(int=self._publishMessageId)
         return str(messageUUID)
 
-    async def setModeHelper(
-        self, sysId: str, modeTarget: str, mode: str, scheduleId: int
-    ) -> None:
-        _LOGGER.info(
-            f"setMode modeTarget [{modeTarget}] mode [{mode}] scheduleId [{scheduleId}] sysId [{sysId}]"
-        )
+    async def setModeHelper(self, sysId: str, modeTarget: str, mode: str, scheduleId: int) -> None:
+        _LOGGER.info(f"setMode modeTarget [{modeTarget}] mode [{mode}] scheduleId [{scheduleId}] sysId [{sysId}]")
         try:
             if modeTarget not in HVAC_MODE_TARGETS:
-                err_msg = f"setModeHelper - invalide mode target [{modeTarget}] requested, must be in [{HVAC_MODE_TARGETS}]"
+                err_msg = (
+                    f"setModeHelper - invalide mode target [{modeTarget}] requested, must be in [{HVAC_MODE_TARGETS}]"
+                )
                 _LOGGER.error(err_msg)
                 raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
             data = (
@@ -907,21 +839,13 @@ class s30api_async(object):
         except Exception as e:
             _LOGGER.exception("setmode - Exception ")
             raise S30Exception(str(e), EC_SETMODE_HELPER, 1)
-        _LOGGER.info(
-            f"setModeHelper success[{mode}] scheduleId [{scheduleId}] sysId [{sysId}]"
-        )
+        _LOGGER.info(f"setModeHelper success[{mode}] scheduleId [{scheduleId}] sysId [{sysId}]")
 
-    async def publish_message_helper_dict(
-        self, sysId: str, message: dict, additional_parameters=None
-    ):
+    async def publish_message_helper_dict(self, sysId: str, message: dict, additional_parameters=None):
         data = '"Data":' + json.dumps(message)
-        await self.publishMessageHelper(
-            sysId, data, additional_parameters=additional_parameters
-        )
+        await self.publishMessageHelper(sysId, data, additional_parameters=additional_parameters)
 
-    async def publishMessageHelper(
-        self, sysId: str, data: str, additional_parameters=None
-    ) -> None:
+    async def publishMessageHelper(self, sysId: str, data: str, additional_parameters=None) -> None:
         _LOGGER.debug(f"publishMessageHelper sysId [{sysId}] data [{data}]")
         try:
             url = self.url_publish
@@ -980,14 +904,10 @@ class s30api_async(object):
             _LOGGER.error(e.message)
             raise e
         except Exception as e:
-            s30e = s30exception_from_comm_exception(
-                e, operation="publishMessageHelper", url=url, metrics=self.metrics
-            )
+            s30e = s30exception_from_comm_exception(e, operation="publishMessageHelper", url=url, metrics=self.metrics)
             if s30e != None:
                 raise s30e
-            _LOGGER.exception(
-                "publishMessageHelper - unexpected exception - please raise an issue to track"
-            )
+            _LOGGER.exception("publishMessageHelper - unexpected exception - please raise an issue to track")
             raise S30Exception(
                 "publishMessageHelper failed due to unexpected exception",
                 EC_COMMS_ERROR,
@@ -996,27 +916,21 @@ class s30api_async(object):
         _LOGGER.info("publishMessageHelper success sysId [" + str(sysId) + "]")
 
     async def setHVACMode(self, sysId: str, mode: str, scheduleId: int) -> None:
-        _LOGGER.info(
-            f"setHVACMode mode [{mode}] scheduleId [{scheduleId}] sysId [{sysId}]"
-        )
+        _LOGGER.info(f"setHVACMode mode [{mode}] scheduleId [{scheduleId}] sysId [{sysId}]")
         if mode not in HVAC_MODES:
             err_msg = f"setHVACMode - invalide mode [{mode}] requested, must be in [{HVAC_MODES}]"
             raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
         await self.setModeHelper(sysId, "systemMode", mode, scheduleId)
 
     async def setHumidityMode(self, sysId: str, mode: str, scheduleId: int):
-        _LOGGER.info(
-            f"setHumidityMode mode [{mode}] scheduleId [{scheduleId}] sysId [{sysId}]"
-        )
+        _LOGGER.info(f"setHumidityMode mode [{mode}] scheduleId [{scheduleId}] sysId [{sysId}]")
         if mode not in HUMIDITY_MODES:
             err_msg = f"setHumidityMode - invalide mode [{mode}] requested, must be in [{HUMIDITY_MODES}]"
             raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
         await self.setModeHelper(sysId, "humidityMode", mode, scheduleId)
 
     async def setFanMode(self, sysId: str, mode: str, scheduleId: int) -> None:
-        _LOGGER.info(
-            f"setFanMode mode [{mode}] scheduleId [{scheduleId}] sysId [{sysId}]"
-        )
+        _LOGGER.info(f"setFanMode mode [{mode}] scheduleId [{scheduleId}] sysId [{sysId}]")
         if mode not in FAN_MODES:
             err_msg = f"setFanMode - invalide mode [{mode}] requested, must be in [{FAN_MODES}]"
             raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
@@ -1188,13 +1102,9 @@ class lennox_system(object):
                         self.attr_updater(presence[0], "status", "cloud_status")
                         self.executeOnUpdateCallbacks()
                 else:
-                    _LOGGER.warning(
-                        f"update_system_online_cloud - No presense element in response [{response}]"
-                    )
+                    _LOGGER.warning(f"update_system_online_cloud - No presense element in response [{response}]")
             else:
-                _LOGGER.warning(
-                    f"update_system_online_cloud - No message element in response [{response}]"
-                )
+                _LOGGER.warning(f"update_system_online_cloud - No message element in response [{response}]")
         else:
             _LOGGER.warning(f"update_system_online_cloud - No Response Received")
 
@@ -1216,9 +1126,7 @@ class lennox_system(object):
                         if key in data:
                             self.message_processing_list[key](data[key])
                     except Exception as e:
-                        _LOGGER.exception(
-                            f"processMessage key [{key}] Exception - Failed Message to Follow"
-                        )
+                        _LOGGER.exception(f"processMessage key [{key}] Exception - Failed Message to Follow")
                         _LOGGER.error(
                             json.dumps(
                                 self.api.message_log.remove_redacted_fields(message),
@@ -1230,14 +1138,8 @@ class lennox_system(object):
                 )
                 self.executeOnUpdateCallbacks()
         except Exception as e:
-            _LOGGER.exception(
-                "processMessage - unexpected exception - Failed Message to Follow"
-            )
-            _LOGGER.error(
-                json.dumps(
-                    self.api.message_log.remove_redacted_fields(message), indent=4
-                )
-            )
+            _LOGGER.exception("processMessage - unexpected exception - Failed Message to Follow")
+            _LOGGER.error(json.dumps(self.api.message_log.remove_redacted_fields(message), indent=4))
 
     def getOrCreateSchedule(self, id):
         schedule = self.getSchedule(id)
@@ -1300,9 +1202,7 @@ class lennox_system(object):
         if i == 0:
             return
         if i > 1:
-            _LOGGER.error(
-                f"Encountered system with more than one sibling, please open an issue.  Message: {siblings}"
-            )
+            _LOGGER.error(f"Encountered system with more than one sibling, please open an issue.  Message: {siblings}")
         # It appears there could be more than one of these, for now lets only process the first one.
         sibling = siblings[0]
         self.attr_updater(sibling, "selfIdentifier", "sibling_self_identifier")
@@ -1328,17 +1228,9 @@ class lennox_system(object):
                     # A code of zero indicates a non-alert, lennox seems to put one of these in by default.
                     if (code := t_alert.get("code", None)) != None and code != 0:
                         t_alert["message"] = lennox_error_get_message_from_code(code)
-                        if (
-                            code
-                            == LennoxErrorCodes.lx_alarm_id_Low_Ambient_HP_Heat_Lockout.value
-                        ):
-                            self.attr_updater(
-                                t_alert, "isStillActive", "heatpump_low_ambient_lockout"
-                            )
-                        elif (
-                            code
-                            == LennoxErrorCodes.lx_alarm_id_High_Ambient_Auxiliary_Heat_Lockout.value
-                        ):
+                        if code == LennoxErrorCodes.lx_alarm_id_Low_Ambient_HP_Heat_Lockout.value:
+                            self.attr_updater(t_alert, "isStillActive", "heatpump_low_ambient_lockout")
+                        elif code == LennoxErrorCodes.lx_alarm_id_High_Ambient_Auxiliary_Heat_Lockout.value:
                             self.attr_updater(
                                 t_alert,
                                 "isStillActive",
@@ -1353,13 +1245,8 @@ class lennox_system(object):
             self.attr_updater(meta, "numClearedAlerts", "alerts_num_cleared")
             self.attr_updater(meta, "numActiveAlerts", "alerts_num_active")
             self.attr_updater(meta, "lastClearedAlertId", "alerts_last_cleared_id")
-            self.attr_updater(
-                meta, "numAlertsInActiveArray", "alerts_num_in_active_array"
-            )
-            if (
-                "numAlertsInActiveArray" in meta
-                and self.alerts_num_in_active_array == 0
-            ):
+            self.attr_updater(meta, "numAlertsInActiveArray", "alerts_num_in_active_array")
+            if "numAlertsInActiveArray" in meta and self.alerts_num_in_active_array == 0:
                 self.active_alerts = []
                 self._dirty = True
                 self._dirtyList.append("active_alerts")
@@ -1480,9 +1367,7 @@ class lennox_system(object):
                 self._dirty = True
                 if propertyName not in self._dirtyList:
                     self._dirtyList.append(propertyName)
-                _LOGGER.debug(
-                    f"update_attr: system Id [{self.sysId}] attr [{propertyName}] value [{attr_val}]"
-                )
+                _LOGGER.debug(f"update_attr: system Id [{self.sysId}] attr [{propertyName}] value [{attr_val}]")
                 return True
         return False
 
@@ -1509,22 +1394,14 @@ class lennox_system(object):
                 if "ventilation" in options:
                     ventilation = options["ventilation"]
                     self.attr_updater(ventilation, "unitType", "ventilationUnitType")
-                    self.attr_updater(
-                        ventilation, "controlMode", "ventilationControlMode"
-                    )
+                    self.attr_updater(ventilation, "controlMode", "ventilationControlMode")
                 if "enhancedDehumidificationOvercoolingF" in options:
                     eoc = options["enhancedDehumidificationOvercoolingF"]
                     if "range" in eoc:
                         range = eoc["range"]
-                        self.attr_updater(
-                            range, "min", "enhancedDehumidificationOvercoolingF_min"
-                        )
-                        self.attr_updater(
-                            range, "max", "enhancedDehumidificationOvercoolingF_max"
-                        )
-                        self.attr_updater(
-                            range, "inc", "enhancedDehumidificationOvercoolingF_inc"
-                        )
+                        self.attr_updater(range, "min", "enhancedDehumidificationOvercoolingF_min")
+                        self.attr_updater(range, "max", "enhancedDehumidificationOvercoolingF_max")
+                        self.attr_updater(range, "inc", "enhancedDehumidificationOvercoolingF_inc")
                         self.attr_updater(
                             range,
                             "enable",
@@ -1535,15 +1412,9 @@ class lennox_system(object):
                     eoc = options["enhancedDehumidificationOvercoolingC"]
                     if "range" in eoc:
                         range = eoc["range"]
-                        self.attr_updater(
-                            range, "min", "enhancedDehumidificationOvercoolingC_min"
-                        )
-                        self.attr_updater(
-                            range, "max", "enhancedDehumidificationOvercoolingC_max"
-                        )
-                        self.attr_updater(
-                            range, "inc", "enhancedDehumidificationOvercoolingC_inc"
-                        )
+                        self.attr_updater(range, "min", "enhancedDehumidificationOvercoolingC_min")
+                        self.attr_updater(range, "max", "enhancedDehumidificationOvercoolingC_max")
+                        self.attr_updater(range, "inc", "enhancedDehumidificationOvercoolingC_inc")
                         self.attr_updater(
                             range,
                             "enable",
@@ -1585,9 +1456,7 @@ class lennox_system(object):
                             self._dirty = True
                             self._dirtyList.append("serialNumber")
                         if feature.get("feature", {}).get("fid") == 11:
-                            self.softwareVersion = feature["feature"]["values"][0][
-                                "value"
-                            ]
+                            self.softwareVersion = feature["feature"]["values"][0]["value"]
                             self._dirty = True
                             self._dirtyList.append("softwareVersion")
 
@@ -1600,32 +1469,18 @@ class lennox_system(object):
                 if "equipType" in eq_equipment:
                     eq.equipType = eq_equipment["equipType"]
             for feature in equipment.get("equipment", {}).get("features", []):
-                if (
-                    feature.get("feature", {}).get("fid")
-                    == LENNOX_FEATURE_EQUIPMENT_TYPE_NAME
-                ):
+                if feature.get("feature", {}).get("fid") == LENNOX_FEATURE_EQUIPMENT_TYPE_NAME:
                     if "values" in feature["feature"]:
-                        eq.equipment_type_name = feature["feature"]["values"][0][
-                            "value"
-                        ]
-                if (
-                    feature.get("feature", {}).get("fid")
-                    == LENNOX_FEATURE_UNIT_MODEL_NUMBER
-                ):
+                        eq.equipment_type_name = feature["feature"]["values"][0]["value"]
+                if feature.get("feature", {}).get("fid") == LENNOX_FEATURE_UNIT_MODEL_NUMBER:
                     if "values" in feature["feature"]:
                         eq.unit_model_number = feature["feature"]["values"][0]["value"]
-                if (
-                    feature.get("feature", {}).get("fid")
-                    == LENNOX_FEATURE_UNIT_SERIAL_NUMBER
-                ):
+                if feature.get("feature", {}).get("fid") == LENNOX_FEATURE_UNIT_SERIAL_NUMBER:
                     if "values" in feature["feature"]:
                         eq.unit_serial_number = feature["feature"]["values"][0]["value"]
             for parameter in equipment.get("equipment", {}).get("parameters", []):
                 # 525 is the parameter id for split-setpoint
-                if (
-                    parameter.get("parameter", {}).get("pid")
-                    == LENNOX_PARAMETER_SINGLE_SETPOINT_MODE
-                ):
+                if parameter.get("parameter", {}).get("pid") == LENNOX_PARAMETER_SINGLE_SETPOINT_MODE:
                     value = parameter["parameter"]["value"]
                     if value == 1 or value == "1":
                         self.single_setpoint_mode = True
@@ -1633,10 +1488,7 @@ class lennox_system(object):
                         self.single_setpoint_mode = False
                     self._dirty = True
                     self._dirtyList.append("single_setpoint_mode")
-                if (
-                    parameter.get("parameter", {}).get("pid")
-                    == LENNOX_PARAMETER_EQUIPMENT_NAME
-                ):
+                if parameter.get("parameter", {}).get("pid") == LENNOX_PARAMETER_EQUIPMENT_NAME:
                     # Lennox isn't consistent with capitilization of Subnet Controller
                     eq.equipment_name = parameter["parameter"]["value"]
                 if "parameter" in parameter:
@@ -1644,9 +1496,7 @@ class lennox_system(object):
                         pid = parameter["parameter"]["pid"]
                         par = eq.get_or_create_parameter(pid)
                         par.fromJson(parameter["parameter"])
-                        self.executeOnUpdateCallbacksEqParameters(
-                            f"{equipment_id}_{pid}"
-                        )
+                        self.executeOnUpdateCallbacksEqParameters(f"{equipment_id}_{pid}")
 
             for diagnostic in equipment.get("equipment", {}).get("diagnostics", []):
                 # the diagnostic values sometimes don't have names
@@ -1668,13 +1518,9 @@ class lennox_system(object):
                     )
 
             eid = equipment_id
-            for diagnostic_data in equipment.get("equipment", {}).get(
-                "diagnostics", []
-            ):
+            for diagnostic_data in equipment.get("equipment", {}).get("diagnostics", []):
                 did = diagnostic_data["id"]
-                diagnostic: lennox_equipment_diagnostic = eq.get_or_create_diagnostic(
-                    did
-                )
+                diagnostic: lennox_equipment_diagnostic = eq.get_or_create_diagnostic(did)
                 if "diagnostic" in diagnostic_data:
                     diags = diagnostic_data["diagnostic"]
                     if "name" in diags:
@@ -1692,10 +1538,7 @@ class lennox_system(object):
     def has_emergency_heat(self) -> bool:
         """Returns True is the system has emergency heat"""
         # Emergency heat is defined as a system with a heat pump that also has an indoor furnace
-        if (
-            self.outdoorUnitType == LENNOX_OUTDOOR_UNIT_HP
-            and self.indoorUnitType == LENNOX_INDOOR_UNIT_FURNACE
-        ):
+        if self.outdoorUnitType == LENNOX_OUTDOOR_UNIT_HP and self.indoorUnitType == LENNOX_INDOOR_UNIT_FURNACE:
             return True
         return False
 
@@ -1726,9 +1569,7 @@ class lennox_system(object):
             if "status" in smart_away:
                 smart_away_status = smart_away["status"]
                 self.attr_updater(smart_away_status, "state", "sa_state")
-                self.attr_updater(
-                    smart_away_status, "setpointState", "sa_setpointState"
-                )
+                self.attr_updater(smart_away_status, "setpointState", "sa_setpointState")
 
     def get_manual_away_mode(self) -> bool:
         return self.manualAwayMode
@@ -1801,13 +1642,7 @@ class lennox_system(object):
         return round(c)
 
     async def setSchedule(self, zoneId: int, scheduleId: int) -> None:
-        data = (
-            '"Data":{"zones":[{"config":{"scheduleId":'
-            + str(scheduleId)
-            + '},"id":'
-            + str(zoneId)
-            + "}]}"
-        )
+        data = '"Data":{"zones":[{"config":{"scheduleId":' + str(scheduleId) + '},"id":' + str(zoneId) + "}]}"
         await self.api.publishMessageHelper(self.sysId, data)
 
     async def perform_schedule_setpoint(
@@ -1844,11 +1679,7 @@ class lennox_system(object):
 
         ### No data validation in this routine, make sure you know what you are setting.
         ### Use the zone.perform_setpoint for error checking
-        command = {
-            "schedules": [
-                {"schedule": {"periods": [{"id": 0, "period": {}}]}, "id": scheduleId}
-            ]
-        }
+        command = {"schedules": [{"schedule": {"periods": [{"id": 0, "period": {}}]}, "id": scheduleId}]}
 
         period = command["schedules"][0]["schedule"]["periods"][0]["period"]
         if hsp != None:
@@ -1905,9 +1736,7 @@ class lennox_system(object):
         await self.api.publish_message_helper_dict(self.sysId, command)
 
     async def ventilation_timed(self, durationSecs: int) -> None:
-        _LOGGER.debug(
-            f"ventilation_timed sysid [{self.sysId}] durationSecs [{durationSecs}] "
-        )
+        _LOGGER.debug(f"ventilation_timed sysid [{self.sysId}] durationSecs [{durationSecs}] ")
         try:
             duration_i = int(durationSecs)
         except ValueError as v:
@@ -1996,12 +1825,8 @@ class lennox_system(object):
         data = '"Data":{"system":{"config":{"dehumidificationMode":"' + mode + '" } } }'
         await self.api.publishMessageHelper(self.sysId, data)
 
-    async def set_enhancedDehumidificationOvercooling(
-        self, r_f: int = None, r_c: float = None
-    ):
-        _LOGGER.debug(
-            f"set_enhancedDehumidificationOvercooling sysid [{self.sysId}] r_f [{r_f}] r_c [{r_c}]"
-        )
+    async def set_enhancedDehumidificationOvercooling(self, r_f: int = None, r_c: float = None):
+        _LOGGER.debug(f"set_enhancedDehumidificationOvercooling sysid [{self.sysId}] r_f [{r_f}] r_c [{r_c}]")
         if self.is_none(self.dehumidifierType):
             raise S30Exception(
                 f"System does not have a dehumidifier, cannot set enhancedDehumidificationOvercooling r_f [{r_f}] r_c [{r_c}]",
@@ -2032,10 +1857,7 @@ class lennox_system(object):
                     EC_BAD_PARAMETERS,
                     4,
                 )
-            if (
-                f < self.enhancedDehumidificationOvercoolingF_min
-                or f > self.enhancedDehumidificationOvercoolingF_max
-            ):
+            if f < self.enhancedDehumidificationOvercoolingF_min or f > self.enhancedDehumidificationOvercoolingF_max:
                 raise S30Exception(
                     f"enhancedDehumidificationOvercooling r_f [{r_f}] must be an integer between [{self.enhancedDehumidificationOvercoolingF_min}] and [{self.enhancedDehumidificationOvercoolingF_max}]",
                     EC_BAD_PARAMETERS,
@@ -2050,10 +1872,7 @@ class lennox_system(object):
                     EC_BAD_PARAMETERS,
                     6,
                 )
-            if (
-                c < self.enhancedDehumidificationOvercoolingC_min
-                or c > self.enhancedDehumidificationOvercoolingC_max
-            ):
+            if c < self.enhancedDehumidificationOvercoolingC_min or c > self.enhancedDehumidificationOvercoolingC_max:
                 raise S30Exception(
                     f"enhancedDehumidificationOvercooling r_c [{r_c}] must be an floating point between [{self.enhancedDehumidificationOvercoolingC_min}] and [{self.enhancedDehumidificationOvercoolingC_max}]",
                     EC_BAD_PARAMETERS,
@@ -2106,21 +1925,11 @@ class lennox_system(object):
         await self.api.publish_message_helper_dict(self.sysId, command, "/resetLcc")
 
     async def set_parameter_value(self, et: int, pid: int, value: str):
-        _LOGGER.debug(
-            f"set_parameter_value sysid [{self.sysId}] et [{et}] pid [{pid}] value [{value}]"
-        )
-        command = {
-            "systemControl": {
-                "parameterUpdate": {"et": et, "pid": pid, "value": str(value)}
-            }
-        }
-        await self.api.publish_message_helper_dict(
-            self.sysId, command, additional_parameters="/systemControl"
-        )
+        _LOGGER.debug(f"set_parameter_value sysid [{self.sysId}] et [{et}] pid [{pid}] value [{value}]")
+        command = {"systemControl": {"parameterUpdate": {"et": et, "pid": pid, "value": str(value)}}}
+        await self.api.publish_message_helper_dict(self.sysId, command, additional_parameters="/systemControl")
 
-    async def set_equipment_parameter_value(
-        self, equipment_id: int, pid: int, value: str
-    ):
+    async def set_equipment_parameter_value(self, equipment_id: int, pid: int, value: str):
         _LOGGER.debug(
             f"set_equipment_parameter_value sysid [{self.sysId}] equipment_id [{equipment_id}] pid [{pid}] value [{value}]"
         )
@@ -2149,9 +1958,7 @@ class lennox_system(object):
         call_value = parameter.validate_and_translate(value)
         await self.set_parameter_value(equipment.equipType, pid, call_value)
 
-    async def _internal_set_zone_test_parameter_value(
-        self, pid: int, value: str, enabled: bool
-    ):
+    async def _internal_set_zone_test_parameter_value(self, pid: int, value: str, enabled: bool):
         _LOGGER.debug(
             f"_internal_set_zone_test_parameter_value sysid [{self.sysId}] enabled [{enabled}] pid [{pid}] value [{value}]"
         )
@@ -2164,9 +1971,7 @@ class lennox_system(object):
                 }
             }
         }
-        await self.api.publish_message_helper_dict(
-            self.sysId, command, additional_parameters="/systemControl"
-        )
+        await self.api.publish_message_helper_dict(self.sysId, command, additional_parameters="/systemControl")
 
     async def set_zone_test_parameter_value(self, pid: int, value: str, enabled: bool):
         _LOGGER.debug(
@@ -2231,9 +2036,7 @@ class lennox_zone(object):
         self.tempOperation = None
 
         self.fanMode = None  # The requested fanMode - on, auto, circulate
-        self.fan = (
-            None  # The current state of fan,  False = not running, True = running
-        )
+        self.fan = None  # The current state of fan,  False = not running, True = running
         self.heatCoast = None
         self.defrost = None
         self.balancePoint = None
@@ -2335,20 +2138,14 @@ class lennox_zone(object):
                 self._dirty = True
                 if attr not in self._dirtyList:
                     self._dirtyList.append(attr)
-                _LOGGER.debug(
-                    f"update_attr: zone Id [{self.id}] attr [{attr}] value [{attr_val}]"
-                )
+                _LOGGER.debug(f"update_attr: zone Id [{self.id}] attr [{attr}] value [{attr_val}]")
                 return True
         return False
 
     @property
     def is_zone_disabled(self):
         # When zoning is disabled, only zone 0 is enabled
-        if (
-            self.id == 0
-            or self.system.zoningMode is None
-            or self.system.zoningMode == LENNOX_ZONING_MODE_ZONED
-        ):
+        if self.id == 0 or self.system.zoningMode is None or self.system.zoningMode == LENNOX_ZONING_MODE_ZONED:
             return False
         return True
 
@@ -2469,10 +2266,7 @@ class lennox_zone(object):
         if self.systemMode == LENNOX_HVAC_COOL:
             return self.csp
 
-        if (
-            self.systemMode == LENNOX_HVAC_HEAT
-            or self.systemMode == LENNOX_HVAC_EMERGENCY_HEAT
-        ):
+        if self.systemMode == LENNOX_HVAC_HEAT or self.systemMode == LENNOX_HVAC_EMERGENCY_HEAT:
             return self.hsp
         # Calling this method in this mode is probably an error TODO
         if self.systemMode == LENNOX_HVAC_HEAT_COOL:
@@ -2517,13 +2311,9 @@ class lennox_zone(object):
             return True
         return False
 
-    def validate_setpoints(
-        self, r_hsp=None, r_hspC=None, r_csp=None, r_cspC=None, r_sp=None, r_spC=None
-    ):
+    def validate_setpoints(self, r_hsp=None, r_hspC=None, r_csp=None, r_cspC=None, r_sp=None, r_spC=None):
 
-        if (
-            r_sp != None or r_spC != None
-        ) and self.system.single_setpoint_mode == False:
+        if (r_sp != None or r_spC != None) and self.system.single_setpoint_mode == False:
             raise S30Exception(
                 f"validate_setpoints: r_sp or r_spC can only be specified when system is in single setpoint mode",
                 EC_BAD_PARAMETERS,
@@ -2623,9 +2413,7 @@ class lennox_zone(object):
                 2,
             )
 
-    async def perform_setpoint(
-        self, r_hsp=None, r_hspC=None, r_csp=None, r_cspC=None, r_sp=None, r_spC=None
-    ):
+    async def perform_setpoint(self, r_hsp=None, r_hspC=None, r_csp=None, r_cspC=None, r_sp=None, r_spC=None):
         _LOGGER.debug(
             f"lennox_zone:perform_setpoint  id [{self.id}] hsp [{r_hsp}] hspC [{r_hspC}] csp [{r_csp}] cspC [{r_cspC}] sp [{r_sp}] spC [{r_spC}] single_setpoint_mode [{self.system.single_setpoint_mode}]"
         )
@@ -2686,9 +2474,7 @@ class lennox_zone(object):
             elif r_sp != None:
                 spC = self.system.convertFtoC(r_sp)
 
-        await self._execute_setpoints(
-            hsp=hsp, hspC=hspC, csp=csp, cspC=cspC, sp=sp, spC=spC
-        )
+        await self._execute_setpoints(hsp=hsp, hspC=hspC, csp=csp, cspC=cspC, sp=sp, spC=spC)
 
     async def _execute_setpoints(
         self,
@@ -2705,9 +2491,7 @@ class lennox_zone(object):
         _LOGGER.debug(f"_execute_setpoints {info_str}")
         # If the zone is in manual mode, the temperature can just be set.
         if self.isZoneManualMode() == True:
-            _LOGGER.info(
-                f"lennox_zone:_execute_setpoints zone already in manual mode id [{self.id}]"
-            )
+            _LOGGER.info(f"lennox_zone:_execute_setpoints zone already in manual mode id [{self.id}]")
             await self.system.perform_schedule_setpoint(
                 zoneId=self.id,
                 scheduleId=self.getManualModeScheduleId(),
@@ -2725,9 +2509,7 @@ class lennox_zone(object):
         # The zone is following a schedule.  So first check if it's already running
         # the override schedule and we can just set the temperature
         if self.isZoneOveride() == True:
-            _LOGGER.info(
-                f"lennox_zone:_execute_setpoints zone already in overridemode id [{self.id}]"
-            )
+            _LOGGER.info(f"lennox_zone:_execute_setpoints zone already in overridemode id [{self.id}]")
             await self.system.perform_schedule_setpoint(
                 zoneId=self.id,
                 scheduleId=self.getOverrideScheduleId(),
@@ -2744,11 +2526,7 @@ class lennox_zone(object):
 
         # Otherwise, we are following a schedule and need to switch into manual over-ride
         # Copy all the data over from the current executing period
-        _LOGGER.info(
-            _LOGGER.info(
-                f"lennox_zone:_execute_setpoints creating zone override [{self.id}]"
-            )
-        )
+        _LOGGER.info(_LOGGER.info(f"lennox_zone:_execute_setpoints creating zone override [{self.id}]"))
 
         if hsp is None:
             hsp = self.hsp
@@ -2785,27 +2563,19 @@ class lennox_zone(object):
         try:
             await self.system.api.publishMessageHelper(self.system.sysId, data)
         except S30Exception as e:
-            _LOGGER.error(
-                f"lennox_zone:_execute_setpoints failed to create override {info_str}"
-            )
+            _LOGGER.error(f"lennox_zone:_execute_setpoints failed to create override {info_str}")
             raise e
 
-        _LOGGER.info(
-            f"lennox_zone:_execute_setpoints placing zone in override hold {info_str}"
-        )
+        _LOGGER.info(f"lennox_zone:_execute_setpoints placing zone in override hold {info_str}")
 
         try:
             await self.setScheduleHold(True)
         except S30Exception as e:
-            _LOGGER.error(
-                "lennox_zone:_execute_setpoints failed to create schedule hold {info_str}"
-            )
+            _LOGGER.error("lennox_zone:_execute_setpoints failed to create schedule hold {info_str}")
             raise e
 
     async def perform_humidify_setpoint(self, r_husp: int = None, r_desp: int = None):
-        _LOGGER.debug(
-            f"lennox_zone:perform_humidify_setpoint id [{self.id}] husp [{r_husp}] desp [{r_desp}]"
-        )
+        _LOGGER.debug(f"lennox_zone:perform_humidify_setpoint id [{self.id}] husp [{r_husp}] desp [{r_desp}]")
 
         husp: int = None
         desp: int = None
@@ -2842,13 +2612,7 @@ class lennox_zone(object):
         else:
             strHold = "false"
 
-        _LOGGER.info(
-            "lennox_zone:setScheduleHold zone ["
-            + str(self.id)
-            + "] hold ["
-            + str(strHold)
-            + "]"
-        )
+        _LOGGER.info("lennox_zone:setScheduleHold zone [" + str(self.id) + "] hold [" + str(strHold) + "]")
         # Add a schedule hold to the zone, for now all hold will expire on next period
         data = '"Data":{"zones":[{"config":{"scheduleHold":'
         data += '{"scheduleId":' + str(self.getOverrideScheduleId()) + ","
@@ -2858,13 +2622,7 @@ class lennox_zone(object):
         try:
             await self.system.api.publishMessageHelper(self.system.sysId, data)
         except S30Exception as e:
-            _LOGGER.error(
-                "lennox_zone:setScheduleHold failed zone ["
-                + str(self.id)
-                + "] hold ["
-                + str(strHold)
-                + "]"
-            )
+            _LOGGER.error("lennox_zone:setScheduleHold failed zone [" + str(self.id) + "] hold [" + str(strHold) + "]")
             raise e
 
     async def setManualMode(self) -> None:
@@ -2878,9 +2636,7 @@ class lennox_zone(object):
                 break
 
         if scheduleId == None:
-            err_msg = (
-                f"setSchedule - unknown schedule [{scheduleName}] zone [{self.name}]"
-            )
+            err_msg = f"setSchedule - unknown schedule [{scheduleName}] zone [{self.name}]"
             raise S30Exception(err_msg, EC_NO_SCHEDULE, 1)
 
         await self.system.setSchedule(self.id, scheduleId)

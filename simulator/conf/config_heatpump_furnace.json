@@ -1,9 +1,10 @@
 {
     "configFile" : "tests/messages/config_system_03_heatpump_and_furnace.json",
     "deviceFile" : "tests/messages/device_response_lcc.json",
-    "equipmentFile" : "test/messages/equipments_response_energy.json",
+    "equipmentFile" : "tests/messages/equipments_response_energy.json",
     "substitutions" : [ { "old_value" : "HD21212121", 
                        "new_value" : "HD12341234" }  ],
     "outdoorTempSim" : false,
+    "heatpumpLockoutSim": "tests/messages/alert_lockouts.json",
     "zoneSim" : false
 }

@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Simulator 1",
+      "name": "Python: Simulator 1 - 8080",
       "type": "python",
       "request": "launch",
       "module": "aiohttp.web",
@@ -18,7 +18,7 @@
       "console": "integratedTerminal"
     },
     {
-      "name": "Python: Simulator 2",
+      "name": "Python: Simulator 2 - 8081",
       "type": "python",
       "request": "launch",
       "module": "aiohttp.web",
