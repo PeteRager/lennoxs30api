@@ -2488,7 +2488,7 @@ class lennox_zone(object):
         desp: int = None,
     ):
         info_str = f"zone [{self.id}] hsp [{hsp}] hspC [{hspC}] csp [{csp}] cspC [{cspC}] sp [{sp}] spC [{spC}] husp [{husp}] desp [{desp}]"
-        _LOGGER.debug(f"_execute_setpoints {info_str}")
+        _LOGGER.info(f"_execute_setpoints {info_str}")
         # If the zone is in manual mode, the temperature can just be set.
         if self.isZoneManualMode() == True:
             _LOGGER.info(f"lennox_zone:_execute_setpoints zone already in manual mode id [{self.id}]")
