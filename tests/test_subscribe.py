@@ -61,7 +61,7 @@ def test_subscribe_200(api: s30api_async):
         assert requestDataHelper.mock_calls[0].args[0] == system.sysId
         assert (
             requestDataHelper.mock_calls[0].args[1]
-            == '"AdditionalParameters":{"JSONPath":"1;/systemControl;/systemController;/reminderSensors;/reminders;/alerts/active;/alerts/meta;/fwm;/rgw;/devices;/zones;/equipments;/schedules;/occupancy;/system"}'
+            == '"AdditionalParameters":{"JSONPath":"1;/systemControl;/systemController;/reminderSensors;/reminders;/alerts/active;/alerts/meta;/bleProvisionDB;/ble;/indoorAirQuality;/fwm;/rgw;/devices;/zones;/equipments;/schedules;/occupancy;/system"}'
         )
         assert requestDataHelper.mock_calls[1].args[0] == system.sysId
         assert (
