@@ -17,6 +17,7 @@ Change log:
 v0.2.0 - Initial Release
 
 """
+from .lennox_ble import LennoxBle
 from .s30exception import (
     EC_AUTHENTICATE,
     EC_BAD_PARAMETERS,
@@ -590,7 +591,6 @@ class s30api_async(object):
     # The topics subscribed to here are based on the topics that the WebApp subscribes to.  We likely don't need to subscribe to all of them
     # These appear to be JSON topics that correspond to the returned JSON.  For now we will do what the web app does.
     async def subscribe(self, lennoxSystem: "lennox_system") -> None:
-
         if self.isLANConnection == True:
             ref: int = 1
             try:
@@ -1069,9 +1069,11 @@ class lennox_system(object):
             "siblings": self._processSiblings,
             "rgw": self._process_rgw,
             "alerts": self._process_alerts,
+            "ble": self._process_ble,
         }
 
         self.equipment: dict[int, lennox_equipment] = {}
+        self.ble_devices: dict[int, LennoxBle] = {}
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
 
     async def update_system_online_cloud(self):
@@ -1250,6 +1252,20 @@ class lennox_system(object):
                 self.active_alerts = []
                 self._dirty = True
                 self._dirtyList.append("active_alerts")
+
+    def get_or_create_ble_device(self, ble_id: int) -> LennoxBle:
+        if ble_id not in self.ble_devices:
+            self.ble_devices[ble_id] = LennoxBle(ble_id)
+        return self.ble_devices[ble_id]
+
+    def _process_ble(self, ble):
+        for devices in ble.get("devices", {}):
+            if "device" in devices:
+                device = devices["device"]
+                if "wdn" in device and device["wdn"] != 0:
+                    ble_device = self.get_or_create_ble_device(device["wdn"])
+                    ble_device.update_from_json(device)
+                    ble_device.execute_on_update_callbacks()
 
     def _processSchedules(self, schedules):
         """Processes the schedule messages, throws base exceptions if a problem is encoutered"""
@@ -2312,7 +2328,6 @@ class lennox_zone(object):
         return False
 
     def validate_setpoints(self, r_hsp=None, r_hspC=None, r_csp=None, r_cspC=None, r_sp=None, r_spC=None):
-
         if (r_sp != None or r_spC != None) and self.system.single_setpoint_mode == False:
             raise S30Exception(
                 f"validate_setpoints: r_sp or r_spC can only be specified when system is in single setpoint mode",
