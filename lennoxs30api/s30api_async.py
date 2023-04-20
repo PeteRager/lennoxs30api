@@ -191,6 +191,10 @@ PID_ZONE_8_HEATING_CFM = 279
 # String in lennox JSON representing no value.
 LENNOX_NONE_STR: Final = "none"
 
+# BLE Sensor
+LENNOX_BLE_COMMSTATUS_AVAILABLE: Final = "active"
+LENNOX_BLE_STATUS_INPUT_AVAILABLE: Final = "0"
+
 # NOTE:  This application id is super important and a point of brittleness.  You can find this in the burp logs between the mobile app and the Lennox server.
 # If we start getting reports of missesd message, this is the place to look....
 # Here is what I do know
@@ -1090,7 +1094,7 @@ class lennox_system(object):
                     message = json.loads(message_txt)
                 except Exception as e:
                     _LOGGER.warning(
-                        f"update_system_online_cloud - Failed to obtain presence status from cloud message [{message}] exception [{e}]"
+                        f"update_system_online_cloud - Failed to obtain presence status from cloud message [{message_txt}] exception [{e}]"
                     )
                     return
                 presence = message.get("presence")
