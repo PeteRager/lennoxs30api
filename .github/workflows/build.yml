@@ -19,4 +19,4 @@ jobs:
           pip install pytest==7.2.2
           pip install pytz
       - name: Run pytest
-        run: pytest tests
+        run: python -m pytest tests/
