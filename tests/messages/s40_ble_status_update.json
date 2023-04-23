@@ -1,0 +1,119 @@
+{
+    "MessageId": 0,
+    "SenderID": "**redacted**",
+    "TargetID": "homeassistant",
+    "MessageType": "PropertyChange",
+    "Data": {
+        "ble": {
+            "publisher": {
+                "publisherName": "lcc"
+            },
+            "devices": [
+                {
+                    "device": {
+                        "devStatus": {
+                            "szStatus": 6,
+                            "commStatus": "active",
+                            "inputsStatus": [
+                                {
+                                    "status": {
+                                        "name": "RAS humidity %",
+                                        "vid": 4052,
+                                        "format": "uint8",
+                                        "values": [
+                                            {
+                                                "id": 0,
+                                                "value": "52"
+                                            }
+                                        ],
+                                        "unit": "%"
+                                    },
+                                    "id": 12
+                                },
+                                {
+                                    "status": {
+                                        "name": "RAS Humidity Sensor status",
+                                        "vid": 4053,
+                                        "format": "uint8",
+                                        "values": [
+                                            {
+                                                "id": 0,
+                                                "value": "0"
+                                            }
+                                        ],
+                                        "unit": "none"
+                                    },
+                                    "id": 13
+                                },
+                                {
+                                    "status": {
+                                        "name": "rssi",
+                                        "vid": 4000,
+                                        "format": "int8",
+                                        "values": [
+                                            {
+                                                "id": 0,
+                                                "value": "-63"
+                                            }
+                                        ],
+                                        "unit": "none"
+                                    },
+                                    "id": 0
+                                },
+                                {
+                                    "status": {
+                                        "name": "Alarm status",
+                                        "vid": 4001,
+                                        "format": "uint8",
+                                        "values": [
+                                            {
+                                                "id": 0,
+                                                "value": "1"
+                                            }
+                                        ],
+                                        "unit": "none"
+                                    },
+                                    "id": 1
+                                },
+                                {
+                                    "status": {
+                                        "name": "Device State",
+                                        "vid": 4002,
+                                        "format": "uint8",
+                                        "values": [
+                                            {
+                                                "id": 0,
+                                                "value": "1"
+                                            }
+                                        ],
+                                        "unit": "none"
+                                    },
+                                    "id": 2
+                                },
+                                {
+                                    "status": {
+                                        "name": "S40_BLE_RSSI",
+                                        "vid": 4004,
+                                        "format": "int8",
+                                        "values": [
+                                            {
+                                                "id": 0,
+                                                "value": "-64"
+                                            }
+                                        ],
+                                        "unit": "none"
+                                    },
+                                    "id": 4
+                                }
+                            ]
+                        },
+                        "wdn": 513,
+                        "zId": 0,
+                        "deviceType": "ras"
+                    },
+                    "id": 2
+                }
+            ]
+        }
+    }
+}

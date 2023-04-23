@@ -43,7 +43,6 @@ class Simulator(object):
                 self.heatpumpLockoutSim = self.config_data["heatpumpLockoutSim"]
 
     async def heatpumpLockoutSimulator(self):
-
         active: bool = False
         while True:
             message = self.loadfile(self.heatpumpLockoutSim)
@@ -103,26 +102,15 @@ class Simulator(object):
         await asyncio.sleep(15.0)
         value: float = 0.0
         while True:
-            message["Data"]["equipments"][0]["equipment"]["diagnostics"][1][
-                "diagnostic"
-            ]["value"] = str(value)
+            message["Data"]["equipments"][0]["equipment"]["diagnostics"][1]["diagnostic"]["value"] = str(value)
             value += 1.2
             if value > 300:
                 value = 0.0
 
-            if (
-                message["Data"]["equipments"][0]["equipment"]["diagnostics"][0][
-                    "diagnostic"
-                ]["value"]
-                == "Yes"
-            ):
-                message["Data"]["equipments"][0]["equipment"]["diagnostics"][0][
-                    "diagnostic"
-                ]["value"] = "No"
+            if message["Data"]["equipments"][0]["equipment"]["diagnostics"][0]["diagnostic"]["value"] == "Yes":
+                message["Data"]["equipments"][0]["equipment"]["diagnostics"][0]["diagnostic"]["value"] = "No"
             else:
-                message["Data"]["equipments"][0]["equipment"]["diagnostics"][0][
-                    "diagnostic"
-                ]["value"] = "Yes"
+                message["Data"]["equipments"][0]["equipment"]["diagnostics"][0]["diagnostic"]["value"] = "Yes"
 
             for appName, appObject in self.appList.items():
                 appObject.queue.append(message)
@@ -334,6 +322,9 @@ class Simulator(object):
                 if "deviceFile" in self.config_data:
                     data = self.loadfile(self.config_data["deviceFile"])
                     app.queue.append(data)
+                if "bleFile" in self.config_data:
+                    data = self.loadfile(self.config_data["bleFile"])
+                    app.queue.append(data)
                 if "systemFile" in self.config_data:
                     data = self.loadfile(self.config_data["systemFile"])
                     app.queue.append(data)
@@ -352,9 +343,7 @@ class Simulator(object):
     def perform_substitutions(self, message: str) -> str:
         if "substitutions" in self.config_data:
             for substitution in self.config_data["substitutions"]:
-                message = message.replace(
-                    substitution["old_value"], substitution["new_value"]
-                )
+                message = message.replace(substitution["old_value"], substitution["new_value"])
         return message
 
     async def retrieve(self, request):
