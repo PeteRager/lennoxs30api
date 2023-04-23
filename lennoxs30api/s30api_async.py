@@ -37,6 +37,7 @@ from urllib.parse import quote
 from aiohttp import ClientTimeout, ClientSession
 
 
+from . import __version__
 from .lennox_ble import LennoxBle
 from .lennox_errors import lennox_error_get_message_from_code, LennoxErrorCodes
 from .lennox_equipment import lennox_equipment, lennox_equipment_diagnostic
@@ -247,6 +248,7 @@ class s30api_async(object):
         message_debug_logging:  Indicates if messages should be include when debug logging
         message_logging_file:  When specified messages will be logged to this file only.
         """
+        _LOGGER.info("s30api_async init version %s", __version__)
         self._username = username
         self._password = password
         self._protocol = protocol
