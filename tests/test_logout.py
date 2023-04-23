@@ -1,22 +1,24 @@
-import logging
-
-import aiohttp
-from lennoxs30api.s30api_async import (
-    CLOUD_LOGOUT_URL,
-    s30api_async,
-)
+"""Tests the api.logout function"""
+# pylint: disable=line-too-long
+# pylint: disable=protected-access
+# pylint: disable=protected-access
+# pylint: disable=missing-function-docstring
+# pylint: disable=invalid-name
 
 import asyncio
-
+import logging
 from unittest.mock import patch
 
+import aiohttp
+from lennoxs30api.s30api_async import CLOUD_LOGOUT_URL, s30api_async
 from lennoxs30api.s30exception import EC_LOGOUT, S30Exception
 
 
 class GoodResponse:
+    """Simulates a good response"""
+
     def __init__(self, status=200):
         self.status_code = status
-        pass
 
     @property
     def status(self) -> int:
@@ -24,18 +26,16 @@ class GoodResponse:
 
 
 def test_logout_local_200():
-    api = s30api_async(
-        username=None, password=None, app_id="myapp_id", ip_address="10.0.0.1"
-    )
+    api = s30api_async(username=None, password=None, app_id="myapp_id", ip_address="10.0.0.1")
     with patch.object(api, "post") as mock_post:
         mock_post.return_value = GoodResponse(200)
         loop = asyncio.get_event_loop()
         error = False
         try:
-            result = loop.run_until_complete(api.logout())
-        except S30Exception as e:
+            _ = loop.run_until_complete(api.logout())
+        except S30Exception:
             error = True
-        assert error == False
+        assert error is False
         assert mock_post.call_count == 1
         assert mock_post.call_args_list[0][0][0] == api.url_logout
         assert "10.0.0.1" in api.url_logout
@@ -50,8 +50,8 @@ def test_logout_cloud():
         loop = asyncio.get_event_loop()
         error = False
         try:
-            result = loop.run_until_complete(api.logout())
-        except S30Exception as e:
+            _ = loop.run_until_complete(api.logout())
+        except S30Exception:
             error = True
         assert error == False
         assert mock_post.call_count == 1
@@ -59,9 +59,7 @@ def test_logout_cloud():
 
 
 def test_logout_local_400(caplog):
-    api = s30api_async(
-        username=None, password=None, app_id="myapp_id", ip_address="10.0.0.1"
-    )
+    api = s30api_async(username=None, password=None, app_id="myapp_id", ip_address="10.0.0.1")
     with patch.object(api, "post") as mock_post:
         mock_post.return_value = GoodResponse(400)
         caplog.clear()
@@ -70,11 +68,11 @@ def test_logout_local_400(caplog):
             error = False
             ex = None
             try:
-                result = loop.run_until_complete(api.logout())
+                _ = loop.run_until_complete(api.logout())
             except S30Exception as e:
                 error = True
                 ex = e
-            assert error == True
+            assert error is True
             assert ex.error_code == EC_LOGOUT
             assert api.url_logout in ex.message
             assert "400" in ex.message
@@ -102,12 +100,30 @@ def test_logout_cloud_comm_exception(caplog):
             error = False
             ex = None
             try:
-                result = loop.run_until_complete(api.logout())
+                _ = loop.run_until_complete(api.logout())
             except S30Exception as e:
                 error = True
                 ex = e
-            assert error == True
+            assert error is True
             assert "logout" in ex.message
             assert api.url_logout in ex.message
             assert "some other error" in ex.message
             assert len(caplog.records) == 0
+
+    with patch.object(api, "post") as mock_post:
+        caplog.clear()
+        with caplog.at_level(logging.WARNING):
+            mock_post.side_effect = KeyError("bad key")
+            loop = asyncio.get_event_loop()
+            error = False
+            ex = None
+            try:
+                _ = loop.run_until_complete(api.logout())
+            except S30Exception as e:
+                error = True
+                ex = e
+            assert error is True
+            assert "logout failed" in ex.message
+            assert "bad key" in ex.message
+            assert len(caplog.records) == 1
+            assert "please raise an issue" in caplog.messages[0]

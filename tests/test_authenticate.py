@@ -14,9 +14,7 @@ from lennoxs30api.s30exception import S30Exception
 
 
 def test_authenticate_local():
-    api = s30api_async(
-        username=None, password=None, app_id="app_id", ip_address="10.0.0.1"
-    )
+    api = s30api_async(username=None, password=None, app_id="app_id", ip_address="10.0.0.1")
     with patch.object(api, "post") as mock_post:
         loop = asyncio.get_event_loop()
         error = False
@@ -38,11 +36,7 @@ class GoodResponse:
         return self.status_code
 
     async def json(self):
-        return {
-            "serverAssigned": {
-                "security": {"certificateToken": {"encoded": "encodedCertificate"}}
-            }
-        }
+        return {"serverAssigned": {"security": {"certificateToken": {"encoded": "encodedCertificate"}}}}
 
     async def text(self):
         return "this is the error"
@@ -97,11 +91,7 @@ class BadResponse:
         return self.status_code
 
     async def json(self):
-        return {
-            "serverAssigned2": {
-                "security": {"certificateToken": {"encoded": "encodedCertificate"}}
-            }
-        }
+        return {"serverAssigned2": {"security": {"certificateToken": {"encoded": "encodedCertificate"}}}}
 
     async def text(self):
         return "this is the error"
@@ -155,3 +145,20 @@ def test_authenticate_cloud_comm_exception(caplog):
             assert api.url_authenticate in ex.message
             assert "some other error" in ex.message
             assert len(caplog.records) == 0
+
+    with patch.object(api, "post") as mock_post:
+        caplog.clear()
+        with caplog.at_level(logging.WARNING):
+            mock_post.side_effect = ValueError("bad key")
+            loop = asyncio.get_event_loop()
+            error = False
+            ex = None
+            try:
+                _ = loop.run_until_complete(api.authenticate())
+            except S30Exception as e:
+                error = True
+                ex = e
+            assert error is True
+            assert "authenticate" in ex.message
+            assert len(caplog.records) == 1
+            assert "please raise as issue" in caplog.messages[0]
