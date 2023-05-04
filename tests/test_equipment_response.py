@@ -1,3 +1,10 @@
+"""Tests the equipment response"""
+# pylint: disable=line-too-long
+# pylint: disable=protected-access
+# pylint: disable=protected-access
+# pylint: disable=missing-function-docstring
+# pylint: disable=invalid-name
+
 from lennoxs30api.lennox_equipment import lennox_equipment
 from lennoxs30api.s30api_async import (
     LENNOX_EQUIPMENT_TYPE_AIR_HANDLER,
@@ -27,12 +34,12 @@ def test_process_splitsetpoint():
     data = loadfile("equipments_lcc_singlesetpoint.json")
     api.processMessage(data)
 
-    assert lsystem.single_setpoint_mode == True
+    assert lsystem.single_setpoint_mode is True
 
     data = loadfile("equipments_lcc_splitsetpoint.json")
     api.processMessage(data)
 
-    assert lsystem.single_setpoint_mode == False
+    assert lsystem.single_setpoint_mode is False
 
 
 def test_process_equipments_ac_furnace_zoning(api_system_04_furn_ac_zoning):
@@ -46,8 +53,8 @@ def test_process_equipments_ac_furnace_zoning(api_system_04_furn_ac_zoning):
     assert eq.equipment_id == 0
     assert eq.equipment_name == "Subnet controller"
     assert eq.equipment_type_name == "System"
-    assert eq.unit_model_number == None
-    assert eq.unit_serial_number == None
+    assert eq.unit_model_number == "105081-07"
+    assert eq.unit_serial_number == "KL20H56000"
     assert eq.equipType == LENNOX_EQUIPMENT_TYPE_SUBNET_CONTROLLER
     eq: lennox_equipment = system.equipment[1]
     assert eq.equipment_id == 1
@@ -71,23 +78,17 @@ def test_process_equipments_ac_furnace_zoning(api_system_04_furn_ac_zoning):
     assert eq.unit_serial_number == "BT21B13000"
     assert eq.equipType == LENNOX_EQUIPMENT_TYPE_ZONING_CONTROLLER
 
-    assert system.has_indoor_unit == True
-    assert system.has_outdoor_unit == True
-    assert (
-        system.indoorUnitType.casefold()
-        == system.equipment[2].equipment_type_name.casefold()
-    )
-    assert (
-        system.outdoorUnitType.casefold()
-        == system.equipment[1].equipment_type_name.casefold()
-    )
+    assert system.has_indoor_unit is True
+    assert system.has_outdoor_unit is True
+    assert system.indoorUnitType.casefold() == system.equipment[2].equipment_type_name.casefold()
+    assert system.outdoorUnitType.casefold() == system.equipment[1].equipment_type_name.casefold()
 
     eq = system.get_indoor_unit_equipment()
     assert eq.equipment_id == 2
 
     system.indoorUnitType = None
     eq = system.get_indoor_unit_equipment()
-    assert eq == None
+    assert eq is None
     system.indoorUnitType = "mangled"
     eq = system.get_indoor_unit_equipment()
     assert eq.equipment_id == 2
@@ -96,7 +97,7 @@ def test_process_equipments_ac_furnace_zoning(api_system_04_furn_ac_zoning):
     assert eq.equipment_id == 1
     system.outdoorUnitType = None
     eq = system.get_outdoor_unit_equipment()
-    assert eq == None
+    assert eq is None
     system.outdoorUnitType = "mangled"
     eq = system.get_outdoor_unit_equipment()
     assert eq.equipment_id == 1
@@ -116,8 +117,8 @@ def test_process_equipments_HeatPump_AirHandler():
     eq: lennox_equipment = system.equipment[0]
     assert eq.equipment_name == "Subnet Controller"
     assert eq.equipment_type_name == "System"
-    assert eq.unit_model_number == None
-    assert eq.unit_serial_number == None
+    assert eq.unit_model_number == "105081-07"
+    assert eq.unit_serial_number == "KL21D01999"
     assert eq.equipType == LENNOX_EQUIPMENT_TYPE_SUBNET_CONTROLLER
     eq: lennox_equipment = system.equipment[1]
     assert eq.equipment_id == 1

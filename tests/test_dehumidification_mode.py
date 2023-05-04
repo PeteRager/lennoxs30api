@@ -1,7 +1,4 @@
-from telnetlib import EC
 from lennoxs30api.s30api_async import (
-    LENNOX_CIRCULATE_TIME_MAX,
-    LENNOX_CIRCULATE_TIME_MIN,
     LENNOX_DEHUMIDIFICATION_MODES,
     LENNOX_NONE_STR,
     lennox_system,
@@ -41,9 +38,7 @@ def test_set_dehumidification_mode(api):
         loop = asyncio.get_event_loop()
         ex = None
         try:
-            result = loop.run_until_complete(
-                lsystem.set_dehumidificationMode("INVALID_MODE")
-            )
+            result = loop.run_until_complete(lsystem.set_dehumidificationMode("INVALID_MODE"))
         except S30Exception as e:
             ex = e
         assert ex != None
@@ -57,9 +52,7 @@ def test_set_dehumidification_mode(api):
         loop = asyncio.get_event_loop()
         ex = None
         try:
-            result = loop.run_until_complete(
-                lsystem.set_dehumidificationMode("LENNOX_DEHUMIDIFICATION_MODE_HIGH")
-            )
+            result = loop.run_until_complete(lsystem.set_dehumidificationMode("LENNOX_DEHUMIDIFICATION_MODE_HIGH"))
         except S30Exception as e:
             ex = e
         assert ex != None
