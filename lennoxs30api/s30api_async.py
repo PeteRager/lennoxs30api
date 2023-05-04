@@ -168,6 +168,8 @@ LENNOX_DEHUMIDIFICATION_MODES: Final = {
 
 LENNOX_FEATURE_UNIT_MODEL_NUMBER: Final = 6
 LENNOX_FEATURE_UNIT_SERIAL_NUMBER: Final = 7
+LENNOX_FEATURE_CONTROL_MODEL_NUMBER: Final = 8
+LENNOX_FEATURE_CONTROL_SERIAL_NUMBER: Final = 9
 LENNOX_FEATURE_EQUIPMENT_TYPE_NAME: Final = 15
 
 LENNOX_PARAMETER_EQUIPMENT_NAME: Final = 18
@@ -1505,12 +1507,20 @@ class lennox_system(object):
                 if feature.get("feature", {}).get("fid") == LENNOX_FEATURE_EQUIPMENT_TYPE_NAME:
                     if "values" in feature["feature"]:
                         eq.equipment_type_name = feature["feature"]["values"][0]["value"]
-                if feature.get("feature", {}).get("fid") == LENNOX_FEATURE_UNIT_MODEL_NUMBER:
-                    if "values" in feature["feature"]:
-                        eq.unit_model_number = feature["feature"]["values"][0]["value"]
-                if feature.get("feature", {}).get("fid") == LENNOX_FEATURE_UNIT_SERIAL_NUMBER:
-                    if "values" in feature["feature"]:
-                        eq.unit_serial_number = feature["feature"]["values"][0]["value"]
+                if equipment_id == 0:
+                    if feature.get("feature", {}).get("fid") == LENNOX_FEATURE_CONTROL_MODEL_NUMBER:
+                        if "values" in feature["feature"]:
+                            eq.unit_model_number = feature["feature"]["values"][0]["value"]
+                    if feature.get("feature", {}).get("fid") == LENNOX_FEATURE_CONTROL_SERIAL_NUMBER:
+                        if "values" in feature["feature"]:
+                            eq.unit_serial_number = feature["feature"]["values"][0]["value"]
+                else:
+                    if feature.get("feature", {}).get("fid") == LENNOX_FEATURE_UNIT_MODEL_NUMBER:
+                        if "values" in feature["feature"]:
+                            eq.unit_model_number = feature["feature"]["values"][0]["value"]
+                    if feature.get("feature", {}).get("fid") == LENNOX_FEATURE_UNIT_SERIAL_NUMBER:
+                        if "values" in feature["feature"]:
+                            eq.unit_serial_number = feature["feature"]["values"][0]["value"]
             for parameter in equipment.get("equipment", {}).get("parameters", []):
                 # 525 is the parameter id for split-setpoint
                 if parameter.get("parameter", {}).get("pid") == LENNOX_PARAMETER_SINGLE_SETPOINT_MODE:
@@ -1580,7 +1590,11 @@ class lennox_system(object):
         # This returns a unique identifier.  When connected ot the cloud we use the sysid which is a GUID; when
         # connected to the LAN the sysid is alway "LCC" - which is not unique - so in this case we use the device serial number.
         if self.sysId == "LCC":
-            return self.serialNumber
+            # The S40 no longer populates the serial number, so get it from the unit_serial_number
+            if self.productType == "S40":
+                return self.equipment[0].unit_serial_number
+            else:
+                return self.serialNumber
         return self.sysId
 
     def config_complete(self) -> bool:
