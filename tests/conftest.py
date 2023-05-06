@@ -83,4 +83,7 @@ def api_system_04_furn_ac_zoning() -> s30api_async:
     data = loadfile("system_04_furn_ac_zoning_alerts.json", "LCC")
     api.processMessage(data)
 
+    data = loadfile("system_04_furn_ac_zoning_indoorAirQuality.json", "LCC")
+    api.processMessage(data)
+
     return api
