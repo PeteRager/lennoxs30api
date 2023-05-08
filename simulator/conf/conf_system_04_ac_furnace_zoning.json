@@ -6,7 +6,9 @@
     "systemFile" :    "tests/messages/systemControl_diag_level_2.json",
     "rgwFile" :       "tests/messages/system_04_furn_ac_zoning_rgw.json",
     "alertFile" :     "tests/messages/system_04_furn_ac_zoning_alerts.json",
-    "bleFile" :       "tests/messages/s40_ble.json",
+    "bleFile" :       "tests/messages/system_04_furn_ac_zoning_ble.json",
+    "iaqFile" :       "tests/messages/system_04_furn_ac_zoning_indoorAirQuality.json",
+    "productType":    "S40",
     "outdoorTempSim" : false,
     "zoneSim" : false,
     "diagSim" : false                   
