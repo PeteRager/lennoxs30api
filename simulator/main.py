@@ -3,7 +3,6 @@ import os
 import asyncio
 
 from aiohttp import web
-from aiohttp.typedefs import JSONDecoder
 from aiohttp.web_request import Request
 
 from lennoxs30api.s30api_async import LENNOX_STATUS_GOOD, LENNOX_STATUS_NOT_AVAILABLE
@@ -29,6 +28,7 @@ class Simulator(object):
         self.siblingSim = False
         self.diagSim = False
         self.equipment = None
+        self.productType = None
         with open(configfile) as f:
             self.config_data = json.load(f)
             if "outdoorTempSim" in self.config_data:
@@ -41,6 +41,8 @@ class Simulator(object):
                 self.diagSim = self.config_data["diagSim"]
             if "heatpumpLockoutSim" in self.config_data:
                 self.heatpumpLockoutSim = self.config_data["heatpumpLockoutSim"]
+            if "productType" in self.config_data:
+                self.productType = self.config_data["productType"]
 
     async def heatpumpLockoutSimulator(self):
         active: bool = False
@@ -308,6 +310,8 @@ class Simulator(object):
                 app: AppConnection = self.appList[app_id]
                 if "configFile" in self.config_data:
                     data = self.loadfile(self.config_data["configFile"])
+                    if self.productType != None:
+                        data["Data"]["system"]["config"]["options"]["productType"] = self.productType
                     app.queue.append(data)
                 if "rgwFile" in self.config_data:
                     data = self.loadfile(self.config_data["rgwFile"])
@@ -324,6 +328,9 @@ class Simulator(object):
                     app.queue.append(data)
                 if "bleFile" in self.config_data:
                     data = self.loadfile(self.config_data["bleFile"])
+                    app.queue.append(data)
+                if "iaqFile" in self.config_data:
+                    data = self.loadfile(self.config_data["iaqFile"])
                     app.queue.append(data)
                 if "systemFile" in self.config_data:
                     data = self.loadfile(self.config_data["systemFile"])

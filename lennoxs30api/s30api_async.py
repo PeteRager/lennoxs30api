@@ -1075,6 +1075,29 @@ class lennox_system(object):
         # Cloud Connected  "online" or "offline"
         self.cloud_status: str = None
 
+        # Indoor Air Quality
+        self.iaq_mitigation_action = None
+        self.iaq_mitigation_state = None
+        self.iaq_overall_index = None
+
+        self.iaq_pm25_sta = None
+        self.iaq_pm25_sta_valid = None
+        self.iaq_pm25_lta = None
+        self.iaq_pm25_lta_valid = None
+        self.iaq_pm25_component_score = None
+
+        self.iaq_voc_sta = None
+        self.iaq_voc_sta_valid = None
+        self.iaq_voc_lta = None
+        self.iaq_voc_lta_valid = None
+        self.iaq_voc_component_score = None
+
+        self.iaq_co2_sta = None
+        self.iaq_co2_sta_valid = None
+        self.iaq_co2_lta = None
+        self.iaq_co2_lta_valid = None
+        self.iaq_co2_component_score = None
+
         self._dirty = False
         self._dirtyList = []
         self.message_processing_list = {
@@ -1089,6 +1112,7 @@ class lennox_system(object):
             "rgw": self._process_rgw,
             "alerts": self._process_alerts,
             "ble": self._process_ble,
+            "indoorAirQuality": self._process_indoor_air_quality,
         }
 
         self.equipment: dict[int, lennox_equipment] = {}
@@ -1285,6 +1309,20 @@ class lennox_system(object):
                     ble_device = self.get_or_create_ble_device(device["wdn"])
                     ble_device.update_from_json(device)
                     ble_device.execute_on_update_callbacks()
+
+    def _process_indoor_air_quality(self, iaq):
+        self.attr_updater(iaq, "mitigation_action", "iaq_mitigation_action")
+        self.attr_updater(iaq, "mitigation_state", "iaq_mitigation_state")
+        self.attr_updater(iaq, "overall_index", "iaq_overall_index")
+        if "sensor" in iaq:
+            for sensor in iaq["sensor"]:
+                if sensor["name"] in ("PM25", "VOC", "CO2"):
+                    name = str(sensor["name"]).lower()
+                    self.attr_updater(sensor, "sta", f"iaq_{name}_sta")
+                    self.attr_updater(sensor, "sta_validNumber", f"iaq_{name}_sta_valid")
+                    self.attr_updater(sensor, "lta", f"iaq_{name}_lta")
+                    self.attr_updater(sensor, "lta_validNumber", f"iaq_{name}_lta_valid")
+                    self.attr_updater(sensor, "component_score", f"iaq_{name}_component_score")
 
     def _processSchedules(self, schedules):
         """Processes the schedule messages, throws base exceptions if a problem is encoutered"""
