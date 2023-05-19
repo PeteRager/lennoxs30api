@@ -637,7 +637,7 @@ class s30api_async(object):
                 ref = 2
                 await self.requestDataHelper(
                     lennoxSystem.sysId,
-                    '"AdditionalParameters":{"JSONPath":"1;/system;/zones;/occupancy;/schedules;/reminderSensors;/reminders;/alerts/active;"}',
+                    '"AdditionalParameters":{"JSONPath":"1;/zones;/occupancy;/schedules;/reminderSensors;/reminders;/alerts/active;"}',
                 )
                 ref = 3
                 await self.requestDataHelper(
