@@ -79,7 +79,7 @@ def test_subscribe_200(api: s30api_async):
             assert call_args[0][0] == system.sysId
             assert (
                 call_args[0][1]
-                == '"AdditionalParameters":{"JSONPath":"1;/system;/zones;/occupancy;/schedules;/reminderSensors;/reminders;/alerts/active;"}'
+                == '"AdditionalParameters":{"JSONPath":"1;/zones;/occupancy;/schedules;/reminderSensors;/reminders;/alerts/active;"}'
             )
 
             call_args = mock_request_data_helper.call_args_list[1]
