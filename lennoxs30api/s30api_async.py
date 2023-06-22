@@ -337,6 +337,12 @@ class s30api_async(object):
 
     async def logout(self) -> None:
         _LOGGER.info(f"logout - Entering - [{self.url_logout}]")
+        system = self.system_list
+        if self.isLANConnection:
+            system = self.getSystem("LCC")
+            if system is not None and system.productType == "S40":
+                _LOGGER.debug("Skipping logout for S40 thermostat")
+                return
         url: str = self.url_logout
         headers = {
             "Authorization": self.loginBearerToken,
