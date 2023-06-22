@@ -84,6 +84,18 @@ def test_logout_local_400(caplog):
             assert len(caplog.records) == 1
 
 
+def test_logout_local_s40(api_system_04_furn_ac_zoning: s30api_async):
+    api = api_system_04_furn_ac_zoning
+    assert api.isLANConnection
+    with patch.object(api, "post") as mock_post:
+        api.system_list[0].productType = "S40"
+        mock_post.return_value = GoodResponse(200)
+
+        loop = asyncio.get_event_loop()
+        _ = loop.run_until_complete(api.logout())
+        assert mock_post.call_count == 0
+
+
 def test_logout_cloud_comm_exception(caplog):
     api = s30api_async(username=None, password=None, app_id="app_id", ip_address=None)
     with patch.object(api, "post") as mock_post:
