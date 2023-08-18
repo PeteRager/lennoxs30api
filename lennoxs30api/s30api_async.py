@@ -681,7 +681,7 @@ class s30api_async(object):
                 "StartTime": "1",
             }
             if self.isLANConnection:
-                params["LongPollingTimeout"] = "15"
+                params["LongPollingTimeout"] = "5"
             else:
                 params["LongPollingTimeout"] = "0"
 
