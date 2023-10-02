@@ -50,7 +50,6 @@ def test_iaq_subscriptions(api_system_04_furn_ac_zoning):
     system: lennox_system = api.system_list[0]
     assert system.sysId == "LCC"
 
-    pass
     message = loadfile("s40_ble.json", "LCC")
     system.processMessage(message)
 
