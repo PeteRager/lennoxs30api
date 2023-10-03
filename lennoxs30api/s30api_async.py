@@ -191,6 +191,15 @@ LENNOX_VENTILATION_2_SPEED_HRV: Final = "2_stage_hrv"
 LENNOX_VENTILATION_CONTROL_MODE_TIMED: Final = "timed"
 LENNOX_VENTILATION_CONTROL_MODE_ASHRAE: Final = "ashrae"
 
+LENNOX_VENTILATION_MODE_ON: Final = "on"
+LENNOX_VENTILATION_MODE_OFF: Final = "off"
+LENNOX_VENTILATION_MODE_INSTALLER: Final = "installer"
+LENNOX_VENTILATION_MODES = [
+    LENNOX_VENTILATION_MODE_ON,
+    LENNOX_VENTILATION_MODE_OFF,
+    LENNOX_VENTILATION_MODE_INSTALLER,
+]
+
 # Parameter range for zoneTestControl
 PID_ZONE_1_BLOWER_CFM = 256
 PID_ZONE_8_HEATING_CFM = 279
@@ -333,7 +342,7 @@ class s30api_async(object):
         return self._applicationid + "_" + self._username
 
     async def shutdown(self) -> None:
-        if self.isLANConnection is True or self.loginBearerToken is not None:
+        if self._session is not None and self.isLANConnection is True or self.loginBearerToken is not None:
             await self.logout()
         await self._close_session()
 
