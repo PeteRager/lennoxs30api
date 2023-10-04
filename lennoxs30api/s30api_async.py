@@ -1115,6 +1115,20 @@ class lennox_system(object):
         self.iaq_co2_lta_valid = None
         self.iaq_co2_component_score = None
 
+        # Weather - S40 only
+        self.wt_env_airQuality: str = None
+        self.wt_env_tree: str = None
+        self.wt_env_weed: str = None
+        self.wt_env_grass: str = None
+        self.wt_env_mold: str = None
+        self.wt_env_uvIndex: str = None
+        self.wt_env_humidity: int = None
+        self.wt_env_windSpeed: float = None
+        self.wt_env_windSpeedK: float = None
+        self.wt_env_cloudCoverage: int = None
+        self.wt_env_dewpoint: float = None
+        self.wt_env_dewpointC: float = None
+
         self._dirty = False
         self._dirtyList = []
         self.message_processing_list = {
@@ -1130,6 +1144,7 @@ class lennox_system(object):
             "alerts": self._process_alerts,
             "ble": self._process_ble,
             "indoorAirQuality": self._process_indoor_air_quality,
+            "weather": self._process_weather,
         }
 
         self.equipment: dict[int, lennox_equipment] = {}
@@ -1340,6 +1355,23 @@ class lennox_system(object):
                     self.attr_updater(sensor, "lta", f"iaq_{name}_lta")
                     self.attr_updater(sensor, "lta_validNumber", f"iaq_{name}_lta_valid")
                     self.attr_updater(sensor, "component_score", f"iaq_{name}_component_score")
+
+    def _process_weather(self, weather):
+        if "status" in weather:
+            if "env" in weather["status"]:
+                env = weather["status"]["env"]
+                self.attr_updater(env, "airQuality", "wt_env_airQuality")
+                self.attr_updater(env, "tree", "wt_env_tree")
+                self.attr_updater(env, "weed", "wt_env_weed")
+                self.attr_updater(env, "grass", "wt_env_grass")
+                self.attr_updater(env, "mold", "wt_env_mold")
+                self.attr_updater(env, "uvIndex", "wt_env_uvIndex")
+                self.attr_updater(env, "humidity", "wt_env_humidity")
+                self.attr_updater(env, "windSpeed", "wt_env_windSpeed")
+                self.attr_updater(env, "windSpeedK", "wt_env_windSpeedK")
+                self.attr_updater(env, "cloudCoverage", "wt_env_cloudCoverage")
+                self.attr_updater(env, "Dewpoint", "wt_env_dewpoint")
+                self.attr_updater(env, "DewpointC", "wt_env_dewpointC")
 
     def _processSchedules(self, schedules):
         """Processes the schedule messages, throws base exceptions if a problem is encoutered"""
