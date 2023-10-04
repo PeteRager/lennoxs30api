@@ -191,6 +191,15 @@ LENNOX_VENTILATION_2_SPEED_HRV: Final = "2_stage_hrv"
 LENNOX_VENTILATION_CONTROL_MODE_TIMED: Final = "timed"
 LENNOX_VENTILATION_CONTROL_MODE_ASHRAE: Final = "ashrae"
 
+LENNOX_VENTILATION_MODE_ON: Final = "on"
+LENNOX_VENTILATION_MODE_OFF: Final = "off"
+LENNOX_VENTILATION_MODE_INSTALLER: Final = "installer"
+LENNOX_VENTILATION_MODES = [
+    LENNOX_VENTILATION_MODE_ON,
+    LENNOX_VENTILATION_MODE_OFF,
+    LENNOX_VENTILATION_MODE_INSTALLER,
+]
+
 # Parameter range for zoneTestControl
 PID_ZONE_1_BLOWER_CFM = 256
 PID_ZONE_8_HEATING_CFM = 279
@@ -239,6 +248,7 @@ class s30api_async(object):
         message_debug_logging=True,
         message_logging_file=None,
         timeout: int = None,
+        long_poll_delay: int = None,
     ):
         """Initialize the API interface.
         username: The user name to login with when using a cloud connection
@@ -257,6 +267,7 @@ class s30api_async(object):
         self._pii_message_logs = pii_message_logs
         self.message_log = MessageLogger(_LOGGER, message_debug_logging, message_logging_file)
         self.timeout: int = 300 if timeout is None else timeout
+        self.long_poll_delay: int = 15 if long_poll_delay is None else long_poll_delay
         # Generate a unique app id, following the existing formatting
         if app_id is None:
             dt = datetime.now()
@@ -331,7 +342,7 @@ class s30api_async(object):
         return self._applicationid + "_" + self._username
 
     async def shutdown(self) -> None:
-        if self.isLANConnection is True or self.loginBearerToken is not None:
+        if self._session is not None and self.isLANConnection is True or self.loginBearerToken is not None:
             await self.logout()
         await self._close_session()
 
@@ -681,7 +692,7 @@ class s30api_async(object):
                 "StartTime": "1",
             }
             if self.isLANConnection:
-                params["LongPollingTimeout"] = "5"
+                params["LongPollingTimeout"] = str(self.long_poll_delay)
             else:
                 params["LongPollingTimeout"] = "0"
 
@@ -1334,7 +1345,7 @@ class lennox_system(object):
         """Processes the schedule messages, throws base exceptions if a problem is encoutered"""
         for schedule in schedules:
             self._dirty = True
-            if "schedules" in self._dirtyList is False:
+            if "schedules" not in self._dirtyList:
                 self._dirtyList.append("schedules")
             schedule_id = schedule["id"]
             if "schedule" in schedule:
@@ -1810,21 +1821,22 @@ class lennox_system(object):
     def supports_ventilation(self) -> bool:
         return self.is_none(self.ventilationUnitType) is False
 
-    async def ventilation_on(self) -> None:
-        _LOGGER.debug(f"ventilation_on sysid [{self.sysId}]")
+    async def _ventilation_helper(self, mode: str) -> None:
+        _LOGGER.debug(f"ventilation_[{mode}]on sysid [{self.sysId}]")
         if self.supports_ventilation() is False:
-            err_msg = f"ventilation_on - attempting to turn ventilation on for non-supported equipment ventilatorUnitType [{self.ventilationUnitType}]"
+            err_msg = f"_ventilation_helper - attempting to turn ventilation on for non-supported equipment ventilatorUnitType [{self.ventilationUnitType}]"
             raise S30Exception(err_msg, EC_EQUIPMENT_DNS, 1)
-        command = {"system": {"config": {"ventilationMode": "on"}}}
+        command = {"system": {"config": {"ventilationMode": mode}}}
         await self.api.publish_message_helper_dict(self.sysId, command)
 
+    async def ventilation_on(self) -> None:
+        await self._ventilation_helper("on")
+
     async def ventilation_off(self) -> None:
-        _LOGGER.debug(f"ventilation_off sysid [{self.sysId}] ")
-        if self.supports_ventilation() is False:
-            err_msg = f"ventilation_off - attempting to turn ventilation off for non-supported equipment ventilatorUnitType [{self.ventilationUnitType}]"
-            raise S30Exception(err_msg, EC_EQUIPMENT_DNS, 1)
-        command = {"system": {"config": {"ventilationMode": "off"}}}
-        await self.api.publish_message_helper_dict(self.sysId, command)
+        await self._ventilation_helper("off")
+
+    async def ventilation_installer(self) -> None:
+        await self._ventilation_helper("installer")
 
     async def ventilation_timed(self, durationSecs: int) -> None:
         _LOGGER.debug(f"ventilation_timed sysid [{self.sysId}] durationSecs [{durationSecs}] ")
