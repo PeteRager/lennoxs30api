@@ -60,6 +60,8 @@ def test_process_configuration_message(api_with_configuration):
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.productType == "S30"
+    assert lsystem.is_s30
+    assert not lsystem.is_s40
     assert lsystem.name == "Moetown North"
     assert lsystem.numberOfZones == 4
     assert lsystem.outdoorTemperature == 80

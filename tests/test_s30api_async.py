@@ -42,6 +42,7 @@ async def test_shutdown(api: s30api_async):
     with patch.object(api, "logout") as mock_logout, patch.object(api, "_close_session") as mock_close_session:
         api.isLANConnection = True
         api.loginBearerToken = None
+        api._create_session()
         await api.shutdown()
         mock_logout.assert_called_once()
         mock_close_session.assert_called_once()

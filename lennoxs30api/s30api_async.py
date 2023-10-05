@@ -211,6 +211,9 @@ LENNOX_NONE_STR: Final = "none"
 LENNOX_BLE_COMMSTATUS_AVAILABLE: Final = "active"
 LENNOX_BLE_STATUS_INPUT_AVAILABLE: Final = "0"
 
+LENNOX_PRODUCT_TYPE_S40: Final = "S40"
+LENNOX_PRODUCT_TYPE_S30: Final = "S30"
+
 # NOTE:  This application id is super important and a point of brittleness.  You can find this in the burp logs between the mobile app and the Lennox server.
 # If we start getting reports of missesd message, this is the place to look....
 # Here is what I do know
@@ -351,7 +354,7 @@ class s30api_async(object):
         system = self.system_list
         if self.isLANConnection:
             system = self.getSystem("LCC")
-            if system is not None and system.productType == "S40":
+            if system is not None and system.is_s40:
                 _LOGGER.debug("Skipping logout for S40 thermostat")
                 return
         url: str = self.url_logout
@@ -1040,7 +1043,7 @@ class lennox_system(object):
         self.single_setpoint_mode: bool = False
         self.temperatureUnit: str = None
         self.indoorUnitType: str = None
-        self.productType = None
+        self.productType: str = None
         self.outdoorUnitType: str = None
         self.humidifierType = None
         self.dehumidifierType = None
@@ -1116,6 +1119,7 @@ class lennox_system(object):
         self.iaq_co2_component_score = None
 
         # Weather - S40 only
+        self.wt_is_valid: bool = None
         self.wt_env_airQuality: str = None
         self.wt_env_tree: str = None
         self.wt_env_weed: str = None
@@ -1358,7 +1362,9 @@ class lennox_system(object):
 
     def _process_weather(self, weather):
         if "status" in weather:
-            if "env" in weather["status"]:
+            status = weather["status"]
+            self.attr_updater(status, "isValid", "wt_is_valid")
+            if "env" in status:
                 env = weather["status"]["env"]
                 self.attr_updater(env, "airQuality", "wt_env_airQuality")
                 self.attr_updater(env, "tree", "wt_env_tree")
@@ -1678,11 +1684,23 @@ class lennox_system(object):
         # connected to the LAN the sysid is alway "LCC" - which is not unique - so in this case we use the device serial number.
         if self.sysId == "LCC":
             # The S40 no longer populates the serial number, so get it from the unit_serial_number
-            if self.productType == "S40":
+            if self.is_s40:
                 return self.equipment[0].unit_serial_number
             else:
                 return self.serialNumber
         return self.sysId
+
+    @property
+    def is_s40(self) -> bool:
+        if self.productType is None:
+            return False
+        return self.productType.casefold() == LENNOX_PRODUCT_TYPE_S40.casefold()
+
+    @property
+    def is_s30(self) -> bool:
+        if self.productType is None:
+            return False
+        return self.productType.casefold() == LENNOX_PRODUCT_TYPE_S30.casefold()
 
     def config_complete(self) -> bool:
         if self.name is None:

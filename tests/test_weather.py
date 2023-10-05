@@ -14,6 +14,7 @@ def test_weather_config(api_system_04_furn_ac_zoning):
     message = loadfile("weather.json", "LCC")
     system.processMessage(message)
 
+    assert system.wt_is_valid is True
     assert system.wt_env_airQuality == "good"
     assert system.wt_env_tree == "extreme"
     assert system.wt_env_weed == "very high"
