@@ -191,6 +191,15 @@ LENNOX_VENTILATION_2_SPEED_HRV: Final = "2_stage_hrv"
 LENNOX_VENTILATION_CONTROL_MODE_TIMED: Final = "timed"
 LENNOX_VENTILATION_CONTROL_MODE_ASHRAE: Final = "ashrae"
 
+LENNOX_VENTILATION_MODE_ON: Final = "on"
+LENNOX_VENTILATION_MODE_OFF: Final = "off"
+LENNOX_VENTILATION_MODE_INSTALLER: Final = "installer"
+LENNOX_VENTILATION_MODES = [
+    LENNOX_VENTILATION_MODE_ON,
+    LENNOX_VENTILATION_MODE_OFF,
+    LENNOX_VENTILATION_MODE_INSTALLER,
+]
+
 # Parameter range for zoneTestControl
 PID_ZONE_1_BLOWER_CFM = 256
 PID_ZONE_8_HEATING_CFM = 279
@@ -201,6 +210,9 @@ LENNOX_NONE_STR: Final = "none"
 # BLE Sensor
 LENNOX_BLE_COMMSTATUS_AVAILABLE: Final = "active"
 LENNOX_BLE_STATUS_INPUT_AVAILABLE: Final = "0"
+
+LENNOX_PRODUCT_TYPE_S40: Final = "S40"
+LENNOX_PRODUCT_TYPE_S30: Final = "S30"
 
 # NOTE:  This application id is super important and a point of brittleness.  You can find this in the burp logs between the mobile app and the Lennox server.
 # If we start getting reports of missesd message, this is the place to look....
@@ -239,6 +251,7 @@ class s30api_async(object):
         message_debug_logging=True,
         message_logging_file=None,
         timeout: int = None,
+        long_poll_delay: int = None,
     ):
         """Initialize the API interface.
         username: The user name to login with when using a cloud connection
@@ -257,6 +270,7 @@ class s30api_async(object):
         self._pii_message_logs = pii_message_logs
         self.message_log = MessageLogger(_LOGGER, message_debug_logging, message_logging_file)
         self.timeout: int = 300 if timeout is None else timeout
+        self.long_poll_delay: int = 15 if long_poll_delay is None else long_poll_delay
         # Generate a unique app id, following the existing formatting
         if app_id is None:
             dt = datetime.now()
@@ -331,7 +345,7 @@ class s30api_async(object):
         return self._applicationid + "_" + self._username
 
     async def shutdown(self) -> None:
-        if self.isLANConnection is True or self.loginBearerToken is not None:
+        if self._session is not None and self.isLANConnection is True or self.loginBearerToken is not None:
             await self.logout()
         await self._close_session()
 
@@ -340,7 +354,7 @@ class s30api_async(object):
         system = self.system_list
         if self.isLANConnection:
             system = self.getSystem("LCC")
-            if system is not None and system.productType == "S40":
+            if system is not None and system.is_s40:
                 _LOGGER.debug("Skipping logout for S40 thermostat")
                 return
         url: str = self.url_logout
@@ -681,7 +695,7 @@ class s30api_async(object):
                 "StartTime": "1",
             }
             if self.isLANConnection:
-                params["LongPollingTimeout"] = "5"
+                params["LongPollingTimeout"] = str(self.long_poll_delay)
             else:
                 params["LongPollingTimeout"] = "0"
 
@@ -1029,7 +1043,7 @@ class lennox_system(object):
         self.single_setpoint_mode: bool = False
         self.temperatureUnit: str = None
         self.indoorUnitType: str = None
-        self.productType = None
+        self.productType: str = None
         self.outdoorUnitType: str = None
         self.humidifierType = None
         self.dehumidifierType = None
@@ -1104,6 +1118,21 @@ class lennox_system(object):
         self.iaq_co2_lta_valid = None
         self.iaq_co2_component_score = None
 
+        # Weather - S40 only
+        self.wt_is_valid: bool = None
+        self.wt_env_airQuality: str = None
+        self.wt_env_tree: str = None
+        self.wt_env_weed: str = None
+        self.wt_env_grass: str = None
+        self.wt_env_mold: str = None
+        self.wt_env_uvIndex: str = None
+        self.wt_env_humidity: int = None
+        self.wt_env_windSpeed: float = None
+        self.wt_env_windSpeedK: float = None
+        self.wt_env_cloudCoverage: int = None
+        self.wt_env_dewpoint: float = None
+        self.wt_env_dewpointC: float = None
+
         self._dirty = False
         self._dirtyList = []
         self.message_processing_list = {
@@ -1119,6 +1148,7 @@ class lennox_system(object):
             "alerts": self._process_alerts,
             "ble": self._process_ble,
             "indoorAirQuality": self._process_indoor_air_quality,
+            "weather": self._process_weather,
         }
 
         self.equipment: dict[int, lennox_equipment] = {}
@@ -1330,11 +1360,30 @@ class lennox_system(object):
                     self.attr_updater(sensor, "lta_validNumber", f"iaq_{name}_lta_valid")
                     self.attr_updater(sensor, "component_score", f"iaq_{name}_component_score")
 
+    def _process_weather(self, weather):
+        if "status" in weather:
+            status = weather["status"]
+            self.attr_updater(status, "isValid", "wt_is_valid")
+            if "env" in status:
+                env = weather["status"]["env"]
+                self.attr_updater(env, "airQuality", "wt_env_airQuality")
+                self.attr_updater(env, "tree", "wt_env_tree")
+                self.attr_updater(env, "weed", "wt_env_weed")
+                self.attr_updater(env, "grass", "wt_env_grass")
+                self.attr_updater(env, "mold", "wt_env_mold")
+                self.attr_updater(env, "uvIndex", "wt_env_uvIndex")
+                self.attr_updater(env, "humidity", "wt_env_humidity")
+                self.attr_updater(env, "windSpeed", "wt_env_windSpeed")
+                self.attr_updater(env, "windSpeedK", "wt_env_windSpeedK")
+                self.attr_updater(env, "cloudCoverage", "wt_env_cloudCoverage")
+                self.attr_updater(env, "Dewpoint", "wt_env_dewpoint")
+                self.attr_updater(env, "DewpointC", "wt_env_dewpointC")
+
     def _processSchedules(self, schedules):
         """Processes the schedule messages, throws base exceptions if a problem is encoutered"""
         for schedule in schedules:
             self._dirty = True
-            if "schedules" in self._dirtyList is False:
+            if "schedules" not in self._dirtyList:
                 self._dirtyList.append("schedules")
             schedule_id = schedule["id"]
             if "schedule" in schedule:
@@ -1635,11 +1684,23 @@ class lennox_system(object):
         # connected to the LAN the sysid is alway "LCC" - which is not unique - so in this case we use the device serial number.
         if self.sysId == "LCC":
             # The S40 no longer populates the serial number, so get it from the unit_serial_number
-            if self.productType == "S40":
+            if self.is_s40:
                 return self.equipment[0].unit_serial_number
             else:
                 return self.serialNumber
         return self.sysId
+
+    @property
+    def is_s40(self) -> bool:
+        if self.productType is None:
+            return False
+        return self.productType.casefold() == LENNOX_PRODUCT_TYPE_S40.casefold()
+
+    @property
+    def is_s30(self) -> bool:
+        if self.productType is None:
+            return False
+        return self.productType.casefold() == LENNOX_PRODUCT_TYPE_S30.casefold()
 
     def config_complete(self) -> bool:
         if self.name is None:
@@ -1810,21 +1871,22 @@ class lennox_system(object):
     def supports_ventilation(self) -> bool:
         return self.is_none(self.ventilationUnitType) is False
 
-    async def ventilation_on(self) -> None:
-        _LOGGER.debug(f"ventilation_on sysid [{self.sysId}]")
+    async def _ventilation_helper(self, mode: str) -> None:
+        _LOGGER.debug(f"ventilation_[{mode}]on sysid [{self.sysId}]")
         if self.supports_ventilation() is False:
-            err_msg = f"ventilation_on - attempting to turn ventilation on for non-supported equipment ventilatorUnitType [{self.ventilationUnitType}]"
+            err_msg = f"_ventilation_helper - attempting to turn ventilation on for non-supported equipment ventilatorUnitType [{self.ventilationUnitType}]"
             raise S30Exception(err_msg, EC_EQUIPMENT_DNS, 1)
-        command = {"system": {"config": {"ventilationMode": "on"}}}
+        command = {"system": {"config": {"ventilationMode": mode}}}
         await self.api.publish_message_helper_dict(self.sysId, command)
 
+    async def ventilation_on(self) -> None:
+        await self._ventilation_helper("on")
+
     async def ventilation_off(self) -> None:
-        _LOGGER.debug(f"ventilation_off sysid [{self.sysId}] ")
-        if self.supports_ventilation() is False:
-            err_msg = f"ventilation_off - attempting to turn ventilation off for non-supported equipment ventilatorUnitType [{self.ventilationUnitType}]"
-            raise S30Exception(err_msg, EC_EQUIPMENT_DNS, 1)
-        command = {"system": {"config": {"ventilationMode": "off"}}}
-        await self.api.publish_message_helper_dict(self.sysId, command)
+        await self._ventilation_helper("off")
+
+    async def ventilation_installer(self) -> None:
+        await self._ventilation_helper("installer")
 
     async def ventilation_timed(self, durationSecs: int) -> None:
         _LOGGER.debug(f"ventilation_timed sysid [{self.sysId}] durationSecs [{durationSecs}] ")

@@ -8,6 +8,7 @@
     "alertFile" :     "tests/messages/system_04_furn_ac_zoning_alerts.json",
     "bleFile" :       "tests/messages/system_04_furn_ac_zoning_ble.json",
     "iaqFile" :       "tests/messages/system_04_furn_ac_zoning_indoorAirQuality.json",
+    "weatherFile":    "tests/messages/weather.json",
     "productType":    "S40",
     "outdoorTempSim" : false,
     "zoneSim" : false,
