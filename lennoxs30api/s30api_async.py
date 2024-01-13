@@ -1133,6 +1133,16 @@ class lennox_system(object):
         self.wt_env_dewpoint: float = None
         self.wt_env_dewpointC: float = None
 
+        self.wifi_macAddr: str = None
+        self.wifi_ssid: str = None
+        self.wifi_ip: str = None
+        self.wifi_router: str = None
+        self.wifi_dns: str = None
+        self.wifi_dns2: str = None
+        self.wifi_subnetMask = None
+        self.wifi_bitRate: int = None
+        self.wifi_rssi: int = None
+
         self._dirty = False
         self._dirtyList = []
         self.message_processing_list = {
@@ -1142,6 +1152,7 @@ class lennox_system(object):
             "occupancy": self._processOccupancy,
             "devices": self._processDevices,
             "equipments": self._processEquipments,
+            "interfaces": self._process_interfaces,
             "systemControl": self._processSystemControl,
             "siblings": self._processSiblings,
             "rgw": self._process_rgw,
@@ -1378,6 +1389,19 @@ class lennox_system(object):
                 self.attr_updater(env, "cloudCoverage", "wt_env_cloudCoverage")
                 self.attr_updater(env, "Dewpoint", "wt_env_dewpoint")
                 self.attr_updater(env, "DewpointC", "wt_env_dewpointC")
+
+    def _process_interfaces(self, interfaces : dict):
+        if len(interfaces) > 0:
+            if (status := interfaces[0].get("Info",[]).get("status")):
+                self.attr_updater(status, "macAddr", "wifi_macAddr")                
+                self.attr_updater(status, "ssid", "wifi_ssid")                
+                self.attr_updater(status, "ip", "wifi_ip")                
+                self.attr_updater(status, "router", "wifi_router")                
+                self.attr_updater(status, "dns", "wifi_dns")                
+                self.attr_updater(status, "dns2", "wifi_dns2")                
+                self.attr_updater(status, "subnetMask", "wifi_subnetMask")                
+                self.attr_updater(status, "bitRate", "wifi_bitRate")                
+                self.attr_updater(status, "rssi", "wifi_rssi")                
 
     def _processSchedules(self, schedules):
         """Processes the schedule messages, throws base exceptions if a problem is encoutered"""
