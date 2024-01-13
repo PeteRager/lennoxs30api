@@ -1391,6 +1391,7 @@ class lennox_system(object):
                 self.attr_updater(env, "DewpointC", "wt_env_dewpointC")
 
     def _process_interfaces(self, interfaces : dict):
+        """Process the WIFI Interface message"""
         if len(interfaces) > 0:
             if (status := interfaces[0].get("Info",[]).get("status")):
                 self.attr_updater(status, "macAddr", "wifi_macAddr")
@@ -1399,7 +1400,7 @@ class lennox_system(object):
                 self.attr_updater(status, "router", "wifi_router")
                 self.attr_updater(status, "dns", "wifi_dns")
                 self.attr_updater(status, "dns2", "wifi_dns2")
-                self.attr_updater(status, "subnetMask", "wifi_subnetMask")               
+                self.attr_updater(status, "subnetMask", "wifi_subnetMask")
                 self.attr_updater(status, "bitRate", "wifi_bitRate")
                 self.attr_updater(status, "rssi", "wifi_rssi")
 

@@ -23,8 +23,8 @@ def test_wifi_interface_config(api_system_04_furn_ac_zoning):
     assert system.wifi_bitRate == 72200000
     assert system.wifi_rssi == -68
 
+    # Test no content in message
     message["Data"]["interfaces"][0]["Info"] = {}
     system.processMessage(message)
-
-    message["Data"]["interfaces"] = {}    
+    message["Data"]["interfaces"] = {}
     system.processMessage(message)
