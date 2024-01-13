@@ -16,6 +16,7 @@ def test_wifi_interface_config(api_system_04_furn_ac_zoning):
     assert system.wifi_macAddr == "60:a4:4c:6b:d2:4c"
     assert system.wifi_ssid == "wifi_home" 
     assert system.wifi_ip == "10.0.0.10"
+    assert system.router == "10.0.0.1"
     assert system.wifi_dns == "8.8.8.8"
     assert system.wifi_dns2 == "4.4.4.4"
     assert system.wifi_subnetMask == "255.255.0.0"
