@@ -1393,15 +1393,15 @@ class lennox_system(object):
     def _process_interfaces(self, interfaces : dict):
         if len(interfaces) > 0:
             if (status := interfaces[0].get("Info",[]).get("status")):
-                self.attr_updater(status, "macAddr", "wifi_macAddr")                
-                self.attr_updater(status, "ssid", "wifi_ssid")                
-                self.attr_updater(status, "ip", "wifi_ip")                
-                self.attr_updater(status, "router", "wifi_router")                
-                self.attr_updater(status, "dns", "wifi_dns")                
-                self.attr_updater(status, "dns2", "wifi_dns2")                
-                self.attr_updater(status, "subnetMask", "wifi_subnetMask")                
-                self.attr_updater(status, "bitRate", "wifi_bitRate")                
-                self.attr_updater(status, "rssi", "wifi_rssi")                
+                self.attr_updater(status, "macAddr", "wifi_macAddr")
+                self.attr_updater(status, "ssid", "wifi_ssid")
+                self.attr_updater(status, "ip", "wifi_ip")
+                self.attr_updater(status, "router", "wifi_router")
+                self.attr_updater(status, "dns", "wifi_dns")
+                self.attr_updater(status, "dns2", "wifi_dns2")
+                self.attr_updater(status, "subnetMask", "wifi_subnetMask")               
+                self.attr_updater(status, "bitRate", "wifi_bitRate")
+                self.attr_updater(status, "rssi", "wifi_rssi")
 
     def _processSchedules(self, schedules):
         """Processes the schedule messages, throws base exceptions if a problem is encoutered"""

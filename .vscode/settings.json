@@ -7,8 +7,5 @@
   "python.testing.pytestEnabled": true,
   "cSpell.words": ["LENNOX", "lennoxs"],
   "cSpell.enabled": false,
-  "python.formatting.provider": "black",
-  "python.formatting.blackArgs": ["--line-length", "120"],
-  "python.linting.pylintEnabled": true,
-  "python.linting.enabled": true
+  "black-formatter.args": ["--line-length", "120"],
 }

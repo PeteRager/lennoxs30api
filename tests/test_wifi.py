@@ -14,7 +14,7 @@ def test_wifi_interface_config(api_system_04_furn_ac_zoning):
     system.processMessage(message)
 
     assert system.wifi_macAddr == "60:a4:4c:6b:d2:4c"
-    assert system.wifi_ssid == "wifi_home" 
+    assert system.wifi_ssid == "wifi_home"
     assert system.wifi_ip == "10.0.0.10"
     assert system.wifi_router == "10.0.0.1"
     assert system.wifi_dns == "8.8.8.8"
@@ -26,5 +26,5 @@ def test_wifi_interface_config(api_system_04_furn_ac_zoning):
     message["Data"]["interfaces"][0]["Info"] = {}
     system.processMessage(message)
 
-    message["Data"]["interfaces"] = {}
+    message["Data"]["interfaces"] = {}    
     system.processMessage(message)
