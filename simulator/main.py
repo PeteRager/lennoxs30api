@@ -29,6 +29,8 @@ class Simulator(object):
         self.diagSim = False
         self.equipment = None
         self.productType = None
+        self.wifiSim = False
+        self.wifiSimRunning = False
         with open(configfile) as f:
             self.config_data = json.load(f)
             if "outdoorTempSim" in self.config_data:
@@ -43,6 +45,8 @@ class Simulator(object):
                 self.heatpumpLockoutSim = self.config_data["heatpumpLockoutSim"]
             if "productType" in self.config_data:
                 self.productType = self.config_data["productType"]
+            if "wifiSim" in self.config_data:
+                self.wifiSim = self.config_data["wifiSim"]
 
     async def heatpumpLockoutSimulator(self):
         active: bool = False
@@ -94,6 +98,25 @@ class Simulator(object):
             else:
                 temperature = temperature + 10
             await asyncio.sleep(5.0)
+
+    async def wifiSimulator(self):
+        if self.wifiSim is False or self.wifiSimRunning:
+            return
+        self.wifiSimRunning = True
+        message = self.loadfile("tests/messages/wifi_interface_status.json")
+
+        await asyncio.sleep(15.0)
+        value: int = -100
+        while True:
+            message["Data"]["interfaces"][0]["Info"]["status"]["rssi"] = str(value)
+            value += 1
+            if value > 0:
+                value = 100
+
+            for _, appObject in self.appList.items():
+                appObject.queue.append(message)
+            await asyncio.sleep(1.0)
+
 
     async def diagSimulator(self):
         if self.diagSim == False or self.diagSimRunning == True:
@@ -341,12 +364,16 @@ class Simulator(object):
                 if "weatherFile" in self.config_data:
                     data = self.loadfile(self.config_data["weatherFile"])
                     app.queue.append(data)
+                if "wifiInterfaceFile" in self.config_data:
+                    data = self.loadfile(self.config_data["wifiInterfaceFile"])
+                    app.queue.append(data)
 
                 asyncio.create_task(self.outdoorTempSimulator())
                 asyncio.create_task(self.zoneSimulator())
                 asyncio.create_task(self.siblingSimulator())
                 asyncio.create_task(self.diagSimulator())
                 asyncio.create_task(self.heatpumpLockoutSimulator())
+                asyncio.create_task(self.wifiSimulator())
                 return web.Response(text="Simulator Success")
         return web.Response(status=404, text="Simulator Failuer")
 
