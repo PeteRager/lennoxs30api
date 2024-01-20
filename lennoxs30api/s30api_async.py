@@ -1393,7 +1393,7 @@ class lennox_system(object):
     def _process_interfaces(self, interfaces : dict):
         """Process the WIFI Interface message"""
         if len(interfaces) > 0:
-            if (status := interfaces[0].get("Info",[]).get("status")):
+            if (status := interfaces[0].get("Info",{}).get("status")):
                 self.attr_updater(status, "macAddr", "wifi_macAddr")
                 self.attr_updater(status, "ssid", "wifi_ssid")
                 self.attr_updater(status, "ip", "wifi_ip")

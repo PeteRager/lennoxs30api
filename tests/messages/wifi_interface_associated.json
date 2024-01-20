@@ -1,0 +1,19 @@
+{
+    "MessageId": 0,
+    "SenderID": "**redacted**",
+    "TargetID": "ha_qa",
+    "MessageType": "PropertyChange",
+    "Data": {
+        "interfaces": [
+            {
+                "publisher": {
+                    "publisherName": "lcc"
+                },
+                "WiFiStatus": {
+                    "status": "associated"
+                },
+                "id": 0
+            }
+        ]
+    }
+}
