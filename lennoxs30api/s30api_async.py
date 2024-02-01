@@ -2459,18 +2459,16 @@ class lennox_zone(object):
         # In single setpoint mode there is only one target.
         if self.system.single_setpoint_mode is True:
             return self.spC
-
-        if self.heatingOption is True and self.coolingOption is True:
-            if self.systemMode == "cool":
-                return self.cspC
-            if self.systemMode == "heat":
-                return self.hspC
-        elif self.heatingOption is True:
-            return self.hspC
-        elif self.coolingOption is True:
+        
+        if self.systemMode == LENNOX_HVAC_COOL:
             return self.cspC
-        else:
+
+        if self.systemMode == LENNOX_HVAC_HEAT or self.systemMode == LENNOX_HVAC_EMERGENCY_HEAT:
+            return self.hspC
+        # Calling this method in this mode is probably an error TODO
+        if self.systemMode == LENNOX_HVAC_HEAT_COOL:
             return None
+        return None
 
     def getHumidifySetpoint(self):
         return self.husp
