@@ -1,9 +1,16 @@
+"""Tests the config response"""
+import json
+import os
+import pytest
+
+
 from lennoxs30api.s30api_async import (
     LENNOX_ALERT_MINOR,
     LENNOX_ALERT_NONE,
     LENNOX_DEHUMIDIFICATION_MODE_AUTO,
     LENNOX_HUMIDIFICATION_MODE_BASIC,
     LENNOX_HVAC_COOL,
+    LENNOX_HVAC_EMERGENCY_HEAT,
     LENNOX_HVAC_HEAT,
     LENNOX_HVAC_HEAT_COOL,
     LENNOX_HVAC_OFF,
@@ -20,35 +27,30 @@ from lennoxs30api.s30api_async import (
     s30api_async,
     lennox_system,
 )
-from lennoxs30api.lennox_home import lennox_home
-
-import json
-import os
-import pytest
-
 
 @pytest.fixture
 def api_with_configuration() -> s30api_async:
+    """Test configuration"""
     script_dir = os.path.dirname(__file__) + "/messages/"
     file_path = os.path.join(script_dir, "login_response.json")
-    with open(file_path) as f:
+    with open(file_path,encoding="utf-8") as f:
         data = json.load(f)
 
     api = s30api_async("myemail@email.com", "mypassword", None)
     api.process_login_response(data)
 
     file_path = os.path.join(script_dir, "config_response_system_01.json")
-    with open(file_path) as f:
+    with open(file_path,encoding="utf-8") as f:
         data = json.load(f)
     api.processMessage(data)
 
     file_path = os.path.join(script_dir, "config_response_system_02.json")
-    with open(file_path) as f:
+    with open(file_path,encoding="utf-8") as f:
         data = json.load(f)
     api.processMessage(data)
 
     file_path = os.path.join(script_dir, "config_system_03_heatpump_and_furnace.json")
-    with open(file_path) as f:
+    with open(file_path,encoding="utf-8") as f:
         data = json.load(f)
     api.processMessage(data)
 
@@ -56,6 +58,7 @@ def api_with_configuration() -> s30api_async:
 
 
 def test_process_configuration_message(api_with_configuration):
+    """Test processing of configuration data"""
     api = api_with_configuration
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
@@ -70,20 +73,20 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.temperatureUnit == "F"
 
     assert lsystem.indoorUnitType == "furnace"
-    assert lsystem.has_indoor_unit == True
+    assert lsystem.has_indoor_unit is True
     lsystem.indoorUnitType = None
-    assert lsystem.has_indoor_unit == False
+    assert lsystem.has_indoor_unit is False
     lsystem.indoorUnitType = LENNOX_NONE_STR
-    assert lsystem.has_indoor_unit == False
+    assert lsystem.has_indoor_unit is False
     lsystem.indoorUnitType = "furnace"
 
     assert lsystem.outdoorUnitType == "air conditioner"
-    assert lsystem.has_emergency_heat() == False
-    assert lsystem.has_outdoor_unit == True
+    assert lsystem.has_emergency_heat() is False
+    assert lsystem.has_outdoor_unit is True
     lsystem.outdoorUnitType = None
-    assert lsystem.has_outdoor_unit == False
+    assert lsystem.has_outdoor_unit is False
     lsystem.outdoorUnitType = LENNOX_NONE_STR
-    assert lsystem.has_outdoor_unit == False
+    assert lsystem.has_outdoor_unit is False
     lsystem.outdoorUnitType = "air conditioner"
 
     assert lsystem.diagPoweredHours == 40950
@@ -91,22 +94,23 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.diagVentilationRuntime == 0
     assert lsystem.humidifierType == "none"
     assert lsystem.ventilationUnitType == "ventilator"
-    assert lsystem.supports_ventilation() == True
+    assert lsystem.supports_ventilation() is True
     assert lsystem.ventilationControlMode == "timed"
-    assert lsystem.feelsLikeMode == False
+    assert lsystem.feelsLikeMode is False
     assert lsystem.ventilatingUntilTime == ""
 
     # Away Mode and Smart Away Tests
-    assert lsystem.manualAwayMode == False == lsystem.get_manual_away_mode()
-    assert lsystem.sa_enabled == True
-    assert lsystem.sa_reset == False
-    assert lsystem.sa_cancel == False
+    assert lsystem.manualAwayMode is False
+    assert lsystem.manualAwayMode == lsystem.get_manual_away_mode()
+    assert lsystem.sa_enabled is True
+    assert lsystem.sa_reset is False
+    assert lsystem.sa_cancel is False
     assert lsystem.sa_state == LENNOX_SA_STATE_ENABLED_CANCELLED
     assert lsystem.sa_setpointState == LENNOX_SA_SETPOINT_STATE_HOME
-    assert lsystem.get_smart_away_mode() == False
-    assert lsystem.get_away_mode() == False
+    assert lsystem.get_smart_away_mode() is False
+    assert lsystem.get_away_mode() is False
 
-    assert lsystem.centralMode == False
+    assert lsystem.centralMode is False
     assert lsystem.zoningMode == LENNOX_ZONING_MODE_ZONED
     assert lsystem.dehumidificationMode == LENNOX_DEHUMIDIFICATION_MODE_AUTO
     assert lsystem.humidificationMode == LENNOX_HUMIDIFICATION_MODE_BASIC
@@ -119,8 +123,8 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.enhancedDehumidificationOvercoolingF_inc == 1
     assert lsystem.enhancedDehumidificationOvercoolingF_max == 4
     assert lsystem.enhancedDehumidificationOvercoolingF_min == 0
-    assert lsystem.enhancedDehumidificationOvercoolingF_enable == True
-    assert lsystem.enhancedDehumidificationOvercoolingC_enable == True
+    assert lsystem.enhancedDehumidificationOvercoolingF_enable is True
+    assert lsystem.enhancedDehumidificationOvercoolingC_enable is True
     assert lsystem.alert == LENNOX_ALERT_MINOR
 
     zones = lsystem.zone_list
@@ -130,17 +134,17 @@ def test_process_configuration_message(api_with_configuration):
 
     assert zone_1.name == "Zone 1"
     assert zone_1.id == 0
-    assert zone_1.coolingOption == True
+    assert zone_1.coolingOption is True
     assert zone_1.csp == 77 == zone_1.getCoolSP()
-    assert zone_1.dehumidificationOption == True
+    assert zone_1.dehumidificationOption is True
     assert zone_1.desp == 50
-    assert zone_1.emergencyHeatingOption == False
+    assert zone_1.emergencyHeatingOption is False
     assert zone_1.fanMode == "auto" == zone_1.getFanMode()
-    assert zone_1.heatingOption == True
+    assert zone_1.heatingOption is True
     assert zone_1.hsp == 64 == zone_1.getHeatSP()
     assert zone_1.hspC == 18
     assert zone_1.humOperation == "off"
-    assert zone_1.humidificationOption == True
+    assert zone_1.humidificationOption is True
     assert zone_1.humidity == 28 == zone_1.getHumidity()
     assert zone_1.humidityStatus == LENNOX_STATUS_GOOD
     assert zone_1.humidityMode == "dehumidify"
@@ -163,21 +167,31 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_1.temperature == 79 == zone_1.getTemperature()
     assert zone_1.temperatureC == 26 == zone_1.getTemperatureC()
     assert zone_1.temperatureStatus == LENNOX_STATUS_GOOD
-    assert zone_1.heatCoast == False
-    assert zone_1.defrost == False
+    assert zone_1.heatCoast is False
+    assert zone_1.defrost is False
     assert zone_1.balancePoint == "none"
-    assert zone_1.aux == False
-    assert zone_1.coolCoast == False
-    assert zone_1.ssr == False
+    assert zone_1.aux is False
+    assert zone_1.coolCoast is False
+    assert zone_1.ssr is False
 
     assert zone_1.system.sysId == "0000000-0000-0000-0000-000000000001"
 
+    zone_1.systemMode = LENNOX_HVAC_HEAT
     assert zone_1.getTargetTemperatureF() == zone_1.hsp
     assert zone_1.getTargetTemperatureC() == zone_1.hspC
     lsystem.single_setpoint_mode = True
     assert zone_1.getTargetTemperatureF() == zone_1.sp
     assert zone_1.getTargetTemperatureC() == zone_1.spC
     lsystem.single_setpoint_mode = False
+
+    zone_1.systemMode = LENNOX_HVAC_EMERGENCY_HEAT
+    assert zone_1.getTargetTemperatureF() == zone_1.hsp
+    assert zone_1.getTargetTemperatureC() == zone_1.hspC
+    lsystem.single_setpoint_mode = True
+    assert zone_1.getTargetTemperatureF() == zone_1.sp
+    assert zone_1.getTargetTemperatureC() == zone_1.spC
+    lsystem.single_setpoint_mode = False
+
 
     zone_1.systemMode = LENNOX_HVAC_COOL
     assert zone_1.getTargetTemperatureF() == zone_1.csp
@@ -188,16 +202,16 @@ def test_process_configuration_message(api_with_configuration):
     lsystem.single_setpoint_mode = False
 
     zone_1.systemMode = LENNOX_HVAC_OFF
-    assert zone_1.getTargetTemperatureF() == None
-    assert zone_1.getTargetTemperatureC() == None
+    assert zone_1.getTargetTemperatureF() is None
+    assert zone_1.getTargetTemperatureC() is None
     lsystem.single_setpoint_mode = True
-    assert zone_1.getTargetTemperatureF() == None
-    assert zone_1.getTargetTemperatureC() == None
+    assert zone_1.getTargetTemperatureF() is None
+    assert zone_1.getTargetTemperatureC() is None
     lsystem.single_setpoint_mode = False
 
     zone_1.systemMode = LENNOX_HVAC_HEAT_COOL
-    assert zone_1.getTargetTemperatureF() == None
-    assert zone_1.getTargetTemperatureC() == None
+    assert zone_1.getTargetTemperatureF() is None
+    assert zone_1.getTargetTemperatureC() is None
     lsystem.single_setpoint_mode = True
     assert zone_1.getTargetTemperatureF() == zone_1.sp
     assert zone_1.getTargetTemperatureC() == zone_1.spC
@@ -209,16 +223,16 @@ def test_process_configuration_message(api_with_configuration):
 
     assert zone_2.name == "Zone 2"
     assert zone_2.id == 1
-    assert zone_2.coolingOption == True
+    assert zone_2.coolingOption is True
     assert zone_2.csp == 78 == zone_2.getCoolSP()
-    assert zone_2.dehumidificationOption == True
+    assert zone_2.dehumidificationOption is True
     assert zone_2.desp == 50
-    assert zone_2.emergencyHeatingOption == False
+    assert zone_2.emergencyHeatingOption is False
     assert zone_2.fanMode == "auto" == zone_2.getFanMode()
-    assert zone_2.heatingOption == True
+    assert zone_2.heatingOption is True
     assert zone_2.hsp == 69
     assert zone_2.humOperation == "off"
-    assert zone_2.humidificationOption == False
+    assert zone_2.humidificationOption is False
     assert zone_2.humidity == 28 == zone_2.getHumidity()
     assert zone_2.humidityStatus == LENNOX_STATUS_GOOD
 
@@ -245,16 +259,16 @@ def test_process_configuration_message(api_with_configuration):
 
     assert zone_3.name == "Zone 3"
     assert zone_3.id == 2
-    assert zone_3.coolingOption == True
+    assert zone_3.coolingOption is True
     assert zone_3.csp == 71 == zone_3.getCoolSP()
-    assert zone_3.dehumidificationOption == True
+    assert zone_3.dehumidificationOption is True
     assert zone_3.desp == 50
-    assert zone_3.emergencyHeatingOption == False
+    assert zone_3.emergencyHeatingOption is False
     assert zone_3.fanMode == "auto" == zone_3.getFanMode()
-    assert zone_3.heatingOption == True
+    assert zone_3.heatingOption is True
     assert zone_3.hsp == 40 == zone_3.getHeatSP()
     assert zone_3.humOperation == "off"
-    assert zone_3.humidificationOption == False
+    assert zone_3.humidificationOption is False
     assert zone_3.humidity == 28 == zone_3.getHumidity()
     assert zone_3.humidityStatus == LENNOX_STATUS_GOOD
     assert zone_3.humidityMode == "dehumidify"
@@ -278,16 +292,16 @@ def test_process_configuration_message(api_with_configuration):
     zone_4: lennox_zone = zones[3]
     assert zone_4.name == "Zone 4"
     assert zone_4.id == 3
-    assert zone_4.coolingOption == True
+    assert zone_4.coolingOption is True
     assert zone_4.csp == 72 == zone_4.getCoolSP()
-    assert zone_4.dehumidificationOption == True
+    assert zone_4.dehumidificationOption is True
     assert zone_4.desp == 50
-    assert zone_4.emergencyHeatingOption == False
+    assert zone_4.emergencyHeatingOption is False
     assert zone_4.fanMode == "auto" == zone_4.getFanMode()
-    assert zone_4.heatingOption == True
+    assert zone_4.heatingOption is True
     assert zone_4.hsp == 64 == zone_4.getHeatSP()
     assert zone_4.humOperation == "off"
-    assert zone_4.humidificationOption == False
+    assert zone_4.humidificationOption is False
     assert zone_4.humidity == 28 == zone_4.getHumidity()
     assert zone_4.humidityMode == "dehumidify"
     assert zone_4.humidityStatus == LENNOX_STATUS_GOOD
@@ -325,26 +339,27 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.humidifierType == "none"
     assert lsystem.ventilationUnitType == "none"
     # Away Mode and Smart Away Tests
-    assert lsystem.manualAwayMode == True == lsystem.get_manual_away_mode()
-    assert lsystem.sa_enabled == False
-    assert lsystem.sa_reset == False
-    assert lsystem.sa_cancel == False
+    assert lsystem.manualAwayMode is True
+    assert lsystem.manualAwayMode == lsystem.get_manual_away_mode()
+    assert lsystem.sa_enabled is False
+    assert lsystem.sa_reset is False
+    assert lsystem.sa_cancel is False
     assert lsystem.sa_state == LENNOX_SA_STATE_DISABLED
     assert lsystem.sa_setpointState == LENNOX_SA_SETPOINT_STATE_HOME
-    assert lsystem.get_smart_away_mode() == False
-    assert lsystem.get_away_mode() == True
+    assert lsystem.get_smart_away_mode() is False
+    assert lsystem.get_away_mode() is True
     lsystem.manualAwayMode = False
-    assert lsystem.get_away_mode() == False
+    assert lsystem.get_away_mode() is False
     lsystem.sa_setpointState = LENNOX_SA_SETPOINT_STATE_AWAY
-    assert lsystem.get_smart_away_mode() == False
+    assert lsystem.get_smart_away_mode() is False
     lsystem.sa_enabled = True
-    assert lsystem.get_smart_away_mode() == True
-    assert lsystem.get_away_mode() == True
+    assert lsystem.get_smart_away_mode() is True
+    assert lsystem.get_away_mode() is True
     lsystem.sa_setpointState = LENNOX_SA_SETPOINT_STATE_TRANSITION
-    assert lsystem.get_smart_away_mode() == True
-    assert lsystem.get_away_mode() == True
+    assert lsystem.get_smart_away_mode() is True
+    assert lsystem.get_away_mode() is True
 
-    assert lsystem.centralMode == False
+    assert lsystem.centralMode is False
     assert lsystem.zoningMode == LENNOX_ZONING_MODE_CENTRAL
     assert lsystem.dehumidificationMode == LENNOX_DEHUMIDIFICATION_MODE_AUTO
     assert lsystem.humidificationMode == LENNOX_HUMIDIFICATION_MODE_BASIC
@@ -359,25 +374,25 @@ def test_process_configuration_message(api_with_configuration):
     assert lsystem.enhancedDehumidificationOvercoolingF_min == 0
     assert lsystem.alert == LENNOX_ALERT_NONE
 
-    assert lsystem.alerts_num_cleared == None
-    assert lsystem.alerts_num_active == None
-    assert lsystem.alerts_last_cleared_id == None
-    assert lsystem.alerts_num_in_active_array == None
+    assert lsystem.alerts_num_cleared is None
+    assert lsystem.alerts_num_active is None
+    assert lsystem.alerts_last_cleared_id is None
+    assert lsystem.alerts_num_in_active_array is None
     assert len(lsystem.active_alerts) == 0
 
     zone_5: lennox_zone = lsystem.zone_list[0]
     assert zone_5.name == "Zone 1"
     assert zone_5.id == 0
-    assert zone_5.coolingOption == True
+    assert zone_5.coolingOption is True
     assert zone_5.csp == 78 == zone_5.getCoolSP()
-    assert zone_5.dehumidificationOption == True
+    assert zone_5.dehumidificationOption is True
     assert zone_5.desp == 50
-    assert zone_5.emergencyHeatingOption == False
+    assert zone_5.emergencyHeatingOption is False
     assert zone_5.fanMode == "auto" == zone_5.getFanMode()
-    assert zone_5.heatingOption == True
+    assert zone_5.heatingOption is True
     assert zone_5.hsp == 68 == zone_5.getHeatSP()
     assert zone_5.humOperation == "off"
-    assert zone_5.humidificationOption == False
+    assert zone_5.humidificationOption is False
     assert zone_5.humidity == 30 == zone_5.getHumidity()
     assert zone_5.humidityStatus == LENNOX_STATUS_GOOD
 
@@ -401,6 +416,7 @@ def test_process_configuration_message(api_with_configuration):
 
 
 def test_process_configuration_heatpump(api_with_configuration):
+    """Tests the heatpump configuration"""
     api = api_with_configuration
     lsystem: lennox_system = api.system_list[2]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000003"
@@ -409,4 +425,4 @@ def test_process_configuration_heatpump(api_with_configuration):
     assert lsystem.numberOfZones == 1
     assert lsystem.indoorUnitType == "furnace"
     assert lsystem.outdoorUnitType == "heat pump"
-    assert lsystem.has_emergency_heat() == True
+    assert lsystem.has_emergency_heat() is True
