@@ -1,16 +1,12 @@
-from lennoxs30api.s30api_async import (
-    lennox_system,
-)
-
+"""Test reset of smart controller"""
 import json
 import asyncio
 
 from unittest.mock import patch
+from lennoxs30api import s30api_async,lennox_system
 
-from lennoxs30api.s30exception import EC_BAD_PARAMETERS, S30Exception
-
-
-def test_reset_smart_controller(api):
+def test_reset_smart_controller(api: s30api_async):
+    """Reset smart controller"""
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     with patch.object(api, "publishMessageHelper") as mock_message_helper:

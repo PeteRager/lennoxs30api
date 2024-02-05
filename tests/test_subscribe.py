@@ -86,7 +86,7 @@ def test_subscribe_200(api: s30api_async):
             assert call_args[0][0] == system.sysId
             assert (
                 call_args[0][1]
-                == '"AdditionalParameters":{"JSONPath":"1;/alerts/meta;/dealers;/devices;/equipments;/system;/fwm;/ocst;"}',
+                == '"AdditionalParameters":{"JSONPath":"1;/alerts/meta;/dealers;/devices;/equipments;/system;/fwm;/ocst;"}'
             )
 
 

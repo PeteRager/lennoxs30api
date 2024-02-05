@@ -53,7 +53,7 @@ def test_logout_cloud():
             _ = loop.run_until_complete(api.logout())
         except S30Exception:
             error = True
-        assert error == False
+        assert error is False
         assert mock_post.call_count == 1
         assert mock_post.call_args_list[0][0][0] == CLOUD_LOGOUT_URL
 

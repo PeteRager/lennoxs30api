@@ -1,31 +1,12 @@
-from lennoxs30api.s30api_async import (
-    LENNOX_HVAC_EMERGENCY_HEAT,
-    lennox_zone,
-    lennox_system,
-    s30api_async,
-)
-
-import json
-import asyncio
-import os
-
-from unittest.mock import patch
-
-from lennoxs30api.s30exception import EC_BAD_PARAMETERS, S30Exception
-
-
-def loadfile(name) -> json:
-    script_dir = os.path.dirname(__file__) + "/messages/"
-    file_path = os.path.join(script_dir, name)
-    with open(file_path) as f:
-        data = json.load(f)
-    return data
-
+"""Tests the controller diagnostic level"""
+from lennoxs30api.s30api_async import lennox_system, s30api_async
+from tests.conftest import loadfile
 
 def test_get_diagnostic_level(api: s30api_async):
+    """Tests getting the diagnostic level from message"""
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
-    assert lsystem.diagLevel == None
+    assert lsystem.diagLevel is None
 
     message = loadfile("systemControl_diag_level_0.json")
     message["SenderID"] = lsystem.sysId

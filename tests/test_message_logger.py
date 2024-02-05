@@ -1,23 +1,17 @@
-from lennoxs30api.message_logger import REDACTED, MessageLogger
-
+"""Tests the message logger"""
+# pylint: disable=line-too-long
 import logging
 import json
-import os
 import timeit
 
-
-def loadfile(name) -> json:
-    script_dir = os.path.dirname(__file__) + "/messages/"
-    file_path = os.path.join(script_dir, name)
-    with open(file_path) as f:
-        data = json.load(f)
-    return data
-
+from lennoxs30api.message_logger import REDACTED, MessageLogger
+from tests.conftest import loadfile
 
 def test_logging_enable_disable(caplog):
+    """Test logging"""
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
-    msg = {"test": "a", "test": "b"}
+    msg = {"test": "a", "test1": "b"}
     mlog = MessageLogger(logger)
     with caplog.at_level(logging.DEBUG):
         caplog.clear()
@@ -33,6 +27,7 @@ def test_logging_enable_disable(caplog):
 
 
 def test_logging_remove_email(caplog):
+    """Tests redacting of email"""
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
     mlog = MessageLogger(logger)
@@ -55,6 +50,7 @@ def test_logging_remove_email(caplog):
 
 
 def test_logging_remove_redacted(caplog):
+    """Test redeacted fields"""
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
     mlog = MessageLogger(logger)
@@ -100,6 +96,7 @@ def test_logging_remove_redacted(caplog):
 
 
 def test_logging_redacted_performance(caplog):
+    """Tests performance of redacting"""
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
     mlog = MessageLogger(logger)
@@ -114,10 +111,10 @@ def test_logging_redacted_performance(caplog):
             lambda: mlog.log_message(pii_in_messages=True, msg=msg), number=1
         )
         print(t1)
-        pass
 
 
-def test_logger_instances_separate(caplog):
+def test_logger_instances_separate():
+    """Tests the multiple API instances use seperate logfiles"""
     # Message Loggers are unique per file.  So when specifying different files we should get different loggers
     mlog1 = MessageLogger(enabled=True, message_logging_file="s30_log_file_1.tmp")
     mlog2 = MessageLogger(enabled=True, message_logging_file="s30_log_file_2.tmp")

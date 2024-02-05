@@ -1,8 +1,13 @@
+"""Module for modeling lennox equipment"""
+# pylint: disable=invalid-name
+# pylint: disable=line-too-long
+
 from typing import Final
 from .s30exception import EC_BAD_PARAMETERS, S30Exception
 
 
 class lennox_equipment_diagnostic(object):
+    """Models a lennox equipment diagnostic elemetns"""
     def __init__(self, equipment_id: int, diagnostic_id: int):
         self.equipment_id = equipment_id
         self.diagnostic_id = diagnostic_id
@@ -17,6 +22,7 @@ LENNOX_EQUIPMENT_PARAMETER_FORMAT_RADIO: Final = "radio"
 
 
 class lennox_equipment_parameter(object):
+    """Models a lennox equipment configuration parameter"""
     def __init__(self, equipment_id: int, pid: int):
         self.name: str = None
         self.equipment_id = equipment_id
@@ -34,6 +40,7 @@ class lennox_equipment_parameter(object):
         self.unit: str = None
 
     def fromJson(self, js: dict):
+        """Parses parameter data from JSON"""
         self.defaultValue = js.get("defaultValue", self.defaultValue)
         self.descriptor = js.get("descriptor", self.descriptor)
         self.enabled = js.get("enabled", self.enabled)
@@ -56,6 +63,7 @@ class lennox_equipment_parameter(object):
             self.string_max = js["string"].get("max", self.string_max)
 
     def validate_and_translate(self, value: str) -> str:
+        """Validates the parameter and translates it for lennox"""
         if self.descriptor == LENNOX_EQUIPMENT_PARAMETER_FORMAT_RADIO:
             for k, v in self.radio.items():
                 if v == value:
@@ -89,7 +97,7 @@ class lennox_equipment_parameter(object):
                     f"lennox_equipment_parameter invalid value or limits [{value}] range_inc [{self.range_inc}] range_min [{self.range_min}] range_max [{self.range_max}] pid [{self.pid}] name [{self.name}] error [{e}]",
                     EC_BAD_PARAMETERS,
                     4,
-                )
+                ) from e
         raise S30Exception(
             f"lennox_equipment_parameter unsupported descriptor [{self.descriptor}] pid [{self.pid}] name [{self.name} - please raise an issue",
             EC_BAD_PARAMETERS,
@@ -98,6 +106,7 @@ class lennox_equipment_parameter(object):
 
 
 class lennox_equipment(object):
+    """Class to describe lennox equipment"""
     def __init__(self, eq_id: int):
         self.equipment_id: int = eq_id
         self.equipType: int = None
@@ -109,6 +118,7 @@ class lennox_equipment(object):
         self.parameters: dict[int, lennox_equipment_parameter] = {}
 
     def get_or_create_diagnostic(self, diagnostic_id) -> lennox_equipment_diagnostic:
+        """Returns existing or creates new diagnostic"""
         if diagnostic_id not in self.diagnostics:
             self.diagnostics[diagnostic_id] = lennox_equipment_diagnostic(
                 self.equipment_id, diagnostic_id
@@ -116,6 +126,7 @@ class lennox_equipment(object):
         return self.diagnostics[diagnostic_id]
 
     def get_or_create_parameter(self, pid) -> lennox_equipment_parameter:
+        """Returns existing or creates new parameter"""
         if pid not in self.parameters:
             self.parameters[pid] = lennox_equipment_parameter(self.equipment_id, pid)
         return self.parameters[pid]
