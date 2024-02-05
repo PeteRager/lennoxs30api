@@ -1,8 +1,7 @@
 """Test M30 specific functionality"""
 import json
-import asyncio
-
 from unittest.mock import patch
+import pytest
 
 from lennoxs30api.s30api_async import (
     LENNOX_HVAC_HEAT,
@@ -16,7 +15,8 @@ from lennoxs30api.s30api_async import (
 )
 
 
-def test_process_setpoint(api_m30: s30api_async):
+@pytest.mark.asyncio
+async def test_process_setpoint(api_m30: s30api_async):
     """Tests M30 processing setpoint"""
     api = api_m30
     lsystem: lennox_system = api.system_list[0]
@@ -24,9 +24,7 @@ def test_process_setpoint(api_m30: s30api_async):
     assert lsystem.single_setpoint_mode is False
     zone: lennox_zone = lsystem.getZone(0)
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(zone.perform_setpoint(r_hsp=71))
-        loop.close()
+        await zone.perform_setpoint(r_hsp=71)
         mock_message_helper.assert_called_once()
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId

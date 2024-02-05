@@ -2,11 +2,12 @@
 # pylint: disable=line-too-long
 # pylint: disable=assert-on-tuple
 import json
-import asyncio
 import os
 from unittest.mock import patch
 
 import logging
+
+import pytest
 
 from lennoxs30api.s30api_async import s30api_async
 from lennoxs30api.s30exception import S30Exception
@@ -37,19 +38,14 @@ class GoodResponse:
         return '{"code":' + str(self.code) + ',"message":"RequestData: success [' + self.app_id + ']"}'
 
 
-def test_subscribe_200(api: s30api_async):
+@pytest.mark.asyncio
+async def test_subscribe_200(api: s30api_async):
     """Tests the 200 return code"""
     system = api.system_list[0]
 
     api.isLANConnection = True
     with patch.object(api, "requestDataHelper") as mock_request_data_helper:
-        loop = asyncio.get_event_loop()
-        ex = None
-        try:
-            _ = loop.run_until_complete(api.subscribe(system))
-        except S30Exception as exc:
-            ex = exc
-        assert ex is None
+        await api.subscribe(system)
         assert mock_request_data_helper.call_count == 2
         assert mock_request_data_helper.mock_calls[0].args[0] == system.sysId
         assert (
@@ -65,13 +61,7 @@ def test_subscribe_200(api: s30api_async):
     api.isLANConnection = False
     with patch.object(api, "requestDataHelper") as mock_request_data_helper:
         with patch.object(system, "update_system_online_cloud") as update_system_online_cloud:
-            loop = asyncio.get_event_loop()
-            ex = None
-            try:
-                _ = loop.run_until_complete(api.subscribe(system))
-            except S30Exception as exc:
-                ex = exc
-            assert ex is None
+            await api.subscribe(system)
             assert update_system_online_cloud.call_count == 1
             assert mock_request_data_helper.call_count == 2
 
@@ -90,7 +80,8 @@ def test_subscribe_200(api: s30api_async):
             )
 
 
-def test_subscribe_exception(api: s30api_async, caplog):
+@pytest.mark.asyncio
+async def test_subscribe_exception(api: s30api_async, caplog):
     """Tests subscription exceptions"""
     system = api.system_list[0]
 
@@ -99,12 +90,9 @@ def test_subscribe_exception(api: s30api_async, caplog):
         caplog.clear()
         with patch.object(api, "requestDataHelper") as mock_request_data_helper:
             mock_request_data_helper.side_effect = S30Exception("Simulated Exception", 10, 1)
-            loop = asyncio.get_event_loop()
-            ex = None
-            try:
-                _ = loop.run_until_complete(api.subscribe(system))
-            except S30Exception as exc:
-                ex = exc
+            with pytest.raises(S30Exception) as exc:
+                await api.subscribe(system)
+            ex: S30Exception = exc.value
             assert ex is not None
             assert "Simulated Exception" in ex.message
             assert len(caplog.records) == 1
@@ -116,13 +104,9 @@ def test_subscribe_exception(api: s30api_async, caplog):
         caplog.clear()
         with patch.object(api, "requestDataHelper") as mock_request_data_helper:
             mock_request_data_helper.side_effect = ValueError("bad key")
-            loop = asyncio.get_event_loop()
-            ex = None
-            try:
-                _ = loop.run_until_complete(api.subscribe(system))
-            except S30Exception as exc:
-                ex = exc
-            assert ex is not None
+            with pytest.raises(S30Exception) as exc:
+                await api.subscribe(system)
+            ex: S30Exception = exc.value
             assert "bad key" in ex.message
             assert len(caplog.records) == 1
             assert system.sysId in caplog.messages[0]
@@ -135,13 +119,9 @@ def test_subscribe_exception(api: s30api_async, caplog):
         with patch.object(api, "requestDataHelper") as mock_request_data_helper:
             with patch.object(system, "update_system_online_cloud"):
                 mock_request_data_helper.side_effect = S30Exception("Simulated Exception", 10, 1)
-                loop = asyncio.get_event_loop()
-                ex = None
-                try:
-                    _ = loop.run_until_complete(api.subscribe(system))
-                except S30Exception as exc:
-                    ex = exc
-                assert ex is not None
+                with pytest.raises(S30Exception) as exc:
+                    await api.subscribe(system)
+                ex: S30Exception = exc.value
                 assert "Simulated Exception" in ex.message
                 assert len(caplog.records) == 1
                 assert system.sysId in caplog.messages[0]
@@ -153,13 +133,9 @@ def test_subscribe_exception(api: s30api_async, caplog):
         with patch.object(api, "requestDataHelper") as mock_request_data_helper:
             with patch.object(system, "update_system_online_cloud"):
                 mock_request_data_helper.side_effect = ValueError("bad key")
-                loop = asyncio.get_event_loop()
-                ex = None
-                try:
-                    _ = loop.run_until_complete(api.subscribe(system))
-                except S30Exception as exc:
-                    ex = exc
-                assert ex is not None
+                with pytest.raises(S30Exception) as exc:
+                    await api.subscribe(system)
+                ex: S30Exception = exc.value
                 assert "bad key" in ex.message
                 assert len(caplog.records) == 1
                 assert system.sysId in caplog.messages[0]

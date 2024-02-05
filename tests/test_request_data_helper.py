@@ -2,7 +2,6 @@
 # pylint: disable=protected-access
 # pylint: disable=line-too-long
 import json
-import asyncio
 from unittest.mock import patch
 import aiohttp
 import pytest
@@ -45,17 +44,15 @@ class GoodResponse:
         )
 
 
-def test_request_data_helper_200(api: s30api_async):
+@pytest.mark.asyncio
+async def test_request_data_helper_200(api: s30api_async):
     """Test a 200 response"""
     system: lennox_system = api.getSystem("0000000-0000-0000-0000-000000000001")
 
     with patch.object(api, "post") as mock_post:
         additional_parameters = '"AdditionalParameters":{"JSONPath":"1;/systemControl;/devices;/zones;/equipments;/schedules;/occupancy;/system"}'
         mock_post.return_value = GoodResponse(status=200, app_id=api._applicationid)
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(
-                api.requestDataHelper(system.sysId, additional_parameters)
-            )
+        await api.requestDataHelper(system.sysId, additional_parameters)
         assert mock_post.call_count == 1
         url = mock_post.call_args_list[0][0][0]
         assert url == 'https://icrequestdataapi.myicomfort.com/v1/Messages/RequestData'
@@ -71,20 +68,17 @@ def test_request_data_helper_200(api: s30api_async):
         )
 
 
-def test_request_data_helper_400(api: s30api_async):
+@pytest.mark.asyncio
+async def test_request_data_helper_400(api: s30api_async):
     """Tests processing a 400 response"""
     system: lennox_system = api.getSystem("0000000-0000-0000-0000-000000000001")
 
     with patch.object(api, "post") as mock_post:
         additional_parameters = '"AdditionalParameters":{"JSONPath":"1;/systemControl;/devices;/zones;/equipments;/schedules;/occupancy;/system"}'
         mock_post.return_value = GoodResponse(status=400, app_id=api._applicationid)
-        loop = asyncio.get_event_loop()
-        ex = None
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(
-                api.requestDataHelper(system.sysId, additional_parameters)
-            )
-        ex: S30Exception =exc.value
+            await api.requestDataHelper(system.sysId, additional_parameters)
+        ex: S30Exception = exc.value
         assert ex.error_code == EC_REQUEST_DATA_HELPER
         assert "requestDataHelper" in ex.message
         assert "400" in ex.message
@@ -119,25 +113,25 @@ class BadJSON:
         )
 
 
-def test_request_data_helper_200_bad_json(api: s30api_async):
+
+@pytest.mark.asyncio
+async def test_request_data_helper_200_bad_json(api: s30api_async):
     """Tests receiving bad json"""
     system: lennox_system = api.getSystem("0000000-0000-0000-0000-000000000001")
 
     with patch.object(api, "post") as mock_post:
         additional_parameters = '"AdditionalParameters":{"JSONPath":"1;/systemControl;/devices;/zones;/equipments;/schedules;/occupancy;/system"}'
         mock_post.return_value = BadJSON(status=200, app_id=api._applicationid, code=0)
-        loop = asyncio.get_event_loop()
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(
-                api.requestDataHelper(system.sysId, additional_parameters)
-            )
+            await api.requestDataHelper(system.sysId, additional_parameters)
         ex: S30Exception = exc.value
         assert ex.error_code == EC_REQUEST_DATA_HELPER
         assert "requestDataHelper" in ex.message
         assert "JSONDecodeError" in ex.message
 
 
-def test_request_data_helper_comms_error(api: s30api_async):
+@pytest.mark.asyncio
+async def test_request_data_helper_comms_error(api: s30api_async):
     """Test a commmunication error"""
     system: lennox_system = api.getSystem("0000000-0000-0000-0000-000000000001")
 
@@ -150,11 +144,8 @@ def test_request_data_helper_comms_error(api: s30api_async):
             message="some other error",
             history={},
         )
-        loop = asyncio.get_event_loop()
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(
-                api.requestDataHelper(system.sysId, additional_parameters)
-            )
+            await api.requestDataHelper(system.sysId, additional_parameters)
         ex: S30Exception = exc.value
         assert ex.error_code == EC_COMMS_ERROR
         assert api.url_requestdata in ex.message

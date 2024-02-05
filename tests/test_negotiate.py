@@ -1,6 +1,5 @@
 """Tests the cloud negotiate sequence"""
 # pylint: disable=protected-access
-import asyncio
 from unittest.mock import patch
 import pytest
 import aiohttp
@@ -40,7 +39,8 @@ class GoodResponse:
         return "this is the error"
 
 
-def test_negotiate_200():
+@pytest.mark.asyncio
+async def test_negotiate_200():
     """Test negotiate with http 200 response"""
     api = s30api_async(
         username="rager", password=None, app_id="myapp_id", ip_address=None
@@ -48,8 +48,7 @@ def test_negotiate_200():
     api.loginToken = "ABCDEF"
     with patch.object(api, "get") as mock_get:
         mock_get.return_value = GoodResponse(200)
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(api.negotiate())
+        await api.negotiate()
         assert mock_get.call_count == 1
         url = mock_get.call_args_list[0][0][0]
         assert "?clientProtocol=1.3.0.0" in url
@@ -62,15 +61,15 @@ def test_negotiate_200():
         assert api._streamURL == "https://someurl.com"
 
 
-def test_negotiate_400():
+@pytest.mark.asyncio
+async def test_negotiate_400():
     """Tests negotiate with 400 error response"""
     api = s30api_async(username="rager", password=None, app_id="myapp_id", ip_address=None)
     api.loginToken = "ABCDEF"
     with patch.object(api, "get") as mock_get:
         mock_get.return_value = GoodResponse(400)
-        loop = asyncio.get_event_loop()
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(api.negotiate())
+            await api.negotiate()
         ex: S30Exception = exc.value
         assert ex.error_code == EC_NEGOTIATE
         assert api.url_negotiate in ex.message
@@ -78,7 +77,8 @@ def test_negotiate_400():
         assert "this is the error" in ex.message
 
 
-def test_negotiate_comms_error():
+@pytest.mark.asyncio
+async def test_negotiate_comms_error():
     """Test negotiate with a comms error"""
     api = s30api_async(
         username="rager", password=None, app_id="myapp_id", ip_address=None
@@ -92,9 +92,8 @@ def test_negotiate_comms_error():
             message="some other error",
             history={},
         )
-        loop = asyncio.get_event_loop()
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(api.negotiate())
+            await api.negotiate()
         ex: S30Exception = exc.value
         assert ex.error_code == EC_COMMS_ERROR
         assert api.url_negotiate in ex.message
@@ -125,7 +124,8 @@ class BadResponse:
         return "this is the error"
 
 
-def test_negotiate_200_bad_response():
+@pytest.mark.asyncio
+async def test_negotiate_200_bad_response():
     """Test negotiate with a bad response"""
     api = s30api_async(
         username="rager", password=None, app_id="myapp_id", ip_address=None
@@ -133,9 +133,8 @@ def test_negotiate_200_bad_response():
     api.loginToken = "ABCDEF"
     with patch.object(api, "get") as mock_get:
         mock_get.return_value = BadResponse(200)
-        loop = asyncio.get_event_loop()
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(api.negotiate())
+            await api.negotiate()
         ex: S30Exception = exc.value
         assert ex.error_code == EC_NEGOTIATE
         assert "['ConnectionId']" in ex.message

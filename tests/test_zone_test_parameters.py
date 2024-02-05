@@ -1,6 +1,5 @@
 """Tests the zonetest methods"""
 # pylint: disable=protected-access
-import asyncio
 import json
 from unittest.mock import patch
 
@@ -13,7 +12,8 @@ from lennoxs30api.s30api_async import (
 from lennoxs30api.s30exception import EC_BAD_PARAMETERS, S30Exception
 
 
-def test_set_zone_test_parameter_value(api_system_04_furn_ac_zoning):
+@pytest.mark.asyncio
+async def test_set_zone_test_parameter_value(api_system_04_furn_ac_zoning):
     """Tests zone test parameter value"""
     api = api_system_04_furn_ac_zoning
     system: lennox_system = api.system_list[0]
@@ -21,12 +21,7 @@ def test_set_zone_test_parameter_value(api_system_04_furn_ac_zoning):
     with patch.object(
         system, "_internal_set_zone_test_parameter_value"
     ) as _internal_set_zone_test_parameter_value:
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(
-            system.set_zone_test_parameter_value(
-                PID_ZONE_1_BLOWER_CFM, "375.0", True
-            )
-        )
+        await system.set_zone_test_parameter_value(PID_ZONE_1_BLOWER_CFM, "375.0", True)
         assert _internal_set_zone_test_parameter_value.call_count == 1
         assert (
             _internal_set_zone_test_parameter_value.call_args[0][0]
@@ -38,12 +33,7 @@ def test_set_zone_test_parameter_value(api_system_04_furn_ac_zoning):
     with patch.object(
         system, "_internal_set_zone_test_parameter_value"
     ) as _internal_set_zone_test_parameter_value:
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(
-            system.set_zone_test_parameter_value(
-                PID_ZONE_1_BLOWER_CFM, "375.0", False
-            )
-        )
+        await system.set_zone_test_parameter_value(PID_ZONE_1_BLOWER_CFM, "375.0", False)
         assert _internal_set_zone_test_parameter_value.call_count == 1
         assert (
             _internal_set_zone_test_parameter_value.call_args[0][0]
@@ -53,7 +43,8 @@ def test_set_zone_test_parameter_value(api_system_04_furn_ac_zoning):
         assert _internal_set_zone_test_parameter_value.call_args[0][2] is False
 
 
-def test_set_zone_test_parameter_value_bad_pid(api_system_04_furn_ac_zoning):
+@pytest.mark.asyncio
+async def test_set_zone_test_parameter_value_bad_pid(api_system_04_furn_ac_zoning):
     """Test a bad parameter id being targeted"""
     api = api_system_04_furn_ac_zoning
     system: lennox_system = api.system_list[0]
@@ -61,11 +52,8 @@ def test_set_zone_test_parameter_value_bad_pid(api_system_04_furn_ac_zoning):
     with patch.object(
         system, "_internal_set_zone_test_parameter_value"
     ) as _internal_set_zone_test_parameter_value:
-        loop = asyncio.get_event_loop()
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(
-                system.set_zone_test_parameter_value(100000, "325", False)
-            )
+            await system.set_zone_test_parameter_value(100000, "325", False)
         ex: S30Exception = exc.value
         assert _internal_set_zone_test_parameter_value.call_count == 0
         assert "must be between" in ex.message
@@ -79,13 +67,8 @@ def test_set_zone_test_parameter_value_bad_pid(api_system_04_furn_ac_zoning):
     with patch.object(
         system, "_internal_set_zone_test_parameter_value"
     ) as _internal_set_zone_test_parameter_value:
-        loop = asyncio.get_event_loop()
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(
-                system.set_zone_test_parameter_value(
-                    PID_ZONE_1_BLOWER_CFM, "325", False
-                )
-            )
+            await system.set_zone_test_parameter_value(PID_ZONE_1_BLOWER_CFM, "325", False)
         ex: S30Exception = exc.value
         assert _internal_set_zone_test_parameter_value.call_count == 0
         assert "cannot find parameter" in ex.message
@@ -94,18 +77,16 @@ def test_set_zone_test_parameter_value_bad_pid(api_system_04_furn_ac_zoning):
         assert ex.error_code == EC_BAD_PARAMETERS
 
 
-def test_set_zone_test_parameter_value_no_eq_0(api):
+@pytest.mark.asyncio
+async def test_set_zone_test_parameter_value_no_eq_0(api):
     """Test method call when equipment does not exist"""
     system: lennox_system = api.system_list[0]
     system.equipment.pop(0)
     with patch.object(
         system, "_internal_set_zone_test_parameter_value"
     ) as _internal_set_zone_test_parameter_value:
-        loop = asyncio.get_event_loop()
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(
-                system.set_zone_test_parameter_value(PID_ZONE_1_BLOWER_CFM, "325", True)
-            )
+            await system.set_zone_test_parameter_value(PID_ZONE_1_BLOWER_CFM, "325", True)
         ex: S30Exception = exc.value
         assert _internal_set_zone_test_parameter_value.call_count == 0
         assert "annot find equipment with equipment_id" in ex.message
@@ -113,17 +94,16 @@ def test_set_zone_test_parameter_value_no_eq_0(api):
         assert ex.error_code == EC_BAD_PARAMETERS
 
 
-def test_set_zone_test_parameter_value_disabled_pid(api):
+
+@pytest.mark.asyncio
+async def test_set_zone_test_parameter_value_disabled_pid(api):
     """Test setting a disabled parameter"""
     system: lennox_system = api.system_list[0]
     with patch.object(
         system, "_internal_set_zone_test_parameter_value"
     ) as _internal_set_zone_test_parameter_value:
-        loop = asyncio.get_event_loop()
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(
-                system.set_zone_test_parameter_value(PID_ZONE_1_BLOWER_CFM, "325", True)
-            )
+            await system.set_zone_test_parameter_value(PID_ZONE_1_BLOWER_CFM, "325", True)
         ex: S30Exception = exc.value
         assert _internal_set_zone_test_parameter_value.call_count == 0
         assert "cannot set disabled parameter" in ex.message
@@ -132,36 +112,30 @@ def test_set_zone_test_parameter_value_disabled_pid(api):
         assert ex.error_code == EC_BAD_PARAMETERS
 
 
-def test_set_zone_test_parameter_value_bad_value(api_system_04_furn_ac_zoning):
+
+@pytest.mark.asyncio
+async def test_set_zone_test_parameter_value_bad_value(api_system_04_furn_ac_zoning):
     """Test setting the parameter to an invalid value"""
     api = api_system_04_furn_ac_zoning
     system: lennox_system = api.system_list[0]
     with patch.object(
         system, "_internal_set_zone_test_parameter_value"
     ) as _internal_set_zone_test_parameter_value:
-        loop = asyncio.get_event_loop()
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(
-                system.set_zone_test_parameter_value(
-                    PID_ZONE_1_BLOWER_CFM, "444000", False
-                )
-            )
+            await system.set_zone_test_parameter_value(PID_ZONE_1_BLOWER_CFM, "444000", False)
         ex: S30Exception = exc.value
         assert _internal_set_zone_test_parameter_value.call_count == 0
         assert "444000" in ex.message
         assert ex.error_code == EC_BAD_PARAMETERS
 
 
-def test_internal_set_zone_test_parameter_value(api):
+
+@pytest.mark.asyncio
+async def test_internal_set_zone_test_parameter_value(api):
     """Tests the internal helper function"""
     system: lennox_system = api.system_list[0]
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(
-            system._internal_set_zone_test_parameter_value(
-                PID_ZONE_1_BLOWER_CFM, "400", True
-            )
-        )
+        await system._internal_set_zone_test_parameter_value(PID_ZONE_1_BLOWER_CFM, "400", True)
         assert mock_message_helper.call_count == 1
         assert mock_message_helper.await_args[0][0] == system.sysId
         arg1 = mock_message_helper.await_args[0][1]
@@ -176,12 +150,7 @@ def test_internal_set_zone_test_parameter_value(api):
         assert par_update["value"] == "400"
 
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(
-            system._internal_set_zone_test_parameter_value(
-                PID_ZONE_1_BLOWER_CFM, "400", False
-            )
-        )
+        await system._internal_set_zone_test_parameter_value(PID_ZONE_1_BLOWER_CFM, "400", False)
         assert mock_message_helper.call_count == 1
         assert mock_message_helper.await_args[0][0] == system.sysId
         arg1 = mock_message_helper.await_args[0][1]

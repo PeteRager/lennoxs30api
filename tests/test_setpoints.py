@@ -1,6 +1,5 @@
 """Tests temperature and humidity setpoints"""
 import json
-import asyncio
 from unittest.mock import patch
 
 import pytest
@@ -8,16 +7,15 @@ from lennoxs30api.s30api_async import lennox_zone, s30api_async, lennox_system
 from lennoxs30api.s30exception import EC_BAD_PARAMETERS, S30Exception
 
 
-def test_hsp_f(api: s30api_async):
+@pytest.mark.asyncio
+async def test_hsp_f(api: s30api_async):
     """Test setting heat setpoint f"""
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode is False
     zone: lennox_zone = lsystem.getZone(0)
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(zone.perform_setpoint(r_hsp=71))
-        loop.close()
+        await zone.perform_setpoint(r_hsp=71)
         mock_message_helper.assert_called_once()
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
@@ -36,16 +34,15 @@ def test_hsp_f(api: s30api_async):
         assert t_period["cspC"] == zperiod.cspC
 
 
-def test_hsp_c(api: s30api_async):
+@pytest.mark.asyncio
+async def test_hsp_c(api: s30api_async):
     """Test setting heat setpoint c"""
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode is False
     zone: lennox_zone = lsystem.getZone(0)
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(zone.perform_setpoint(r_hspC=21.5))
-        loop.close()
+        await zone.perform_setpoint(r_hspC=21.5)
         mock_message_helper.assert_called_once()
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
@@ -64,16 +61,15 @@ def test_hsp_c(api: s30api_async):
         assert t_period["cspC"] == zperiod.cspC
 
 
-def test_csp_f(api: s30api_async):
+@pytest.mark.asyncio
+async def test_csp_f(api: s30api_async):
     """Test cool setpoint c"""
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode is False
     zone: lennox_zone = lsystem.getZone(0)
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(zone.perform_setpoint(r_csp=73))
-        loop.close()
+        await zone.perform_setpoint(r_csp=73)
         mock_message_helper.assert_called_once()
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
@@ -92,16 +88,15 @@ def test_csp_f(api: s30api_async):
         assert t_period["hspC"] == zperiod.hspC
 
 
-def test_csp_c(api: s30api_async):
+@pytest.mark.asyncio
+async def test_csp_c(api: s30api_async):
     """Test cool setpoint c"""
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.single_setpoint_mode is False
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     zone: lennox_zone = lsystem.getZone(0)
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(zone.perform_setpoint(r_cspC=23))
-        loop.close()
+        await zone.perform_setpoint(r_cspC=23)
         mock_message_helper.assert_called_once()
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
@@ -120,7 +115,8 @@ def test_csp_c(api: s30api_async):
         assert t_period["hspC"] == zperiod.hspC
 
 
-def test_hcsp_f(api: s30api_async):
+@pytest.mark.asyncio
+async def test_hcsp_f(api: s30api_async):
     """Test heat and cool setpoints f"""
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
@@ -128,9 +124,7 @@ def test_hcsp_f(api: s30api_async):
 
     zone: lennox_zone = lsystem.getZone(0)
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(zone.perform_setpoint(r_hsp=64, r_csp=78))
-        loop.close()
+        await zone.perform_setpoint(r_hsp=64, r_csp=78)
         mock_message_helper.assert_called_once()
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
@@ -147,7 +141,8 @@ def test_hcsp_f(api: s30api_async):
         assert len(t_period) == 4
 
 
-def test_hcsp_c(api: s30api_async):
+@pytest.mark.asyncio
+async def test_hcsp_c(api: s30api_async):
     """Test heat and cool setpoints c"""
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
@@ -155,9 +150,7 @@ def test_hcsp_c(api: s30api_async):
 
     zone: lennox_zone = lsystem.getZone(0)
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(zone.perform_setpoint(r_hspC=18, r_cspC=25.5))
-        loop.close()
+        await zone.perform_setpoint(r_hspC=18, r_cspC=25.5)
         mock_message_helper.assert_called_once()
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
@@ -174,7 +167,8 @@ def test_hcsp_c(api: s30api_async):
         assert len(t_period) == 4
 
 
-def test_sp_f(api_single_setpoint: s30api_async):
+@pytest.mark.asyncio
+async def test_sp_f(api_single_setpoint: s30api_async):
     """Test single setpoint f"""
     api = api_single_setpoint
     lsystem: lennox_system = api.system_list[0]
@@ -182,9 +176,7 @@ def test_sp_f(api_single_setpoint: s30api_async):
     assert lsystem.single_setpoint_mode is True
     zone: lennox_zone = lsystem.getZone(0)
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(zone.perform_setpoint(r_sp=78))
-        loop.close()
+        await zone.perform_setpoint(r_sp=78)
         mock_message_helper.assert_called_once()
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
@@ -199,7 +191,8 @@ def test_sp_f(api_single_setpoint: s30api_async):
         assert len(t_period) == 2
 
 
-def test_sp_c(api_single_setpoint: s30api_async):
+@pytest.mark.asyncio
+async def test_sp_c(api_single_setpoint: s30api_async):
     """Test single setpoint c"""
     api = api_single_setpoint
     lsystem: lennox_system = api.system_list[0]
@@ -207,9 +200,7 @@ def test_sp_c(api_single_setpoint: s30api_async):
     assert lsystem.single_setpoint_mode is True
     zone: lennox_zone = lsystem.getZone(0)
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(zone.perform_setpoint(r_spC=25.5))
-        loop.close()
+        await zone.perform_setpoint(r_spC=25.5)
         mock_message_helper.assert_called_once()
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
@@ -224,7 +215,8 @@ def test_sp_c(api_single_setpoint: s30api_async):
         assert len(t_period) == 2
 
 
-def test_override(api: s30api_async):
+@pytest.mark.asyncio
+async def test_override(api: s30api_async):
     """Test schedule override"""
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
@@ -234,8 +226,7 @@ def test_override(api: s30api_async):
     # "summer" scheduled such that an override schedule will need to be created.
     zone.scheduleId = 1
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(zone.perform_setpoint(r_hsp=71))
+        await zone.perform_setpoint(r_hsp=71)
         assert mock_message_helper.call_count == 2
 
         # First message should be the configuration of the schedule override
@@ -282,9 +273,7 @@ def test_override(api: s30api_async):
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         # Fake the zone to think it is in override mode.
         zone.scheduleId = zone.getOverrideScheduleId()
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(zone.perform_setpoint(r_csp=75))
-        loop.close()
+        await zone.perform_setpoint(r_csp=75)
         assert mock_message_helper.call_count == 1
 
         m1 = mock_message_helper.call_args_list[0]
@@ -302,29 +291,29 @@ def test_override(api: s30api_async):
         assert len(t_period) == 4
 
 
-def test_perform_schedule_setpoint_no_values(api: s30api_async):
+@pytest.mark.asyncio
+async def test_perform_schedule_setpoint_no_values(api: s30api_async):
     """Perform setpoing with no values"""
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode is False
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(lsystem.perform_schedule_setpoint(0, 16))
+            await lsystem.perform_schedule_setpoint(0, 16)
         assert exc.value.error_code == EC_BAD_PARAMETERS
         assert mock_message_helper.call_count == 0
 
 
-def test_set_humidify_setpoint(api_single_setpoint: s30api_async):
+@pytest.mark.asyncio
+async def test_set_humidify_setpoint(api_single_setpoint: s30api_async):
     """Test humidify setpoint"""
     api = api_single_setpoint
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode is True
     zone: lennox_zone = lsystem.getZone(0)
-    loop = asyncio.get_event_loop()
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        _ = loop.run_until_complete(zone.perform_humidify_setpoint(r_husp=40))
+        await zone.perform_humidify_setpoint(r_husp=40)
         mock_message_helper.assert_called_once()
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
@@ -338,7 +327,7 @@ def test_set_humidify_setpoint(api_single_setpoint: s30api_async):
 
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(zone.perform_humidify_setpoint(r_husp=400))
+            await zone.perform_humidify_setpoint(r_husp=400)
         ex: S30Exception = exc.value
         assert ex.error_code == EC_BAD_PARAMETERS
         assert "400" in ex.message
@@ -348,7 +337,7 @@ def test_set_humidify_setpoint(api_single_setpoint: s30api_async):
 
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(zone.perform_humidify_setpoint(r_husp=4))
+            await zone.perform_humidify_setpoint(r_husp=4)
         ex: S30Exception = exc.value
         assert ex.error_code == EC_BAD_PARAMETERS
         assert "4" in ex.message
@@ -356,19 +345,17 @@ def test_set_humidify_setpoint(api_single_setpoint: s30api_async):
         assert str(zone.minHumSp) in ex.message
         assert mock_message_helper.call_count == 0
 
-    loop.close()
 
-
-def test_set_dehumidify_setpoint(api_single_setpoint: s30api_async):
+@pytest.mark.asyncio
+async def test_set_dehumidify_setpoint(api_single_setpoint: s30api_async):
     """Test setting the dehumidify setpoint"""
     api = api_single_setpoint
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode is True
     zone: lennox_zone = lsystem.getZone(0)
-    loop = asyncio.get_event_loop()
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        _ = loop.run_until_complete(zone.perform_humidify_setpoint(r_desp=60))
+        await zone.perform_humidify_setpoint(r_desp=60)
         mock_message_helper.assert_called_once()
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
@@ -382,7 +369,7 @@ def test_set_dehumidify_setpoint(api_single_setpoint: s30api_async):
 
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(zone.perform_humidify_setpoint(r_desp=400))
+            await zone.perform_humidify_setpoint(r_desp=400)
         ex: S30Exception = exc.value
         assert ex.error_code == EC_BAD_PARAMETERS
         assert "400" in ex.message
@@ -392,7 +379,7 @@ def test_set_dehumidify_setpoint(api_single_setpoint: s30api_async):
 
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(zone.perform_humidify_setpoint(r_desp=4))
+            await zone.perform_humidify_setpoint(r_desp=4)
         ex: S30Exception = exc.value
         assert ex.error_code == EC_BAD_PARAMETERS
         assert "4" in ex.message
@@ -402,9 +389,7 @@ def test_set_dehumidify_setpoint(api_single_setpoint: s30api_async):
 
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(zone.perform_humidify_setpoint())
+            await zone.perform_humidify_setpoint()
         ex: S30Exception = exc.value
         assert ex.error_code == EC_BAD_PARAMETERS
         assert mock_message_helper.call_count == 0
-
-    loop.close()

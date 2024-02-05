@@ -1,6 +1,5 @@
 """Test setting the hvac system mode"""
 import json
-import asyncio
 from unittest.mock import patch
 
 import pytest
@@ -14,17 +13,17 @@ from lennoxs30api.s30api_async import (
 from lennoxs30api.s30exception import S30Exception
 
 
-def test_set_system_mode_emergency_heat(api: s30api_async):
+@pytest.mark.asyncio
+async def test_set_system_mode_emergency_heat(api: s30api_async):
     """Tests setting mode to emergency heat"""
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     # This system has emergency heat, therefore we should be able to set it
     assert lsystem.has_emergency_heat() is False
     zone: lennox_zone = lsystem.getZone(0)
-    loop = asyncio.get_event_loop()
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         with pytest.raises(S30Exception):
-            _ = loop.run_until_complete(zone.setHVACMode(LENNOX_HVAC_EMERGENCY_HEAT))
+            await zone.setHVACMode(LENNOX_HVAC_EMERGENCY_HEAT)
         assert mock_message_helper.call_count == 0
 
     lsystem: lennox_system = api.system_list[2]
@@ -33,7 +32,7 @@ def test_set_system_mode_emergency_heat(api: s30api_async):
     assert lsystem.has_emergency_heat() is True
     zone: lennox_zone = lsystem.getZone(0)
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        _ = loop.run_until_complete(zone.setHVACMode(LENNOX_HVAC_EMERGENCY_HEAT))
+        await zone.setHVACMode(LENNOX_HVAC_EMERGENCY_HEAT)
         assert mock_message_helper.call_count == 1
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId

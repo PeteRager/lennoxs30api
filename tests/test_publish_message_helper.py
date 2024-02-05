@@ -1,7 +1,6 @@
 """Test the api publish messsage helper function"""
 # pylint: disable=protected-access
 import json
-import asyncio
 from unittest.mock import patch
 import aiohttp
 import pytest
@@ -36,7 +35,8 @@ class GoodResponse:
         )
 
 
-def test_publish_message_helper_200(api: s30api_async):
+@pytest.mark.asyncio
+async def test_publish_message_helper_200(api: s30api_async):
     """Test http 200 response"""
     system: lennox_system = api.getSystem("0000000-0000-0000-0000-000000000001")
 
@@ -44,8 +44,7 @@ def test_publish_message_helper_200(api: s30api_async):
         level = 2
         data = '"Data":{"systemControl":{"diagControl":{"level":' + str(level) + "} } }"
         mock_post.return_value = GoodResponse(status=200, app_id=api._applicationid)
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(api.publishMessageHelper(system.sysId, data))
+        await api.publishMessageHelper(system.sysId, data)
         assert mock_post.call_count == 1
         url = mock_post.call_args_list[0][0][0]
         assert url == 'https://icpublishapi.myicomfort.com/v1/messages/publish'
@@ -59,7 +58,8 @@ def test_publish_message_helper_200(api: s30api_async):
         assert "AdditionalParameters" not in message
 
 
-def test_publish_message_helper_200_additional_params(api: s30api_async):
+@pytest.mark.asyncio
+async def test_publish_message_helper_200_additional_params(api: s30api_async):
     """Test publishing message with additional parameters"""
     system: lennox_system = api.getSystem("0000000-0000-0000-0000-000000000001")
 
@@ -67,12 +67,7 @@ def test_publish_message_helper_200_additional_params(api: s30api_async):
         level = 2
         data = '"Data":{"systemControl":{"diagControl":{"level":' + str(level) + "} } }"
         mock_post.return_value = GoodResponse(status=200, app_id=api._applicationid)
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(
-            api.publishMessageHelper(
-                system.sysId, data, additional_parameters="/systemControl"
-            )
-        )
+        await api.publishMessageHelper(system.sysId, data, additional_parameters="/systemControl")
         assert mock_post.call_count == 1
         url = mock_post.call_args_list[0][0][0]
         assert url == 'https://icpublishapi.myicomfort.com/v1/messages/publish'
@@ -86,7 +81,8 @@ def test_publish_message_helper_200_additional_params(api: s30api_async):
         assert message["Data"]["systemControl"]["diagControl"]["level"] == 2
 
 
-def test_publish_message_helper_400(api: s30api_async):
+@pytest.mark.asyncio
+async def test_publish_message_helper_400(api: s30api_async):
     """Test http 400 response"""
     system: lennox_system = api.getSystem("0000000-0000-0000-0000-000000000001")
 
@@ -96,11 +92,8 @@ def test_publish_message_helper_400(api: s30api_async):
             '"Data":{"systemControl":{"diagControl":{"level":' + str(level) + "} } }"
         )
         mock_post.return_value = GoodResponse(status=400, app_id=api._applicationid)
-        loop = asyncio.get_event_loop()
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(
-                api.publishMessageHelper(system.sysId, additional_parameters)
-            )
+            await api.publishMessageHelper(system.sysId, additional_parameters)
         ex: S30Exception = exc.value
         assert ex.error_code == EC_PUBLISH_MESSAGE
         assert "publishMessageHelper" in ex.message
@@ -108,7 +101,8 @@ def test_publish_message_helper_400(api: s30api_async):
         assert "RequestData: success" in ex.message
 
 
-def test_publish_message_helper_200_code_0(api: s30api_async):
+@pytest.mark.asyncio
+async def test_publish_message_helper_200_code_0(api: s30api_async):
     """Test receiving a code 0 negative response from S30"""
     system: lennox_system = api.getSystem("0000000-0000-0000-0000-000000000001")
 
@@ -120,11 +114,8 @@ def test_publish_message_helper_200_code_0(api: s30api_async):
         mock_post.return_value = GoodResponse(
             status=200, app_id=api._applicationid, code=0
         )
-        loop = asyncio.get_event_loop()
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(
-                api.publishMessageHelper(system.sysId, additional_parameters)
-            )
+            await api.publishMessageHelper(system.sysId, additional_parameters)
         ex: S30Exception = exc.value
         assert ex.error_code == EC_PUBLISH_MESSAGE
         assert "publishMessageHelper" in ex.message
@@ -155,7 +146,8 @@ class BadResponse:
         )
 
 
-def test_publish_message_helper_200_no_code(api: s30api_async):
+@pytest.mark.asyncio
+async def test_publish_message_helper_200_no_code(api: s30api_async):
     """Test no code returned"""
     system: lennox_system = api.getSystem("0000000-0000-0000-0000-000000000001")
 
@@ -164,14 +156,9 @@ def test_publish_message_helper_200_no_code(api: s30api_async):
         additional_parameters = (
             '"Data":{"systemControl":{"diagControl":{"level":' + str(level) + "} } }"
         )
-        mock_post.return_value = BadResponse(
-            status=200, app_id=api._applicationid, code=0
-        )
-        loop = asyncio.get_event_loop()
+        mock_post.return_value = BadResponse(status=200, app_id=api._applicationid, code=0)
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(
-                api.publishMessageHelper(system.sysId, additional_parameters)
-            )
+            await api.publishMessageHelper(system.sysId, additional_parameters)
         ex: S30Exception = exc.value
         assert ex.error_code == EC_PUBLISH_MESSAGE
         assert "publishMessageHelper" in ex.message
@@ -202,7 +189,8 @@ class BadJSON:
         )
 
 
-def test_publish_message_helper_200_bad_json(api: s30api_async):
+@pytest.mark.asyncio
+async def test_publish_message_helper_200_bad_json(api: s30api_async):
     """Verify code handle invalid json"""
     system: lennox_system = api.getSystem("0000000-0000-0000-0000-000000000001")
 
@@ -212,11 +200,8 @@ def test_publish_message_helper_200_bad_json(api: s30api_async):
             '"Data":{"systemControl":{"diagControl":{"level":' + str(level) + "} } }"
         )
         mock_post.return_value = BadJSON(status=200, app_id=api._applicationid, code=0)
-        loop = asyncio.get_event_loop()
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(
-                api.publishMessageHelper(system.sysId, additional_parameters)
-            )
+            await api.publishMessageHelper(system.sysId, additional_parameters)
         ex: S30Exception = exc.value
         assert ex.error_code == EC_PUBLISH_MESSAGE
         assert "publishMessageHelper" in ex.message
@@ -224,7 +209,8 @@ def test_publish_message_helper_200_bad_json(api: s30api_async):
         assert '["code1"::' in ex.message
 
 
-def test_publish_message_helper_comms_error(api: s30api_async):
+@pytest.mark.asyncio
+async def test_publish_message_helper_comms_error(api: s30api_async):
     """Verify handling of a aiohttp communication error"""
     system: lennox_system = api.getSystem("0000000-0000-0000-0000-000000000001")
 
@@ -240,11 +226,8 @@ def test_publish_message_helper_comms_error(api: s30api_async):
             message="some other error",
             history={},
         )
-        loop = asyncio.get_event_loop()
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(
-                api.publishMessageHelper(system.sysId, additional_parameters)
-            )
+            await api.publishMessageHelper(system.sysId, additional_parameters)
         ex: S30Exception = exc.value
         assert ex.error_code == EC_COMMS_ERROR
         assert api.url_publish in ex.message

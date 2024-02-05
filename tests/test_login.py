@@ -1,8 +1,6 @@
 """Test Login"""
 # pylint: disable=line-too-long
-
 import json
-import asyncio
 import logging
 from unittest.mock import patch
 
@@ -45,47 +43,46 @@ class GoodResponse:
         )
 
 
-def test_login_local_200():
+@pytest.mark.asyncio
+async def test_login_local_200():
     """Test login local with http 200 response"""
     api: s30api_async = s30api_async(
         username=None, password=None, app_id="myapp_id", ip_address="10.0.0.1"
     )
     with patch.object(api, "post") as mock_post:
         mock_post.return_value = GoodResponse(app_id="myapp_id")
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(api.login())
+        await api.login()
         assert mock_post.call_count == 1
         url = mock_post.call_args_list[0][0][0]
         assert url == api.url_login
         assert "myapp_id" in url
 
 
-def test_login_local_204():
+@pytest.mark.asyncio
+async def test_login_local_204():
     """Test http 204 response"""
     api: s30api_async = s30api_async(
         username=None, password=None, app_id="myapp_id", ip_address="10.0.0.1"
     )
     with patch.object(api, "post") as mock_post:
         mock_post.return_value = GoodResponse(status=204, app_id="myapp_id")
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(api.login())
+        await api.login()
         assert mock_post.call_count == 1
         url = mock_post.call_args_list[0][0][0]
         assert url == api.url_login
         assert "myapp_id" in url
 
 
-def test_login_local_400():
+@pytest.mark.asyncio
+async def test_login_local_400():
     """Tests http 400 response"""
     api: s30api_async = s30api_async(
         username=None, password=None, app_id="myapp_id", ip_address="10.0.0.1"
     )
     with patch.object(api, "post") as mock_post:
         mock_post.return_value = GoodResponse(status=400, app_id="myapp_id")
-        loop = asyncio.get_event_loop()
-
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(api.login())
+            await api.login()
         ex = exc.value
         assert ex.error_code == EC_LOGIN
         assert "400" in ex.message
@@ -93,7 +90,8 @@ def test_login_local_400():
         assert api.url_login in ex.message
 
 
-def test_login_client_response_error(api: s30api_async, caplog):
+@pytest.mark.asyncio
+async def test_login_client_response_error(api: s30api_async, caplog):
     """Test aiohttp client response error"""
     with patch.object(api, "post") as mock_post:
         mock_post.side_effect = aiohttp.ClientResponseError(
@@ -103,10 +101,8 @@ def test_login_client_response_error(api: s30api_async, caplog):
             message="unexpected content-length header",
             history={},
         )
-        loop = asyncio.get_event_loop()
-
         with pytest.raises(S30Exception) as exc:
-            _ = loop.run_until_complete(api.login())
+            await api.login()
         e = exc.value
         assert e.error_code == EC_COMMS_ERROR
         assert "unexpected content-length header" in e.message
@@ -119,37 +115,30 @@ def test_login_client_response_error(api: s30api_async, caplog):
             message="some other error",
             history={},
         )
-        loop = asyncio.get_event_loop()
         with caplog.at_level(logging.ERROR):
             caplog.clear()
-            error = False
-            try:
-                _ = loop.run_until_complete(api.login())
-            except S30Exception as e:
-                assert e.error_code == EC_COMMS_ERROR
-                assert "some other error" in e.message
-                error = True
-            assert error is True
+            with pytest.raises(S30Exception) as exc:
+                await api.login()
+            e: S30Exception = exc.value
+            assert e.error_code == EC_COMMS_ERROR
+            assert "some other error" in e.message
             assert len(caplog.records) == 0
 
     with patch.object(api, "post") as mock_post:
         mock_post.side_effect = aiohttp.ServerDisconnectedError()
-        loop = asyncio.get_event_loop()
         with caplog.at_level(logging.ERROR):
             assert api.metrics.last_error_time is not None
             caplog.clear()
-            error = False
-            try:
-                _ = loop.run_until_complete(api.login())
-            except S30Exception as e:
-                assert e.error_code == EC_COMMS_ERROR
-                assert "Server Disconnected" in e.message
-                error = True
-            assert error is True
+            with pytest.raises(S30Exception) as exc:
+                await api.login()
+            e: S30Exception = exc.value
+            assert e.error_code == EC_COMMS_ERROR
+            assert "Server Disconnected" in e.message
             assert len(caplog.records) == 0
 
 
-def test_login_cloud_200():
+@pytest.mark.asyncio
+async def test_login_cloud_200():
     """Test cloud login process with http 200 return"""
     api: s30api_async = s30api_async(
         username="pete@rager.com",
@@ -159,8 +148,7 @@ def test_login_cloud_200():
     )
     with patch.object(api, "post") as mock_post:
         mock_post.return_value = GoodResponse(app_id="myapp_id")
-        loop = asyncio.get_event_loop()
-        _ = loop.run_until_complete(api.login())
+        await api.login()
         assert mock_post.call_count == 1
         url = mock_post.call_args_list[0][0][0]
         assert url == api.url_login
@@ -171,7 +159,8 @@ def test_login_cloud_200():
         )
 
 
-def test_login_cloud_400():
+@pytest.mark.asyncio
+async def test_login_cloud_400():
     """Test cloud login 400 response"""
     api: s30api_async = s30api_async(
         username="pete@rager.com",
@@ -181,13 +170,9 @@ def test_login_cloud_400():
     )
     with patch.object(api, "post") as mock_post:
         mock_post.return_value = GoodResponse(status=400, app_id="myapp_id")
-        loop = asyncio.get_event_loop()
-        ex = None
-        try:
-            _ = loop.run_until_complete(api.login())
-        except S30Exception as e:
-            ex = e
-        assert ex is not None
+        with pytest.raises(S30Exception) as exc:
+            await api.login()
+        ex: S30Exception = exc.value
         assert ex.error_code == EC_LOGIN
         assert "400" in ex.message
         assert "login" in ex.message
@@ -222,7 +207,8 @@ class BadJSONResponse:
         )
 
 
-def test_login_bad_json():
+@pytest.mark.asyncio
+async def test_login_bad_json():
     """Test login with bad json response"""
     api: s30api_async = s30api_async(
         username="pete@rager.com",
@@ -232,13 +218,9 @@ def test_login_bad_json():
     )
     with patch.object(api, "post") as mock_post:
         mock_post.return_value = BadJSONResponse(status=200, app_id="myapp_id")
-        loop = asyncio.get_event_loop()
-        ex = None
-        try:
-            _ = loop.run_until_complete(api.login())
-        except S30Exception as e:
-            ex = e
-        assert ex is not None
+        with pytest.raises(S30Exception) as exc:
+            await api.login()
+        ex: S30Exception = exc.value
         assert ex.error_code == EC_LOGIN
         assert "JSONDecodeError" in ex.message
         assert "login" in ex.message
@@ -273,7 +255,8 @@ class BadJSONKeyResponse:
         )
 
 
-def test_login_bad_missing_key():
+@pytest.mark.asyncio
+async def test_login_bad_missing_key():
     """Test login response with a missing key"""
     api: s30api_async = s30api_async(
         username="pete@rager.com",
@@ -283,12 +266,8 @@ def test_login_bad_missing_key():
     )
     with patch.object(api, "post") as mock_post:
         mock_post.return_value = BadJSONKeyResponse(status=200, app_id="myapp_id")
-        loop = asyncio.get_event_loop()
-        ex = None
-        try:
-            _ = loop.run_until_complete(api.login())
-        except S30Exception as e:
-            ex = e
-        assert ex is not None
+        with pytest.raises(S30Exception) as exc:
+            await api.login()
+        ex: S30Exception = exc.value
         assert ex.error_code == EC_LOGIN
         assert "login" in ex.message
