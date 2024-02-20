@@ -2867,7 +2867,7 @@ class lennox_zone(object):
                     3,
                 )
         elif hvac_mode == LENNOX_HVAC_EMERGENCY_HEAT:
-            if self.heatingOption is False or self.system.has_emergency_heat() is False:
+            if self.emergencyHeatingOption is False and self.system.has_emergency_heat() is False:
                 raise S30Exception(
                     f"setHvacMode - invalid hvac mode - zone [{self.id}]  does not support [{hvac_mode}]",
                     EC_BAD_PARAMETERS,
