@@ -1,3 +1,6 @@
+"""Modules to log messages to files"""
+# pylint: disable=line-too-long
+
 import logging
 import json
 import copy
@@ -6,22 +9,23 @@ REDACTED: str = "**redacted**"
 
 
 class MessageLogger(object):
+    """Class to log messages"""
     def __init__(
         self, logger=None, enabled: bool = True, message_logging_file: str = None
     ):
-        if message_logging_file != None:
-            self.loggerName = __name__ + "." + message_logging_file
-            self.logger = logging.getLogger(self.loggerName)
+        if message_logging_file is not None:
+            self.logger_name = __name__ + "." + message_logging_file
+            self.logger = logging.getLogger(self.logger_name)
             self.logger.setLevel(level=logging.DEBUG)
-            logFormatter = logging.Formatter(
+            log_formatter = logging.Formatter(
                 "%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s"
             )
             ## If the logger already exists and has a handler to write to the file then do not add another one.
             if len(self.logger.handlers) == 0:
-                fileHandler = logging.FileHandler(message_logging_file)
-                fileHandler.setFormatter(logFormatter)
-                fileHandler.setLevel(logging.DEBUG)
-                self.logger.addHandler(fileHandler)
+                file_handler = logging.FileHandler(message_logging_file)
+                file_handler.setFormatter(log_formatter)
+                file_handler.setLevel(logging.DEBUG)
+                self.logger.addHandler(file_handler)
             # When running in this mode, message should only appear in the message log and not also the default log.
             self.logger.propagate = False
         else:
@@ -52,6 +56,7 @@ class MessageLogger(object):
         ]
 
     def remove_redacted_fields(self, log_message):
+        """Removes redacted fields from messages"""
         for k, v in log_message.items():
             if isinstance(v, dict):
                 log_message[k] = self.remove_redacted_fields(v)
@@ -63,14 +68,15 @@ class MessageLogger(object):
         return log_message
 
     def log_message(self, pii_in_messages: bool, msg) -> None:
+        """Logs a message"""
         if (
-            self.logger == None
-            or self.enabled == False
-            or self.logger.isEnabledFor(logging.DEBUG) == False
+            self.logger is None
+            or self.enabled is False
+            or self.logger.isEnabledFor(logging.DEBUG) is False
         ):
             return
 
-        if pii_in_messages == False:
+        if pii_in_messages is False:
             log_message = copy.deepcopy(msg)
             if "TargetID" in log_message:
                 if "@" in log_message["TargetID"]:

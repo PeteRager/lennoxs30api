@@ -1,38 +1,33 @@
+"""Test the controllers internet status"""
 from lennoxs30api.s30api_async import (
     lennox_system,
     s30api_async,
 )
-
-import json
-import os
-
-from unittest.mock import patch
-
-from lennoxs30api.s30exception import EC_BAD_PARAMETERS, S30Exception
 from tests.conftest import loadfile
 
 
 def test_get_rgw_status(api: s30api_async):
+    """Test the RGW status"""
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
 
-    assert lsystem.relayServerConnected == None
-    assert lsystem.internetStatus == None
+    assert lsystem.relayServerConnected is None
+    assert lsystem.internetStatus is None
 
     message = loadfile("rgw_initial.json", lsystem.sysId)
     api.processMessage(message)
 
-    assert lsystem.relayServerConnected == False
-    assert lsystem.internetStatus == False
+    assert lsystem.relayServerConnected is False
+    assert lsystem.internetStatus is False
 
     message = loadfile("rgw_incremental.json", lsystem.sysId)
     api.processMessage(message)
 
-    assert lsystem.relayServerConnected == True
-    assert lsystem.internetStatus == False
+    assert lsystem.relayServerConnected is True
+    assert lsystem.internetStatus is False
 
     message["Data"]["rgw"]["status"]["relayServerConnected"] = False
     message["Data"]["rgw"]["status"]["internetStatus"] = True
     api.processMessage(message)
-    assert lsystem.relayServerConnected == False
-    assert lsystem.internetStatus == True
+    assert lsystem.relayServerConnected is False
+    assert lsystem.internetStatus is True

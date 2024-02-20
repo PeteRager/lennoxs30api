@@ -1,3 +1,6 @@
+'''Test module for processing messages'''
+# pylint: disable=protected-access
+
 import logging
 from lennoxs30api.s30api_async import (
     lennox_system,
@@ -8,6 +11,7 @@ from tests.conftest import loadfile
 
 
 def test_api_process_sibling_message(api: s30api_async, caplog):
+    '''Tests the processing of sibling messages'''
     lsystem: lennox_system = api.system_list[1]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000002"
 
@@ -38,6 +42,7 @@ def test_api_process_sibling_message(api: s30api_async, caplog):
 
 
 def test_api_process_unknown_sender(api: s30api_async, caplog):
+    '''Tests processing a message from an unknown sender'''
     lsystem: lennox_system = api.system_list[1]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000002"
     message = loadfile("mut_sys1_zone1_status.json")
