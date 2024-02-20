@@ -1,20 +1,16 @@
-from lennoxs30api.metrics import Metrics
-
+"""Tests the S30Exception class"""
 import asyncio
 import aiohttp
-
-from unittest.mock import patch
-
+from lennoxs30api.metrics import Metrics
 from lennoxs30api.s30exception import (
     EC_COMMS_ERROR,
-    EC_HTTP_ERR,
-    EC_UNAUTHORIZED,
     S30Exception,
     s30exception_from_comm_exception,
 )
 
 
 def test_client_response_error(metrics: Metrics):
+    """Test client response error"""
     operation = "test_op"
     url = "testurl.com"
     metrics.reset()
@@ -28,7 +24,7 @@ def test_client_response_error(metrics: Metrics):
     se: S30Exception = s30exception_from_comm_exception(
         e, operation=operation, url=url, metrics=metrics
     )
-    assert se != None
+    assert se is not None
     assert isinstance(se, S30Exception)
     assert se.error_code == EC_COMMS_ERROR
     assert se.reference == 100
@@ -53,7 +49,7 @@ def test_client_response_error(metrics: Metrics):
         e, operation=operation, url=url, metrics=metrics
     )
 
-    assert se != None
+    assert se is not None
     assert isinstance(se, S30Exception)
     assert se.error_code == EC_COMMS_ERROR
     assert se.reference == 100
@@ -71,7 +67,7 @@ def test_client_response_error(metrics: Metrics):
     se: S30Exception = s30exception_from_comm_exception(
         e, operation=operation, url=url, metrics=metrics
     )
-    assert se != None
+    assert se is not None
     assert isinstance(se, S30Exception)
     assert se.error_code == EC_COMMS_ERROR
     assert se.reference == 200
@@ -89,7 +85,7 @@ def test_client_response_error(metrics: Metrics):
     se: S30Exception = s30exception_from_comm_exception(
         e, operation=operation, url=url, metrics=metrics
     )
-    assert se != None
+    assert se is not None
     assert isinstance(se, S30Exception)
     assert se.error_code == EC_COMMS_ERROR
     assert se.reference == 300

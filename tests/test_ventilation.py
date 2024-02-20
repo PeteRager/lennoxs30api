@@ -1,9 +1,9 @@
 """Tests ventilation"""
 # pylint: disable=line-too-long
-
-import asyncio
 import json
 from unittest.mock import patch
+
+import pytest
 
 from lennoxs30api.s30api_async import (
     LENNOX_NONE_STR,
@@ -37,19 +37,14 @@ def test_has_ventilation(api):
     assert system.supports_ventilation() is True
 
 
-def test_set_ventilation_on(api):
+@pytest.mark.asyncio
+async def test_set_ventilation_on(api):
     """Test turning ventilation on"""
     system: lennox_system = api.system_list[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     assert system.supports_ventilation()
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        ex = None
-        try:
-            loop.run_until_complete(system.ventilation_on())
-        except S30Exception as exc:
-            ex = exc
-        assert ex is None
+        await system.ventilation_on()
         assert mock_message_helper.call_count == 1
 
         arg0 = mock_message_helper.await_args[0][0]
@@ -63,30 +58,21 @@ def test_set_ventilation_on(api):
     system.ventilationUnitType = LENNOX_NONE_STR
     assert system.supports_ventilation() is False
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        ex = None
-        try:
-            loop.run_until_complete(system.ventilation_on())
-        except S30Exception as exc:
-            ex = exc
-        assert ex is not None
+        with pytest.raises(S30Exception) as exc:
+            await system.ventilation_on()
+        ex: S30Exception = exc.value
         assert ex.error_code == EC_EQUIPMENT_DNS
         assert LENNOX_NONE_STR in ex.message
 
 
-def test_set_ventilation_off(api):
+@pytest.mark.asyncio
+async def test_set_ventilation_off(api):
     """Tests turning the ventilation off"""
     system: lennox_system = api.system_list[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     assert system.supports_ventilation()
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        ex = None
-        try:
-            loop.run_until_complete(system.ventilation_off())
-        except S30Exception as exc:
-            ex = exc
-        assert ex is None
+        await system.ventilation_off()
         assert mock_message_helper.call_count == 1
 
         arg0 = mock_message_helper.await_args[0][0]
@@ -100,31 +86,23 @@ def test_set_ventilation_off(api):
     system.ventilationUnitType = LENNOX_NONE_STR
     assert system.supports_ventilation() is False
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        ex = None
-        try:
-            loop.run_until_complete(system.ventilation_off())
-        except S30Exception as exc:
-            ex = exc
+        with pytest.raises(S30Exception) as exc:
+            await system.ventilation_off()
+        ex: S30Exception = exc.value
         assert mock_message_helper.call_count == 0
         assert ex is not None
         assert ex.error_code == EC_EQUIPMENT_DNS
         assert LENNOX_NONE_STR in ex.message
 
 
-def test_set_ventilation_installer(api):
+@pytest.mark.asyncio
+async def test_set_ventilation_installer(api):
     """Tests setting ventilation to installer mode"""
     system: lennox_system = api.system_list[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     assert system.supports_ventilation()
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        ex = None
-        try:
-            loop.run_until_complete(system.ventilation_installer())
-        except S30Exception as exc:
-            ex = exc
-        assert ex is None
+        await system.ventilation_installer()
         assert mock_message_helper.call_count == 1
 
         arg0 = mock_message_helper.await_args[0][0]
@@ -138,31 +116,22 @@ def test_set_ventilation_installer(api):
     system.ventilationUnitType = LENNOX_NONE_STR
     assert system.supports_ventilation() is False
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        ex = None
-        try:
-            loop.run_until_complete(system.ventilation_installer())
-        except S30Exception as exc:
-            ex = exc
+        with pytest.raises(S30Exception) as exc:
+            await system.ventilation_installer()
+        ex: S30Exception = exc.value
         assert mock_message_helper.call_count == 0
-        assert ex is not None
         assert ex.error_code == EC_EQUIPMENT_DNS
         assert LENNOX_NONE_STR in ex.message
 
 
-def test_set_ventilation_timed(api):
+@pytest.mark.asyncio
+async def test_set_ventilation_timed(api):
     """Test setting timed ventilation"""
     system: lennox_system = api.system_list[0]
     assert system.sysId == "0000000-0000-0000-0000-000000000001"
     assert system.supports_ventilation()
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        ex = None
-        try:
-            loop.run_until_complete(system.ventilation_timed(600))
-        except S30Exception as exc:
-            ex = exc
-        assert ex is None
+        await system.ventilation_timed(600)
         assert mock_message_helper.call_count == 1
 
         arg0 = mock_message_helper.await_args[0][0]
@@ -174,24 +143,17 @@ def test_set_ventilation_timed(api):
         assert config["command"] == "ventilateNow 600"
 
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        ex = None
-        try:
-            loop.run_until_complete(system.ventilation_timed(-600))
-        except S30Exception as exc:
-            ex = exc
+        with pytest.raises(S30Exception) as exc:
+            await system.ventilation_timed(-600)
+        ex: S30Exception = exc.value
         assert mock_message_helper.call_count == 0
-        assert ex is not None
         assert ex.error_code == EC_BAD_PARAMETERS
         assert "-600" in ex.message
 
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        ex = None
-        try:
-            loop.run_until_complete(system.ventilation_timed("ABC"))
-        except S30Exception as exc:
-            ex = exc
+        with pytest.raises(S30Exception) as exc:
+            await system.ventilation_timed("ABC")
+        ex: S30Exception = exc.value
         assert mock_message_helper.call_count == 0
         assert ex is not None
         assert ex.error_code == EC_BAD_PARAMETERS
@@ -200,12 +162,9 @@ def test_set_ventilation_timed(api):
     system.ventilationUnitType = LENNOX_NONE_STR
     assert system.supports_ventilation() is False
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        loop = asyncio.get_event_loop()
-        ex = None
-        try:
-            loop.run_until_complete(system.ventilation_timed(600))
-        except S30Exception as exc:
-            ex = exc
+        with pytest.raises(S30Exception) as exc:
+            await system.ventilation_timed(600)
+        ex: S30Exception = exc.value
         assert mock_message_helper.call_count == 0
         assert ex is not None
         assert ex.error_code == EC_EQUIPMENT_DNS

@@ -1,8 +1,4 @@
 """Tests the config response"""
-import json
-import os
-import pytest
-
 
 from lennoxs30api.s30api_async import (
     LENNOX_ALERT_MINOR,
@@ -28,38 +24,8 @@ from lennoxs30api.s30api_async import (
     lennox_system,
 )
 
-@pytest.fixture
-def api_with_configuration() -> s30api_async:
-    """Test configuration"""
-    script_dir = os.path.dirname(__file__) + "/messages/"
-    file_path = os.path.join(script_dir, "login_response.json")
-    with open(file_path,encoding="utf-8") as f:
-        data = json.load(f)
-
-    api = s30api_async("myemail@email.com", "mypassword", None)
-    api.process_login_response(data)
-
-    file_path = os.path.join(script_dir, "config_response_system_01.json")
-    with open(file_path,encoding="utf-8") as f:
-        data = json.load(f)
-    api.processMessage(data)
-
-    file_path = os.path.join(script_dir, "config_response_system_02.json")
-    with open(file_path,encoding="utf-8") as f:
-        data = json.load(f)
-    api.processMessage(data)
-
-    file_path = os.path.join(script_dir, "config_system_03_heatpump_and_furnace.json")
-    with open(file_path,encoding="utf-8") as f:
-        data = json.load(f)
-    api.processMessage(data)
-
-    return api
-
-
-def test_process_configuration_message(api_with_configuration):
+def test_process_configuration_message(api: s30api_async):
     """Test processing of configuration data"""
-    api = api_with_configuration
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.productType == "S30"
@@ -415,9 +381,8 @@ def test_process_configuration_message(api_with_configuration):
     assert zone_5.system.sysId == "0000000-0000-0000-0000-000000000002"
 
 
-def test_process_configuration_heatpump(api_with_configuration):
+def test_process_configuration_heatpump(api: s30api_async):
     """Tests the heatpump configuration"""
-    api = api_with_configuration
     lsystem: lennox_system = api.system_list[2]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000003"
     assert lsystem.productType == "S30"

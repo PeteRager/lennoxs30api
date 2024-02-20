@@ -1,6 +1,11 @@
+"""Module for lennox schedule period"""
+# pylint: disable=invalid-name
+# pylint: disable=line-too-long
+
 class lennox_period(object):
-    def __init__(self, id):
-        self.id = id
+    """Class to represent a schedule period"""
+    def __init__(self, period_id):
+        self.id = period_id
         self.enabled = False
         self.startTime = None
         self.systemMode = None
@@ -15,7 +20,8 @@ class lennox_period(object):
         self.desp = None
         self.fanMode = None
 
-    def update(self, periods):
+    def update(self, periods: dict) -> None:
+        """Updates the object from a dict"""
         if 'enabled' in periods:
             self.enabled = periods['enabled']
         if 'period' in periods:
@@ -44,3 +50,4 @@ class lennox_period(object):
                 self.desp = period['desp']
             if 'fanMode' in period:
                 self.fanMode = period['fanMode']
+                

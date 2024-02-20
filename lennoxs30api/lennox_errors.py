@@ -1,7 +1,12 @@
+"""Module for the lennox error codes"""
+# pylint: disable=invalid-name
+# pylint: disable=line-too-long
+
 from enum import Enum
 
 
 class LennoxErrorCodes(Enum):
+    """Class enumeration of the lennox errors codes"""
     lx_alarm_id_Unknown_Device_Detected_DEVICE2 = 10
     lx_alarm_id_Missing_DEVICE2 = 11
     lx_alarm_id_Incomplete_System = 12
@@ -399,6 +404,7 @@ LENNOX_UNKNOWN_ALERT_MESSAGE = "unknown alert code"
 
 
 def lennox_error_get_message_from_code(code: int):
+    """Returns the errors string from a error code"""
     try:
         x = LennoxErrorCodes(code)
     except ValueError:

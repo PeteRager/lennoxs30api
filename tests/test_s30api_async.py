@@ -6,14 +6,9 @@
 # pylint: disable=invalid-name
 
 import logging
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, patch
 import pytest
-from lennoxs30api.s30api_async import (
-    lennox_system,
-    s30api_async,
-)
-
-from tests.conftest import loadfile
+from lennoxs30api.s30api_async import s30api_async
 
 
 def test_seturl_protocol(api: s30api_async):
@@ -129,6 +124,7 @@ def test_homes(api: s30api_async):
 
 
 class MockResponse(object):
+    """Mock Response"""
     def __init__(self, return_value: int):
         self.status: int = return_value
 

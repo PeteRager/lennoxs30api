@@ -1,3 +1,14 @@
+"""Defines the S30Exception class and error codes"""
+import asyncio
+from aiohttp import (
+    ClientResponseError,
+    ServerDisconnectedError,
+    ClientConnectorError,
+    ClientConnectionError,
+)
+
+from lennoxs30api.metrics import Metrics
+
 EC_AUTHENTICATE = 1
 EC_LOGIN = 2
 EC_NEGOTIATE = 3
@@ -16,19 +27,9 @@ EC_CONFIG_TIMEOUT = 15
 EC_EQUIPMENT_DNS = 16
 EC_UNAUTHORIZED = 401
 
-from asyncio import TimeoutError
-
-from aiohttp import (
-    ClientResponseError,
-    ServerDisconnectedError,
-    ClientConnectorError,
-    ClientConnectionError,
-)
-
-from lennoxs30api.metrics import Metrics
-
 
 class S30Exception(Exception):
+    """Exeception class for errors"""
     def __init__(self, value: str, error_code: int, reference: int) -> None:
         """Initialize error."""
         super().__init__(self, value)
@@ -37,14 +38,14 @@ class S30Exception(Exception):
         self.reference = reference
 
     def as_string(self) -> str:
+        """Returns a string verion of the error"""
         return f"Code [{self.error_code}] Reference [{self.reference}] [{self.message}]"
-
-    pass
 
 
 def s30exception_from_comm_exception(
     e: Exception, operation: str, url: str, metrics: Metrics
 ) -> S30Exception:
+    """Constructs an S30 exception from a variety of Comm Errors"""
     if isinstance(e, ClientResponseError):
         metrics.inc_client_response_errors()
         msg = (
@@ -67,7 +68,7 @@ def s30exception_from_comm_exception(
             EC_COMMS_ERROR,
             200,
         )
-    if isinstance(e, TimeoutError):
+    if isinstance(e, asyncio.TimeoutError):
         metrics.inc_timeout()
         return S30Exception(
             f"{operation} failed - Communication TimeoutError exceeded configured timeout [{url}]",

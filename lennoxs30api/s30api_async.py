@@ -2459,7 +2459,7 @@ class lennox_zone(object):
         # In single setpoint mode there is only one target.
         if self.system.single_setpoint_mode is True:
             return self.spC
-        
+
         if self.systemMode == LENNOX_HVAC_COOL:
             return self.cspC
 

@@ -1,83 +1,66 @@
-from lennoxs30api.lennox_equipment import lennox_equipment, lennox_equipment_diagnostic
-from lennoxs30api.s30api_async import lennox_zone, s30api_async, lennox_system
-from lennoxs30api.lennox_home import lennox_home
-
-import json
+"""Tests the diagnostic response from the controller"""
 import os
 
-from tests.conftest import loadfile
+from lennoxs30api.lennox_equipment import lennox_equipment, lennox_equipment_diagnostic
+from lennoxs30api.s30api_async import s30api_async, lennox_system
 
+
+from tests.conftest import loadfile
 
 # where device responses can be found
 script_dir = os.path.dirname(__file__) + "/messages/"
 
 
 class DirtySubscription:
+    """Subscription mock"""
     def __init__(self, system: lennox_system, attr_name: str):
         self.triggered = False
         system.registerOnUpdateCallback(self.update_callback, [attr_name])
 
     def update_callback(self):
+        """Called when the subscription updates"""
         self.triggered = True
 
-
-def setup_load_configuration() -> s30api_async:
-    api = s30api_async("myemail@email.com", "mypassword", None, ip_address="10.0.0.1")
-    api.setup_local_homes()
-
-    file_path = os.path.join(script_dir, "device_response_lcc.json")
-    with open(file_path) as f:
-        data = json.load(f)
-    api.processMessage(data)
-
-    return api
-
-
-def test_process_equipment_energy():
-    api = setup_load_configuration()
+def test_process_equipment_energy(api_device_lcc: s30api_async):
+    """Tests processing inverter energy"""
+    api = api_device_lcc
     lsystem: lennox_system = api.system_list[0]
-    dirtyVoltage = DirtySubscription(lsystem, "diagInverterInputVoltage")
-    dirtyCurrent = DirtySubscription(lsystem, "diagInverterInputCurrent")
-    assert lsystem.diagInverterInputVoltage == None
-    assert lsystem.diagInverterInputCurrent == None
-    assert dirtyVoltage.triggered == False
-    assert dirtyCurrent.triggered == False
+    dirty_voltage = DirtySubscription(lsystem, "diagInverterInputVoltage")
+    dirty_current = DirtySubscription(lsystem, "diagInverterInputCurrent")
+    assert lsystem.diagInverterInputVoltage is None
+    assert lsystem.diagInverterInputCurrent is None
+    assert dirty_voltage.triggered is False
+    assert dirty_current.triggered is False
 
-    file_path = os.path.join(script_dir, "equipments_response_energy.json")
-    with open(file_path) as f:
-        data = json.load(f)
+    data = loadfile("equipments_response_energy.json")
     api.processMessage(data)
 
     assert lsystem.diagInverterInputVoltage == "247.0"
     assert lsystem.diagInverterInputCurrent == "4.301"
-    assert dirtyVoltage.triggered == True
-    assert dirtyCurrent.triggered == True
+    assert dirty_voltage.triggered is True
+    assert dirty_current.triggered is True
 
     # test that the callback doesn't trigger again for identical values
-    dirtyVoltage.triggered = False
-    dirtyCurrent.triggered = False
-    file_path = os.path.join(script_dir, "equipments_response_energy.json")
-    with open(file_path) as f:
-        data = json.load(f)
-    api.processMessage(data)
+    dirty_voltage.triggered = False
+    dirty_current.triggered = False
+    data = loadfile("equipments_response_energy.json")
 
     assert lsystem.diagInverterInputVoltage == "247.0"
     assert lsystem.diagInverterInputCurrent == "4.301"
-    assert dirtyVoltage.triggered == False
-    assert dirtyCurrent.triggered == False
+    assert dirty_voltage.triggered is False
+    assert dirty_current.triggered is False
 
 
-def test_process_equipment_energy_invalid():
-    api = setup_load_configuration()
+def test_process_equipment_energy_invalid(api_device_lcc: s30api_async):
+    """Test error handling for invalid data"""
+    api = api_device_lcc
     lsystem: lennox_system = api.system_list[0]
-    dirtyVoltage = DirtySubscription(lsystem, "diagInverterInputVoltage")
-    dirtyCurrent = DirtySubscription(lsystem, "diagInverterInputCurrent")
-    assert lsystem.diagInverterInputVoltage == None
-    assert lsystem.diagInverterInputCurrent == None
+    dirty_voltage = DirtySubscription(lsystem, "diagInverterInputVoltage")
+    dirty_current = DirtySubscription(lsystem, "diagInverterInputCurrent")
+    assert lsystem.diagInverterInputVoltage is None
+    assert lsystem.diagInverterInputCurrent is None
 
-    file_path = os.path.join(script_dir, "equipments_response_energy.json")
-    with open(file_path) as f:
-        data = json.load(f)
+    data = loadfile("equipments_response_energy.json")
     data["Data"]["equipments"][1]["equipment"]["diagnostics"][19]["diagnostic"][
         "value"
     ] = "Open"
@@ -88,22 +71,21 @@ def test_process_equipment_energy_invalid():
 
     assert lsystem.diagInverterInputVoltage == "Open"
     assert lsystem.diagInverterInputCurrent == "Open"
-    assert dirtyVoltage.triggered == True
-    assert dirtyCurrent.triggered == True
+    assert dirty_voltage.triggered is True
+    assert dirty_current.triggered is True
 
 
-def test_process_equipment_energy_unnamed():
-    api = setup_load_configuration()
+def test_process_equipment_energy_unnamed(api_device_lcc: s30api_async):
+    """Tests a variety of error conditions"""
+    api = api_device_lcc
     lsystem: lennox_system = api.system_list[0]
-    dirtyVoltage = DirtySubscription(lsystem, "diagInverterInputVoltage")
-    dirtyCurrent = DirtySubscription(lsystem, "diagInverterInputCurrent")
-    assert lsystem.diagInverterInputVoltage == None
-    assert lsystem.diagInverterInputCurrent == None
+    dirty_voltage = DirtySubscription(lsystem, "diagInverterInputVoltage")
+    dirty_current = DirtySubscription(lsystem, "diagInverterInputCurrent")
+    assert lsystem.diagInverterInputVoltage is None
+    assert lsystem.diagInverterInputCurrent is None
 
     # load up empty diagnostics
-    file_path = os.path.join(script_dir, "equipments_response_energy.json")
-    with open(file_path) as f:
-        data = json.load(f)
+    data = loadfile("equipments_response_energy.json")
     data["Data"]["equipments"][1]["equipment"]["diagnostics"][19]["diagnostic"][
         "value"
     ] = "Open"
@@ -114,15 +96,13 @@ def test_process_equipment_energy_unnamed():
 
     assert lsystem.diagInverterInputVoltage == "Open"
     assert lsystem.diagInverterInputCurrent == "Open"
-    assert dirtyVoltage.triggered == True
-    assert dirtyCurrent.triggered == True
+    assert dirty_voltage.triggered is True
+    assert dirty_current.triggered is True
 
     # new diagnostic update is missing names and an earlier equipment
-    dirtyVoltage.triggered = False
-    dirtyCurrent.triggered = False
-    file_path = os.path.join(script_dir, "equipments_response_energy.json")
-    with open(file_path) as f:
-        data = json.load(f)
+    dirty_voltage.triggered = False
+    dirty_current.triggered = False
+    data = loadfile("equipments_response_energy.json")
     del data["Data"]["equipments"][1]["equipment"]["diagnostics"][19]["diagnostic"][
         "name"
     ]
@@ -134,19 +114,18 @@ def test_process_equipment_energy_unnamed():
 
     assert lsystem.diagInverterInputVoltage == "247.0"
     assert lsystem.diagInverterInputCurrent == "4.301"
-    assert dirtyVoltage.triggered == True
-    assert dirtyCurrent.triggered == True
+    assert dirty_voltage.triggered is True
+    assert dirty_current.triggered is True
 
 
-def test_process_diagnostics():
-    api = setup_load_configuration()
+def test_process_diagnostics(api_device_lcc: s30api_async):
+    """Test loading the diagnostic entries"""
+    api = api_device_lcc
     lsystem: lennox_system = api.system_list[0]
     assert len(lsystem.diagnosticPaths) == 0
     assert len(lsystem.equipment) == 0
 
-    file_path = os.path.join(script_dir, "equipments_response_energy.json")
-    with open(file_path) as f:
-        data = json.load(f)
+    data = loadfile("equipments_response_energy.json")
     api.processMessage(data)
 
     # It appears that only the power inverted diagnostics are captured in here
@@ -200,6 +179,7 @@ def test_process_diagnostics():
 
 
 class DirtyDiagnosticsSubscription:
+    """Mock for testing diagnostic subscriptions"""
     def __init__(self, system: lennox_system, eid_did: str):
         self.trigger_count: int = 0
         self.eid_did: str = None
@@ -207,18 +187,21 @@ class DirtyDiagnosticsSubscription:
         system.registerOnUpdateCallbackDiag(self.update_callback, eid_did)
 
     def update_callback(self, eid_did: str, value: str):
+        """Callback for diagnostic update"""
         self.trigger_count += 1
         self.eid_did = eid_did
         self.value = value
 
     def clear(self):
+        """Reset the mock"""
         self.trigger_count: int = 0
         self.eid_did: str = None
         self.value: str = None
 
 
-def test_diagnostics_subscription():
-    api = setup_load_configuration()
+def test_diagnostics_subscription(api_device_lcc: s30api_async):
+    """Tests the diagnostic subscription"""
+    api = api_device_lcc
     lsystem: lennox_system = api.system_list[0]
     assert len(lsystem.diagnosticPaths) == 0
     assert len(lsystem.equipment) == 0
@@ -257,13 +240,13 @@ def test_diagnostics_subscription():
     api.processMessage(message)
 
     assert sub1.trigger_count == 0
-    assert sub1.eid_did == None
-    assert sub1.value == None
+    assert sub1.eid_did is None
+    assert sub1.value is None
     assert lsystem.equipment[1].diagnostics[0].value == "Yes"
 
     assert sub2.trigger_count == 0
-    assert sub2.eid_did == None
-    assert sub2.value == None
+    assert sub2.eid_did is None
+    assert sub2.value is None
     assert lsystem.equipment[1].diagnostics[1].value == "10.0"
 
     assert sub3.trigger_count == 0
@@ -278,8 +261,8 @@ def test_diagnostics_subscription():
     assert lsystem.equipment[1].diagnostics[0].value == "No"
 
     assert sub2.trigger_count == 0
-    assert sub2.eid_did == None
-    assert sub2.value == None
+    assert sub2.eid_did is None
+    assert sub2.value is None
     assert lsystem.equipment[1].diagnostics[1].value == "10.0"
 
     assert sub3.trigger_count == 1
@@ -292,8 +275,8 @@ def test_diagnostics_subscription():
     ] = "11.1"
     api.processMessage(message)
     assert sub1.trigger_count == 0
-    assert sub1.eid_did == None
-    assert sub1.value == None
+    assert sub1.eid_did is None
+    assert sub1.value is None
     assert sub2.trigger_count == 1
     assert sub2.eid_did == "1_1"
     assert sub2.value == "11.1"
