@@ -1,4 +1,5 @@
 """Module for modeling lennox equipment"""
+
 # pylint: disable=invalid-name
 # pylint: disable=line-too-long
 
@@ -8,6 +9,7 @@ from .s30exception import EC_BAD_PARAMETERS, S30Exception
 
 class lennox_equipment_diagnostic(object):
     """Models a lennox equipment diagnostic elemetns"""
+
     def __init__(self, equipment_id: int, diagnostic_id: int):
         self.equipment_id = equipment_id
         self.diagnostic_id = diagnostic_id
@@ -23,6 +25,7 @@ LENNOX_EQUIPMENT_PARAMETER_FORMAT_RADIO: Final = "radio"
 
 class lennox_equipment_parameter(object):
     """Models a lennox equipment configuration parameter"""
+
     def __init__(self, equipment_id: int, pid: int):
         self.name: str = None
         self.equipment_id = equipment_id
@@ -107,6 +110,7 @@ class lennox_equipment_parameter(object):
 
 class lennox_equipment(object):
     """Class to describe lennox equipment"""
+
     def __init__(self, eq_id: int):
         self.equipment_id: int = eq_id
         self.equipType: int = None
@@ -120,9 +124,7 @@ class lennox_equipment(object):
     def get_or_create_diagnostic(self, diagnostic_id) -> lennox_equipment_diagnostic:
         """Returns existing or creates new diagnostic"""
         if diagnostic_id not in self.diagnostics:
-            self.diagnostics[diagnostic_id] = lennox_equipment_diagnostic(
-                self.equipment_id, diagnostic_id
-            )
+            self.diagnostics[diagnostic_id] = lennox_equipment_diagnostic(self.equipment_id, diagnostic_id)
         return self.diagnostics[diagnostic_id]
 
     def get_or_create_parameter(self, pid) -> lennox_equipment_parameter:

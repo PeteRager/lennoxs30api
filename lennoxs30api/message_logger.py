@@ -1,5 +1,7 @@
 """Modules to log messages to files"""
+
 # pylint: disable=line-too-long
+
 
 import logging
 import json
@@ -10,16 +12,13 @@ REDACTED: str = "**redacted**"
 
 class MessageLogger(object):
     """Class to log messages"""
-    def __init__(
-        self, logger=None, enabled: bool = True, message_logging_file: str = None
-    ):
+
+    def __init__(self, logger=None, enabled: bool = True, message_logging_file: str = None):
         if message_logging_file is not None:
             self.logger_name = __name__ + "." + message_logging_file
             self.logger = logging.getLogger(self.logger_name)
             self.logger.setLevel(level=logging.DEBUG)
-            log_formatter = logging.Formatter(
-                "%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s"
-            )
+            log_formatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
             ## If the logger already exists and has a handler to write to the file then do not add another one.
             if len(self.logger.handlers) == 0:
                 file_handler = logging.FileHandler(message_logging_file)
@@ -69,11 +68,7 @@ class MessageLogger(object):
 
     def log_message(self, pii_in_messages: bool, msg) -> None:
         """Logs a message"""
-        if (
-            self.logger is None
-            or self.enabled is False
-            or self.logger.isEnabledFor(logging.DEBUG) is False
-        ):
+        if self.logger is None or self.enabled is False or self.logger.isEnabledFor(logging.DEBUG) is False:
             return
 
         if pii_in_messages is False:

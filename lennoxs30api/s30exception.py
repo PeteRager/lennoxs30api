@@ -1,4 +1,5 @@
 """Defines the S30Exception class and error codes"""
+
 import asyncio
 from aiohttp import (
     ClientResponseError,
@@ -30,6 +31,7 @@ EC_UNAUTHORIZED = 401
 
 class S30Exception(Exception):
     """Exeception class for errors"""
+
     def __init__(self, value: str, error_code: int, reference: int) -> None:
         """Initialize error."""
         super().__init__(self, value)
@@ -42,9 +44,7 @@ class S30Exception(Exception):
         return f"Code [{self.error_code}] Reference [{self.reference}] [{self.message}]"
 
 
-def s30exception_from_comm_exception(
-    e: Exception, operation: str, url: str, metrics: Metrics
-) -> S30Exception:
+def s30exception_from_comm_exception(e: Exception, operation: str, url: str, metrics: Metrics) -> S30Exception:
     """Constructs an S30 exception from a variety of Comm Errors"""
     if isinstance(e, ClientResponseError):
         metrics.inc_client_response_errors()

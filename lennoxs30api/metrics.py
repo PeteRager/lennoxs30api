@@ -1,4 +1,5 @@
 """Communication Metrics for communication to lennox controller"""
+
 # pylint: disable=invalid-name
 
 from datetime import datetime
@@ -7,6 +8,7 @@ import pytz
 
 class Metrics:
     """Communication Metrics"""
+
     def __init__(self):
         self.error_count: int = 0
         self.message_count: int = 0
@@ -43,7 +45,7 @@ class Metrics:
         self.server_disconnects = 0
         self.client_response_errors = 0
         self.connection_errors = 0
-        self.last_receive_time= None
+        self.last_receive_time = None
         self.last_send_time = None
         self.last_error_time = None
         self.last_reconnect_time = None
