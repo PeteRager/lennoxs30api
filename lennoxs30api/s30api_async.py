@@ -856,7 +856,7 @@ class s30api_async(object):
         try:
             if modeTarget not in HVAC_MODE_TARGETS:
                 err_msg = (
-                    f"setModeHelper - invalide mode target [{modeTarget}] requested, must be in [{HVAC_MODE_TARGETS}]"
+                    f"setModeHelper - invalid mode target [{modeTarget}] requested, must be in [{HVAC_MODE_TARGETS}]"
                 )
                 _LOGGER.error(err_msg)
                 raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
@@ -955,21 +955,21 @@ class s30api_async(object):
     async def setHVACMode(self, sysId: str, mode: str, scheduleId: int) -> None:
         _LOGGER.info(f"setHVACMode mode [{mode}] scheduleId [{scheduleId}] sysId [{sysId}]")
         if mode not in HVAC_MODES:
-            err_msg = f"setHVACMode - invalide mode [{mode}] requested, must be in [{HVAC_MODES}]"
+            err_msg = f"setHVACMode - invalid mode [{mode}] requested, must be in [{HVAC_MODES}]"
             raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
         await self.setModeHelper(sysId, "systemMode", mode, scheduleId)
 
     async def setHumidityMode(self, sysId: str, mode: str, scheduleId: int):
         _LOGGER.info(f"setHumidityMode mode [{mode}] scheduleId [{scheduleId}] sysId [{sysId}]")
         if mode not in HUMIDITY_MODES:
-            err_msg = f"setHumidityMode - invalide mode [{mode}] requested, must be in [{HUMIDITY_MODES}]"
+            err_msg = f"setHumidityMode - invalid mode [{mode}] requested, must be in [{HUMIDITY_MODES}]"
             raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
         await self.setModeHelper(sysId, "humidityMode", mode, scheduleId)
 
     async def setFanMode(self, sysId: str, mode: str, scheduleId: int) -> None:
         _LOGGER.info(f"setFanMode mode [{mode}] scheduleId [{scheduleId}] sysId [{sysId}]")
         if mode not in FAN_MODES:
-            err_msg = f"setFanMode - invalide mode [{mode}] requested, must be in [{FAN_MODES}]"
+            err_msg = f"setFanMode - invalid mode [{mode}] requested, must be in [{FAN_MODES}]"
             raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
         await self.setModeHelper(sysId, "fanMode", mode, scheduleId)
 
