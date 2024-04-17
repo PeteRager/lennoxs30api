@@ -1652,7 +1652,7 @@ class lennox_system(object):
                 if parameter.get("parameter", {}).get("pid") == LENNOX_PARAMETER_EQUIPMENT_NAME:
                     # Lennox isn't consistent with capitilization of Subnet Controller
                     # If equipment name isn't available, use the equipment type name.
-                    eq.equipment_name = parameter["parameter"].get("value",eq.equipment_type_name)
+                    eq.equipment_name = parameter["parameter"].get("value", eq.equipment_type_name)
                 if "parameter" in parameter:
                     if "pid" in parameter["parameter"]:
                         pid = parameter["parameter"]["pid"]
