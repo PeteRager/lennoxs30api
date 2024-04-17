@@ -134,3 +134,42 @@ def test_process_equipments_HeatPump_AirHandler():
     assert eq.unit_model_number == "CBA38MV-036-230-02"
     assert eq.unit_serial_number == "1621B25999"
     assert eq.equipType == LENNOX_EQUIPMENT_TYPE_AIR_HANDLER
+
+
+def test_process_equipment_bad_parameters():
+    """Test Processing Bad Equipment Parameters
+    This message was sent from an S40 with all the Air Conditioner Parameters
+    in an error state. Purpose of test is to make sure this is handled gracefully.
+    """
+    api = setup_load_lcc_configuration()
+    system: lennox_system = api.system_list[0]
+    assert system.sysId == "LCC"
+
+    data = loadfile("equipment_bad_parameters.json", system.sysId)
+    system._processEquipments(data["Data"]["equipments"])
+
+    eq: lennox_equipment = system.equipment[0]
+    assert eq.equipment_name == "Subnet Controller"
+    assert eq.equipment_type_name == "System"
+    assert eq.unit_model_number == "107088-01"
+    assert eq.unit_serial_number == "BT99999999"
+    assert eq.equipType == LENNOX_EQUIPMENT_TYPE_SUBNET_CONTROLLER
+    eq: lennox_equipment = system.equipment[1]
+    assert eq.equipment_id == 1
+    assert eq.equipment_name == "Furnace"
+    assert eq.equipment_type_name == "Furnace"
+    assert eq.unit_model_number == "SL280UH080NV60C-05"
+    assert eq.unit_serial_number == "5999999999"
+    assert eq.equipType == LENNOX_EQUIPMENT_TYPE_FURNACE
+    # The air conditioner has all invalid parameters
+    eq: lennox_equipment = system.equipment[2]
+    assert eq.equipment_id == 2
+    assert eq.equipment_name == "Air Conditioner"
+    assert eq.equipment_type_name == "Air Conditioner"
+    assert eq.unit_model_number == "SL28XCV048-230A01"
+    assert eq.unit_serial_number == "5822M09999"
+    assert eq.equipType == LENNOX_EQUIPMENT_TYPE_AIR_CONDITIONER
+    par = eq.get_or_create_parameter(18)
+    assert par.descriptor == 'error'
+    assert par.name == "Equipment Name"
+    assert par.value is None
