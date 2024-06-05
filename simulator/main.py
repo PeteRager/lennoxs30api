@@ -49,6 +49,8 @@ class Simulator(object):
                 self.wifiSim = self.config_data["wifiSim"]
 
     async def heatpumpLockoutSimulator(self):
+        if self.heatpumpLockoutSim is None:
+            return
         active: bool = False
         while True:
             message = self.loadfile(self.heatpumpLockoutSim)
