@@ -753,6 +753,7 @@ class s30api_async(object):
                     _LOGGER.error(
                         f"processMessage dropping message from unknown SenderId/SystemId [{sysId}] - please consult https://github.com/PeteRager/lennoxs30/blob/master/docs/sibling.md for configuration assistance"
                     )
+                    _LOGGER.error(json.dumps(message, indent=4))                    
                     self._badSenderDict[sysId] = sysId
             else:
                 self.metrics.inc_sibling_message_drop()
@@ -760,6 +761,7 @@ class s30api_async(object):
                     _LOGGER.warning(
                         f"processMessage dropping message from sibling [{sysId}] for system [{system.sysId}] - please consult https://github.com/PeteRager/lennoxs30/blob/master/docs/sibling.md for configuration assistance"
                     )
+                    _LOGGER.warning(json.dumps(message, indent=4))                    
                 else:
                     _LOGGER.debug(f"processMessage dropping message from sibling [{sysId}] for system [{system.sysId}]")
 
