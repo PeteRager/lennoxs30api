@@ -292,6 +292,33 @@ async def test_override(api: s30api_async):
 
 
 @pytest.mark.asyncio
+async def test_setpoint_away_mode(api: s30api_async):
+    """Test schedule override"""
+    lsystem: lennox_system = api.system_list[0]
+    assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
+    assert lsystem.single_setpoint_mode is False
+    lsystem.manualAwayMode = True
+    zone: lennox_zone = lsystem.getZone(0)
+    zone.scheduleId = 1
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        await zone.perform_setpoint(r_hsp=71)
+        assert mock_message_helper.call_count == 1
+
+        # First message should be the configuration of the schedule override
+        m1 = mock_message_helper.call_args_list[0]
+        sys_id = m1.args[0]
+        message = m1.args[1]
+        assert sys_id == lsystem.sysId
+        jsbody = json.loads("{" + message + "}")
+
+        t_schedule = jsbody["Data"]["schedules"][0]
+        assert t_schedule["id"] == zone.getAwayModeScheduleId()
+        t_period = t_schedule["schedule"]["periods"][0]["period"]
+        assert t_period["hsp"] == 71
+        assert t_period["hspC"] == 21.5
+
+
+@pytest.mark.asyncio
 async def test_perform_schedule_setpoint_no_values(api: s30api_async):
     """Perform setpoing with no values"""
     lsystem: lennox_system = api.system_list[0]

@@ -2477,6 +2477,10 @@ class lennox_zone(object):
     def getManualModeScheduleId(self) -> int:
         return 16 + self.id
 
+    def getAwayModeScheduleId(self) -> int:
+        return 24 + self.id
+
+
     def getOverrideScheduleId(self) -> int:
         return 32 + self.id
 
@@ -2667,6 +2671,24 @@ class lennox_zone(object):
     ):
         info_str = f"zone [{self.id}] hsp [{hsp}] hspC [{hspC}] csp [{csp}] cspC [{cspC}] sp [{sp}] spC [{spC}] husp [{husp}] desp [{desp}]"
         _LOGGER.info(f"_execute_setpoints {info_str}")
+
+        # If the system is in away mode, target the away mode schedule
+        if self.system.get_away_mode() is True:
+            _LOGGER.info(f"lennox_zone:_execute_setpoints zone in away mode [{self.id}]")
+            await self.system.perform_schedule_setpoint(
+                zoneId=self.id,
+                scheduleId=self.getAwayModeScheduleId(),
+                hsp=hsp,
+                hspC=hspC,
+                csp=csp,
+                cspC=cspC,
+                sp=sp,
+                spC=spC,
+                husp=husp,
+                desp=desp,
+            )
+            return
+
         # If the zone is in manual mode, the temperature can just be set.
         if self.isZoneManualMode() is True:
             _LOGGER.info(f"lennox_zone:_execute_setpoints zone already in manual mode id [{self.id}]")
@@ -2819,12 +2841,19 @@ class lennox_zone(object):
 
         await self.system.setSchedule(self.id, scheduleId)
 
-    async def setFanMode(self, fan_mode: str) -> None:
+    async def setFanMode(self, fan_mode: str) -> None:       
+        if self.system.get_away_mode():
+            _LOGGER.info(f"lennox_zone:setFanMode zone in away mode [{self.id}]")
+            await self.system.setFanMode(fan_mode, self.getAwayModeScheduleId())
+            return
+
         if self.isZoneManualMode() is True:
+            _LOGGER.info(f"lennox_zone:setFanMode zone in manual mode [{self.id}]")
             await self.system.setFanMode(fan_mode, self.getManualModeScheduleId())
             return
 
         if self.isZoneOveride() is False:
+            _LOGGER.info(f"lennox_zone:setFanMode create override [{self.id}]")
             data = '"Data":{"schedules":[{"schedule":{"periods":[{"id":0,"period":'
             data += '{"desp":' + str(self.desp) + ","
             data += '"hsp":' + str(self.hsp) + ","
