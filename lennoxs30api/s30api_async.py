@@ -2672,7 +2672,7 @@ class lennox_zone(object):
         info_str = f"zone [{self.id}] hsp [{hsp}] hspC [{hspC}] csp [{csp}] cspC [{cspC}] sp [{sp}] spC [{spC}] husp [{husp}] desp [{desp}]"
         _LOGGER.info(f"_execute_setpoints {info_str}")
 
-        # If the system is away mode, target the away mode schedule
+        # If the system is in away mode, target the away mode schedule
         if self.system.get_away_mode() is True:
             _LOGGER.info(f"lennox_zone:_execute_setpoints zone in away mode [{self.id}]")
             await self.system.perform_schedule_setpoint(
