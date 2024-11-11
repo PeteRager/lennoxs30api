@@ -707,7 +707,12 @@ class s30api_async(object):
             self.metrics.inc_receive_bytes(resp.content_length)
             if resp.status == 200:
                 resp_txt = await resp.text()
-                resp_json = json.loads(resp_txt)
+                try:
+                    resp_json = json.loads(resp_txt)
+                except json.decoder.JSONDecodeError as e:
+                    _LOGGER.exception("messagePump - JSON decode error - message to follow")
+                    _LOGGER.error(resp_txt)
+                    raise S30Exception("messagePump failed due to JSON decode error", EC_COMMS_ERROR, 8) from e
                 if len(resp_json["messages"]) == 0:
                     return False
                 self.message_logger(resp_json)
