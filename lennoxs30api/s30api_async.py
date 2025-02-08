@@ -707,7 +707,12 @@ class s30api_async(object):
             self.metrics.inc_receive_bytes(resp.content_length)
             if resp.status == 200:
                 resp_txt = await resp.text()
-                resp_json = json.loads(resp_txt)
+                try:
+                    resp_json = json.loads(resp_txt)
+                except json.decoder.JSONDecodeError as e:
+                    _LOGGER.exception("messagePump - JSON decode error - message to follow")
+                    _LOGGER.error(resp_txt)
+                    raise S30Exception("messagePump failed due to JSON decode error", EC_COMMS_ERROR, 8) from e
                 if len(resp_json["messages"]) == 0:
                     return False
                 self.message_logger(resp_json)
@@ -750,15 +755,18 @@ class s30api_async(object):
         else:
             system: lennox_system = self.getSystemSibling(sysId)
             if system is None:
-                self.metrics.inc_sender_message_drop()
-                if sysId in self._badSenderDict:
-                    _LOGGER.debug(f"processMessage dropping messages from unknown SenderId/SystemId [{sysId}]")
+                if self.allSystemsInitialized is True:
+                    self.metrics.inc_sender_message_drop()
+                    if sysId in self._badSenderDict:
+                        _LOGGER.debug(f"processMessage dropping messages from unknown SenderId/SystemId [{sysId}]")
+                    else:
+                        _LOGGER.error(
+                            f"processMessage dropping message from unknown SenderId/SystemId [{sysId}] - please consult https://github.com/PeteRager/lennoxs30/blob/master/docs/sibling.md for configuration assistance"
+                        )
+                        _LOGGER.error(json.dumps(message, indent=4))                    
+                        self._badSenderDict[sysId] = sysId
                 else:
-                    _LOGGER.error(
-                        f"processMessage dropping message from unknown SenderId/SystemId [{sysId}] - please consult https://github.com/PeteRager/lennoxs30/blob/master/docs/sibling.md for configuration assistance"
-                    )
-                    _LOGGER.error(json.dumps(message, indent=4))                    
-                    self._badSenderDict[sysId] = sysId
+                        _LOGGER.debug(f"processMessage ignoring messages from unknown SenderId/SystemId [{sysId}] because systems are not initialized")
             else:
                 self.metrics.inc_sibling_message_drop()
                 if self.metrics.sibling_message_drop == 1:
@@ -842,6 +850,13 @@ class s30api_async(object):
             if system.sibling_identifier == sysId:
                 return system
         return None
+    
+    @property
+    def allSystemsInitialized(self) -> bool:
+        for system in self.system_list:
+            if system.systemMessageProcessed is False:
+                return False
+        return True
 
     def getOrCreateSystem(self, sysId: str) -> "lennox_system":
         system = self.getSystem(sysId)
@@ -1167,6 +1182,7 @@ class lennox_system(object):
             "indoorAirQuality": self._process_indoor_air_quality,
             "weather": self._process_weather,
         }
+        self.systemMessageProcessed: bool = False
 
         self.equipment: dict[int, lennox_equipment] = {}
         self.ble_devices: dict[int, LennoxBle] = {}
@@ -1531,6 +1547,7 @@ class lennox_system(object):
         return False
 
     def _processSystemMessage(self, message):
+        self.systemMessageProcessed = True
         if "config" in message:
             config = message["config"]
             self.attr_updater(config, "temperatureUnit")
