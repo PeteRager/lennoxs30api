@@ -101,10 +101,12 @@ async def test_client_connection_error(api: s30api_async, caplog):
 
 class HttpResp:
     """Mock an http response"""
-    def __init__(self, status):
+    def __init__(self, status, text:str|None=None):
         self.status = status
         self.content_length = 100
-
+        self._text = text
+    async def text(self)->str:
+        return self._text
 
 @pytest.mark.asyncio
 async def test_client_http_204(api: s30api_async, caplog):
@@ -167,3 +169,19 @@ async def test_client_timeout_error(api: s30api_async, caplog):
             assert api.metrics.timeouts == 1
             assert api.metrics.error_count == 1
             assert api.metrics.last_error_time is not None
+
+@pytest.mark.asyncio
+async def test_json_decode_error(api: s30api_async, caplog):
+    """Tests json decode error"""
+    with patch.object(api, "get") as mock_get:
+        mock_get.return_value = HttpResp(200,"Invalid json {}''")
+        with caplog.at_level(logging.DEBUG):
+            caplog.clear()
+            with pytest.raises(S30Exception) as exc:
+                await api.messagePump()
+            ex: S30Exception = exc.value
+            assert ex.error_code == EC_COMMS_ERROR
+            assert "JSON decode error" in ex.message
+            assert len(caplog.records) == 2
+            assert "JSON decode error" in caplog.messages[0]
+            assert "Invalid json {}''" in caplog.messages[1]
