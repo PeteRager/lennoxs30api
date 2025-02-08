@@ -83,3 +83,40 @@ def test_process_zero_sibling_message(api: s30api_async, caplog):
         assert lsystem.sibling_portNumber is None
         assert lsystem.sibling_ipAddress is None
         assert len(caplog.records) == 0
+
+def test_process_unknown_sender(api: s30api_async, caplog):
+    """Test processing from unknown sender"""
+    message = loadfile("system_uptime.json","bad_sender")
+    caplog.clear()
+    with caplog.at_level(logging.ERROR):
+        api.processMessage(message)
+        assert len(caplog.records) == 2
+        assert "bad_sender" in caplog.messages[0]
+        assert "currentTime" in caplog.messages[1]        
+        api.processMessage(message)
+        assert len(caplog.records) == 2
+
+def test_process_unknown_sender_no_init(api: s30api_async, caplog):
+    """Test processing from unknown sender when systems are not all initialized."""
+    lsystem: lennox_system = api.system_list[1]
+    lsystem.systemMessageProcessed = False
+    message = loadfile("system_uptime.json","bad_sender")
+    caplog.clear()
+    with caplog.at_level(logging.ERROR):
+        api.processMessage(message)
+        assert len(caplog.records) == 0
+
+def test_process_message_from_sibling(api: s30api_async, caplog):
+    """Test processing message from sibling"""
+
+    message = loadfile("sibling.json")
+    api.processMessage(message)
+    message = loadfile("system_uptime.json","KL21J00002")
+    caplog.clear()
+    with caplog.at_level(logging.WARNING):
+        api.processMessage(message)
+        assert len(caplog.records) == 2
+        assert caplog.records[0].levelname == "WARNING"
+        assert caplog.records[1].levelname == "WARNING"
+        assert "KL21J00002" in caplog.messages[0]
+        assert "currentTime" in caplog.messages[1]        
