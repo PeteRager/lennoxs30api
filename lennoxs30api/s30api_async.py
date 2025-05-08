@@ -95,11 +95,13 @@ HVAC_MODES: Final = {
 LENNOX_HUMIDITY_MODE_OFF: Final = "off"
 LENNOX_HUMIDITY_MODE_HUMIDIFY: Final = "humidify"
 LENNOX_HUMIDITY_MODE_DEHUMIDIFY: Final = "dehumidify"
+LENNOX_HUMIDITY_MODE_BOTH: Final = "both"
 
 HUMIDITY_MODES: Final = {
     LENNOX_HUMIDITY_MODE_OFF,
     LENNOX_HUMIDITY_MODE_HUMIDIFY,
     LENNOX_HUMIDITY_MODE_DEHUMIDIFY,
+    LENNOX_HUMIDITY_MODE_BOTH,
 }
 
 LENNOX_HUMID_OPERATION_OFF: Final = "off"
@@ -2954,6 +2956,13 @@ class lennox_zone(object):
                     f"setHumidityMode - invalid mode - zone [{self.id}]  does not support [{mode}]",
                     EC_BAD_PARAMETERS,
                     2,
+                )
+        elif mode == LENNOX_HUMIDITY_MODE_BOTH:
+            if self.dehumidificationOption is False or self.dehumidificationOption is False:
+                raise S30Exception(
+                    f"setHumidityMode - invalid mode - zone [{self.id}]  does not support [{mode}]",
+                    EC_BAD_PARAMETERS,
+                    3,
                 )
         elif mode == LENNOX_HUMIDITY_MODE_OFF:
             pass
