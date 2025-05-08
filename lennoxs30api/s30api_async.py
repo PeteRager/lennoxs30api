@@ -2973,6 +2973,44 @@ class lennox_zone(object):
                 4,
             )
 
-        if self.isZoneManualMode() is False:
-            await self.system.setSchedule(self.id, self.getManualModeScheduleId())
-        await self.system.setHumidityMode(mode, self.getManualModeScheduleId())
+        if self.isZoneManualMode() is True:
+            _LOGGER.info(f"lennox_zone:setHumidityMode zone in manual mode [{self.id}]")
+            await self.system.setHumidityMode(mode, self.getManualModeScheduleId())
+            return
+
+        if self.isZoneOveride() is False:
+            _LOGGER.info(f"lennox_zone:setHumidityMode create override [{self.id}]")
+
+            message = {
+                "schedules": [
+                    {
+                        "schedule": {
+                            "periods": [
+                                {
+                                    "id": 0,
+                                    "period": {
+                                        "desp": self.desp,
+                                        "hsp": self.hsp,
+                                        "cspC": self.cspC,
+                                        "sp": self.sp,
+                                        "husp": self.husp,
+                                        "humidityMode": mode,
+                                        "systemMode": self.systemMode,
+                                        "spC": self.spC,
+                                        "hspC": self.hspC,
+                                        "csp": self.csp,
+                                        "startTime": self.startTime,
+                                        "fanMode": self.fanMode,
+                                    },
+                                }
+                            ]
+                        },
+                        "id": self.getOverrideScheduleId(),
+                    }
+                ]
+            }
+
+            await self.system.api.publish_message_helper_dict(self.system.sysId, message)
+            await self.setScheduleHold(True)
+        else:
+            await self.system.setHumidityMode(mode, self.getOverrideScheduleId())
