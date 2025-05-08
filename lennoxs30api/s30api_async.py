@@ -2958,7 +2958,7 @@ class lennox_zone(object):
                     2,
                 )
         elif mode == LENNOX_HUMIDITY_MODE_BOTH:
-            if self.dehumidificationOption is False or self.dehumidificationOption is False:
+            if self.humidificationOption is False or self.dehumidificationOption is False:
                 raise S30Exception(
                     f"setHumidityMode - invalid mode - zone [{self.id}]  does not support [{mode}]",
                     EC_BAD_PARAMETERS,
