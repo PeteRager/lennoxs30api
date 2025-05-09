@@ -2829,7 +2829,16 @@ class lennox_zone(object):
                     EC_BAD_PARAMETERS,
                     2,
                 )
-        await self._execute_setpoints(husp=husp, desp=desp)
+            
+        # Humidity setpoints always target the manual mode schedule even if the
+        # zone is running a schedule.
+        await self.system.perform_schedule_setpoint(
+            zoneId=self.id,
+            scheduleId=self.getManualModeScheduleId(),
+            husp=husp,
+            desp=desp,
+        )
+
 
     async def setScheduleHold(self, hold: bool) -> bool:
         if hold is True:
@@ -2973,44 +2982,8 @@ class lennox_zone(object):
                 4,
             )
 
-        if self.isZoneManualMode() is True:
-            _LOGGER.info(f"lennox_zone:setHumidityMode zone in manual mode [{self.id}]")
-            await self.system.setHumidityMode(mode, self.getManualModeScheduleId())
-            return
-
-        if self.isZoneOveride() is False:
-            _LOGGER.info(f"lennox_zone:setHumidityMode create override [{self.id}]")
-
-            message = {
-                "schedules": [
-                    {
-                        "schedule": {
-                            "periods": [
-                                {
-                                    "id": 0,
-                                    "period": {
-                                        "desp": self.desp,
-                                        "hsp": self.hsp,
-                                        "cspC": self.cspC,
-                                        "sp": self.sp,
-                                        "husp": self.husp,
-                                        "humidityMode": mode,
-                                        "systemMode": self.systemMode,
-                                        "spC": self.spC,
-                                        "hspC": self.hspC,
-                                        "csp": self.csp,
-                                        "startTime": self.startTime,
-                                        "fanMode": self.fanMode,
-                                    },
-                                }
-                            ]
-                        },
-                        "id": self.getOverrideScheduleId(),
-                    }
-                ]
-            }
-
-            await self.system.api.publish_message_helper_dict(self.system.sysId, message)
-            await self.setScheduleHold(True)
-        else:
-            await self.system.setHumidityMode(mode, self.getOverrideScheduleId())
+        _LOGGER.info(f"lennox_zone:setHumidityMode [{mode}] zone [{self.id}]")
+        # Humidity mode changes always target the manual mode schedule even if the
+        # zone is running a schedule.
+        await self.system.setHumidityMode(mode, self.getManualModeScheduleId())
+        return
