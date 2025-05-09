@@ -339,6 +339,9 @@ async def test_set_humidify_setpoint(api_single_setpoint: s30api_async):
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode is True
     zone: lennox_zone = lsystem.getZone(0)
+    # Set the schedule to a preset, the humidty setpoint should always
+    # go to the manual mnode schedule.
+    zone.scheduleId = 1
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         await zone.perform_humidify_setpoint(r_husp=40)
         mock_message_helper.assert_called_once()
@@ -381,6 +384,9 @@ async def test_set_dehumidify_setpoint(api_single_setpoint: s30api_async):
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode is True
     zone: lennox_zone = lsystem.getZone(0)
+    # Set the schedule to a preset, the humidty setpoint should always
+    # go to the manual mnode schedule.
+    zone.scheduleId = 1    
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         await zone.perform_humidify_setpoint(r_desp=60)
         mock_message_helper.assert_called_once()
