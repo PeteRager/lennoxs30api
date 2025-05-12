@@ -216,6 +216,10 @@ LENNOX_BLE_STATUS_INPUT_AVAILABLE: Final = "0"
 LENNOX_PRODUCT_TYPE_S40: Final = "S40"
 LENNOX_PRODUCT_TYPE_S30: Final = "S30"
 
+# Lennox heat and cool setpoints must be seperated by 3 F or 1.5 C
+LENNOX_HSP_CSP_SEP = 3
+LENNOX_HSPC_CSPS_SEP = 1.5
+
 # NOTE:  This application id is super important and a point of brittleness.  You can find this in the burp logs between the mobile app and the Lennox server.
 # If we start getting reports of missesd message, this is the place to look....
 # Here is what I do know
@@ -2619,6 +2623,21 @@ class lennox_zone(object):
                 EC_BAD_PARAMETERS,
                 2,
             )
+        
+        if r_hsp and r_csp and r_csp < r_hsp + LENNOX_HSP_CSP_SEP:
+            raise S30Exception(
+                f"validate_setpoints r_hsp [{r_hsp}] and r_csp [{r_csp}] must be seperated by [{LENNOX_HSP_CSP_SEP}] degrees",
+                EC_BAD_PARAMETERS,
+                3,
+            )
+
+        if r_hspC and r_cspC and r_cspC < r_hspC + LENNOX_HSPC_CSPS_SEP:
+            raise S30Exception(
+                f"validate_setpoints r_hspC [{r_hspC}] and r_csp [{r_cspC}] must be seperated by [{LENNOX_HSPC_CSPS_SEP}] degrees",
+                EC_BAD_PARAMETERS,
+                3,
+            )
+
 
     async def perform_setpoint(self, r_hsp=None, r_hspC=None, r_csp=None, r_cspC=None, r_sp=None, r_spC=None):
         _LOGGER.debug(
@@ -2670,6 +2689,30 @@ class lennox_zone(object):
                     cspC = self.system.convertFtoC(r_csp)
                 else:
                     cspC = self.cspC
+
+            # Lennox requires the heat and cool setpoints be seperated by 1.5C/3F.
+            # Even if the zone is just in heat or cool mode. The lennox app automatically
+            # adjusts the setpoints, we will do the same. If heat and cool setpoints
+            # are specified the validation logic will have rejected them already.
+            modified = False
+            if r_hsp or r_hspC and not (r_csp or r_cspC):
+                if cspC < hspC + LENNOX_HSPC_CSPS_SEP:
+                    cspC = hspC + LENNOX_HSPC_CSPS_SEP
+                    modified = True
+                if csp < hsp + LENNOX_HSP_CSP_SEP:
+                    csp = hsp + LENNOX_HSP_CSP_SEP
+                    modified = True
+            elif r_csp or r_cspC and not (r_hsp or r_hspC):
+                if cspC < hspC + LENNOX_HSPC_CSPS_SEP:
+                    hspC = cspC - LENNOX_HSPC_CSPS_SEP
+                    modified = True
+                if csp < hsp + LENNOX_HSP_CSP_SEP:
+                    hsp = csp - LENNOX_HSP_CSP_SEP
+                    modified = True
+            if modified:
+                _LOGGER.debug(
+                    f"setpoints modified id [{self.id}] hsp [{hsp}] hspC [{hspC}] csp [{csp}] cspC [{cspC}]"
+                )
         else:
             if r_sp is not None:
                 sp = self.system.faren_round(r_sp)
