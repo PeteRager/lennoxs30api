@@ -2703,7 +2703,7 @@ class lennox_zone(object):
 
             # Lennox requires the heat and cool setpoints be seperated by 1.5C/3F.
             # Even if the zone is just in heat or cool mode. The lennox app automatically
-            # adjusts the setpoints, we will do the same. If heat and cool setpoints
+            # adjusts the setpoints, we will do the same. If both heat and cool setpoints
             # are specified the validation logic will have rejected them already.
             modified = False
             if r_hsp or r_hspC and not (r_csp or r_cspC):
