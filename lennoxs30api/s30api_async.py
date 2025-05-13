@@ -176,6 +176,7 @@ LENNOX_FEATURE_EQUIPMENT_TYPE_NAME: Final = 15
 
 LENNOX_PARAMETER_EQUIPMENT_NAME: Final = 18
 LENNOX_PARAMETER_SINGLE_SETPOINT_MODE: Final = 525
+LENNOX_PARAMETER_AUTOCHANGE_OVER_TEMP_DEADBAND: Final = 104
 
 LENNOX_EQUIPMENT_TYPE_SUBNET_CONTROLLER: Final = 0
 LENNOX_EQUIPMENT_TYPE_FURNACE: Final = 16
@@ -215,6 +216,10 @@ LENNOX_BLE_STATUS_INPUT_AVAILABLE: Final = "0"
 
 LENNOX_PRODUCT_TYPE_S40: Final = "S40"
 LENNOX_PRODUCT_TYPE_S30: Final = "S30"
+
+# Lennox heat and cool setpoints must be seperated by 3 F or 1.5 C
+LENNOX_HSP_CSP_SEP_DEFAULT = 3
+LENNOX_HSPC_CSPC_SEP_DEFAULT = 1.5
 
 # NOTE:  This application id is super important and a point of brittleness.  You can find this in the burp logs between the mobile app and the Lennox server.
 # If we start getting reports of missesd message, this is the place to look....
@@ -1166,6 +1171,11 @@ class lennox_system(object):
         self.wifi_bitRate: int = None
         self.wifi_rssi: int = None
 
+        # Default deadbands between heat and cool setpoint
+        # will be fetched from parameters
+        self.changeover_temp_deadband_f: int = LENNOX_HSP_CSP_SEP_DEFAULT
+        self.changeover_temp_deadband_c: float = LENNOX_HSPC_CSPC_SEP_DEFAULT
+         
         self._dirty = False
         self._dirtyList = []
         self.message_processing_list = {
@@ -1674,6 +1684,11 @@ class lennox_system(object):
                         self.single_setpoint_mode = False
                     self._dirty = True
                     self._dirtyList.append("single_setpoint_mode")
+                if parameter.get("parameter", {}).get("pid") == LENNOX_PARAMETER_AUTOCHANGE_OVER_TEMP_DEADBAND:
+                    self.changeover_temp_deadband_f = int(parameter["parameter"]["value"])
+                    self.changeover_temp_deadband_c = self.convertFtoC(self.changeover_temp_deadband_f,noOffset=True)
+                    self._dirty = True
+                    self._dirtyList.append("auto_change_over_temp_deadband")                
                 if parameter.get("parameter", {}).get("pid") == LENNOX_PARAMETER_EQUIPMENT_NAME:
                     # Lennox isn't consistent with capitilization of Subnet Controller
                     # If equipment name isn't available, use the equipment type name.
@@ -2619,6 +2634,21 @@ class lennox_zone(object):
                 EC_BAD_PARAMETERS,
                 2,
             )
+        
+        if r_hsp and r_csp and r_csp < r_hsp + self.system.changeover_temp_deadband_f:
+            raise S30Exception(
+                f"validate_setpoints r_hsp [{r_hsp}] and r_csp [{r_csp}] must be seperated by [{self.system.changeover_temp_deadband_f}] degrees",
+                EC_BAD_PARAMETERS,
+                3,
+            )
+
+        if r_hspC and r_cspC and r_cspC < r_hspC + self.system.changeover_temp_deadband_c:
+            raise S30Exception(
+                f"validate_setpoints r_hspC [{r_hspC}] and r_csp [{r_cspC}] must be seperated by [{self.system.changeover_temp_deadband_c}] degrees",
+                EC_BAD_PARAMETERS,
+                3,
+            )
+
 
     async def perform_setpoint(self, r_hsp=None, r_hspC=None, r_csp=None, r_cspC=None, r_sp=None, r_spC=None):
         _LOGGER.debug(
@@ -2670,6 +2700,30 @@ class lennox_zone(object):
                     cspC = self.system.convertFtoC(r_csp)
                 else:
                     cspC = self.cspC
+
+            # Lennox requires the heat and cool setpoints be seperated by 1.5C/3F.
+            # Even if the zone is just in heat or cool mode. The lennox app automatically
+            # adjusts the setpoints, we will do the same. If both heat and cool setpoints
+            # are specified the validation logic will have rejected them already.
+            modified = False
+            if r_hsp or r_hspC and not (r_csp or r_cspC):
+                if cspC < hspC + self.system.changeover_temp_deadband_c:
+                    cspC = hspC + self.system.changeover_temp_deadband_c
+                    modified = True
+                if csp < hsp + self.system.changeover_temp_deadband_f:
+                    csp = hsp + self.system.changeover_temp_deadband_f
+                    modified = True
+            elif r_csp or r_cspC and not (r_hsp or r_hspC):
+                if cspC < hspC + self.system.changeover_temp_deadband_c:
+                    hspC = cspC - self.system.changeover_temp_deadband_c
+                    modified = True
+                if csp < hsp + self.system.changeover_temp_deadband_f:
+                    hsp = csp - self.system.changeover_temp_deadband_f
+                    modified = True
+            if modified:
+                _LOGGER.debug(
+                    f"setpoints modified id [{self.id}] hsp [{hsp}] hspC [{hspC}] csp [{csp}] cspC [{cspC}]"
+                )
         else:
             if r_sp is not None:
                 sp = self.system.faren_round(r_sp)

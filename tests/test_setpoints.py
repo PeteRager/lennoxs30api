@@ -15,7 +15,7 @@ async def test_hsp_f(api: s30api_async):
     assert lsystem.single_setpoint_mode is False
     zone: lennox_zone = lsystem.getZone(0)
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        await zone.perform_setpoint(r_hsp=71)
+        await zone.perform_setpoint(r_hsp=74)
         mock_message_helper.assert_called_once()
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
@@ -25,13 +25,38 @@ async def test_hsp_f(api: s30api_async):
         t_schedule = jsbody["Data"]["schedules"][0]
         assert t_schedule["id"] == zone.getManualModeScheduleId()
         t_period = t_schedule["schedule"]["periods"][0]["period"]
-        assert t_period["hsp"] == 71
-        assert t_period["hspC"] == 21.5
+        assert t_period["hsp"] == 74
+        assert t_period["hspC"] == 23.5
+        assert t_period["csp"] == 77
+        assert t_period["cspC"] == 25.0
         schedule = lsystem.getSchedule(zone.getManualModeScheduleId())
         zperiod = schedule.getPeriod(0)
-
         assert t_period["csp"] == zperiod.csp
         assert t_period["cspC"] == zperiod.cspC
+
+
+@pytest.mark.asyncio
+async def test_hsp_f_adjust_csp(api: s30api_async):
+    """Test setting heat setpoint f adjust the CSP"""
+    lsystem: lennox_system = api.system_list[0]
+    assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
+    assert lsystem.single_setpoint_mode is False
+    zone: lennox_zone = lsystem.getZone(0)
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        await zone.perform_setpoint(r_hsp=75)
+        mock_message_helper.assert_called_once()
+        arg0 = mock_message_helper.await_args[0][0]
+        assert arg0 == lsystem.sysId
+        arg1 = mock_message_helper.await_args[0][1]
+        jsbody = json.loads("{" + arg1 + "}")
+
+        t_schedule = jsbody["Data"]["schedules"][0]
+        assert t_schedule["id"] == zone.getManualModeScheduleId()
+        t_period = t_schedule["schedule"]["periods"][0]["period"]
+        assert t_period["hsp"] == 75
+        assert t_period["hspC"] == 24
+        assert t_period["csp"] == 78
+        assert t_period["cspC"] == 25.5
 
 
 @pytest.mark.asyncio
@@ -42,7 +67,7 @@ async def test_hsp_c(api: s30api_async):
     assert lsystem.single_setpoint_mode is False
     zone: lennox_zone = lsystem.getZone(0)
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        await zone.perform_setpoint(r_hspC=21.5)
+        await zone.perform_setpoint(r_hspC=23.5)
         mock_message_helper.assert_called_once()
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
@@ -52,8 +77,8 @@ async def test_hsp_c(api: s30api_async):
         t_schedule = jsbody["Data"]["schedules"][0]
         assert t_schedule["id"] == zone.getManualModeScheduleId()
         t_period = t_schedule["schedule"]["periods"][0]["period"]
-        assert t_period["hsp"] == 71
-        assert t_period["hspC"] == 21.5
+        assert t_period["hsp"] == 74
+        assert t_period["hspC"] == 23.5
         schedule = lsystem.getSchedule(zone.getManualModeScheduleId())
         zperiod = schedule.getPeriod(0)
 
@@ -62,14 +87,14 @@ async def test_hsp_c(api: s30api_async):
 
 
 @pytest.mark.asyncio
-async def test_csp_f(api: s30api_async):
-    """Test cool setpoint c"""
+async def test_hsp_c_adjust_csp(api: s30api_async):
+    """Test setting heat setpoint c adjusts the cool setpoint"""
     lsystem: lennox_system = api.system_list[0]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     assert lsystem.single_setpoint_mode is False
     zone: lennox_zone = lsystem.getZone(0)
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        await zone.perform_setpoint(r_csp=73)
+        await zone.perform_setpoint(r_hspC=24.0)
         mock_message_helper.assert_called_once()
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
@@ -79,13 +104,61 @@ async def test_csp_f(api: s30api_async):
         t_schedule = jsbody["Data"]["schedules"][0]
         assert t_schedule["id"] == zone.getManualModeScheduleId()
         t_period = t_schedule["schedule"]["periods"][0]["period"]
-        assert t_period["csp"] == 73
-        assert t_period["cspC"] == 23
+        assert t_period["hsp"] == 75
+        assert t_period["hspC"] == 24
+        assert t_period["csp"] == 78
+        assert t_period["cspC"] == 25.5
+
+
+@pytest.mark.asyncio
+async def test_csp_f(api: s30api_async):
+    """Test cool setpoint f"""
+    lsystem: lennox_system = api.system_list[0]
+    assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
+    assert lsystem.single_setpoint_mode is False
+    zone: lennox_zone = lsystem.getZone(0)
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        await zone.perform_setpoint(r_csp=67)
+        mock_message_helper.assert_called_once()
+        arg0 = mock_message_helper.await_args[0][0]
+        assert arg0 == lsystem.sysId
+        arg1 = mock_message_helper.await_args[0][1]
+        jsbody = json.loads("{" + arg1 + "}")
+
+        t_schedule = jsbody["Data"]["schedules"][0]
+        assert t_schedule["id"] == zone.getManualModeScheduleId()
+        t_period = t_schedule["schedule"]["periods"][0]["period"]
+        assert t_period["csp"] == 67
+        assert t_period["cspC"] == 19.5
         schedule = lsystem.getSchedule(zone.getManualModeScheduleId())
         zperiod = schedule.getPeriod(0)
 
         assert t_period["hsp"] == zperiod.hsp
         assert t_period["hspC"] == zperiod.hspC
+
+
+@pytest.mark.asyncio
+async def test_csp_f_adjust_hsp(api: s30api_async):
+    """Test cool setpoint f"""
+    lsystem: lennox_system = api.system_list[0]
+    assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
+    assert lsystem.single_setpoint_mode is False
+    zone: lennox_zone = lsystem.getZone(0)
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        await zone.perform_setpoint(r_csp=66)
+        mock_message_helper.assert_called_once()
+        arg0 = mock_message_helper.await_args[0][0]
+        assert arg0 == lsystem.sysId
+        arg1 = mock_message_helper.await_args[0][1]
+        jsbody = json.loads("{" + arg1 + "}")
+
+        t_schedule = jsbody["Data"]["schedules"][0]
+        assert t_schedule["id"] == zone.getManualModeScheduleId()
+        t_period = t_schedule["schedule"]["periods"][0]["period"]
+        assert t_period["csp"] == 66
+        assert t_period["cspC"] == 19.0
+        assert t_period["hsp"] == 63
+        assert t_period["hspC"] == 17.5
 
 
 @pytest.mark.asyncio
@@ -96,7 +169,7 @@ async def test_csp_c(api: s30api_async):
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
     zone: lennox_zone = lsystem.getZone(0)
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
-        await zone.perform_setpoint(r_cspC=23)
+        await zone.perform_setpoint(r_cspC=19.5)
         mock_message_helper.assert_called_once()
         arg0 = mock_message_helper.await_args[0][0]
         assert arg0 == lsystem.sysId
@@ -106,13 +179,37 @@ async def test_csp_c(api: s30api_async):
         t_schedule = jsbody["Data"]["schedules"][0]
         assert t_schedule["id"] == zone.getManualModeScheduleId()
         t_period = t_schedule["schedule"]["periods"][0]["period"]
-        assert t_period["csp"] == 73
-        assert t_period["cspC"] == 23
+        assert t_period["csp"] == 67
+        assert t_period["cspC"] == 19.5
         schedule = lsystem.getSchedule(zone.getManualModeScheduleId())
         zperiod = schedule.getPeriod(0)
 
         assert t_period["hsp"] == zperiod.hsp
         assert t_period["hspC"] == zperiod.hspC
+
+
+@pytest.mark.asyncio
+async def test_csp_c_adjust_hsp(api: s30api_async):
+    """Test cool setpoint c"""
+    lsystem: lennox_system = api.system_list[0]
+    assert lsystem.single_setpoint_mode is False
+    assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
+    zone: lennox_zone = lsystem.getZone(0)
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        await zone.perform_setpoint(r_cspC=19)
+        mock_message_helper.assert_called_once()
+        arg0 = mock_message_helper.await_args[0][0]
+        assert arg0 == lsystem.sysId
+        arg1 = mock_message_helper.await_args[0][1]
+        jsbody = json.loads("{" + arg1 + "}")
+
+        t_schedule = jsbody["Data"]["schedules"][0]
+        assert t_schedule["id"] == zone.getManualModeScheduleId()
+        t_period = t_schedule["schedule"]["periods"][0]["period"]
+        assert t_period["csp"] == 66
+        assert t_period["cspC"] == 19
+        assert t_period["hsp"] == 63
+        assert t_period["hspC"] == 17.5
 
 
 @pytest.mark.asyncio
@@ -142,6 +239,24 @@ async def test_hcsp_f(api: s30api_async):
 
 
 @pytest.mark.asyncio
+async def test_hcsp_f_exception(api: s30api_async):
+    """Test heat and cool setpoints c"""
+    lsystem: lennox_system = api.system_list[0]
+    assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
+    assert lsystem.single_setpoint_mode is False
+
+    zone: lennox_zone = lsystem.getZone(0)
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        with pytest.raises(S30Exception) as exc:
+            await zone.perform_setpoint(r_hsp=67, r_csp=69)
+        ex: S30Exception = exc.value
+        assert "67" in ex.message
+        assert "69" in ex.message
+        assert "3" in ex.message
+        assert mock_message_helper.call_count == 0
+
+
+@pytest.mark.asyncio
 async def test_hcsp_c(api: s30api_async):
     """Test heat and cool setpoints c"""
     lsystem: lennox_system = api.system_list[0]
@@ -165,6 +280,24 @@ async def test_hcsp_c(api: s30api_async):
         assert t_period["hsp"] == 64
         assert t_period["hspC"] == 18
         assert len(t_period) == 4
+
+
+@pytest.mark.asyncio
+async def test_hcsp_c_exception(api: s30api_async):
+    """Test heat and cool setpoints c"""
+    lsystem: lennox_system = api.system_list[0]
+    assert lsystem.sysId == "0000000-0000-0000-0000-000000000001"
+    assert lsystem.single_setpoint_mode is False
+
+    zone: lennox_zone = lsystem.getZone(0)
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        with pytest.raises(S30Exception) as exc:
+            await zone.perform_setpoint(r_hspC=18, r_cspC=19)
+        ex: S30Exception = exc.value
+        assert "18" in ex.message
+        assert "19" in ex.message
+        assert "1.5" in ex.message
+        assert mock_message_helper.call_count == 0
 
 
 @pytest.mark.asyncio
@@ -386,7 +519,7 @@ async def test_set_dehumidify_setpoint(api_single_setpoint: s30api_async):
     zone: lennox_zone = lsystem.getZone(0)
     # Set the schedule to a preset, the humidty setpoint should always
     # go to the manual mnode schedule.
-    zone.scheduleId = 1    
+    zone.scheduleId = 1
     with patch.object(api, "publishMessageHelper") as mock_message_helper:
         await zone.perform_humidify_setpoint(r_desp=60)
         mock_message_helper.assert_called_once()
