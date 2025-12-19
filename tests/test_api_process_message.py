@@ -18,8 +18,8 @@ def test_api_process_sibling_message(api: s30api_async, caplog):
     message = loadfile("sibling.json")
     api.processMessage(message)
 
-    assert lsystem.sibling_self_identifier == "KL21J00001"
-    assert lsystem.sibling_identifier == "KL21J00002"
+    assert lsystem.siblings[0].sibling_self_identifier == "KL21J00001"
+    assert lsystem.siblings[0].sibling_identifier == "KL21J00002"
     assert api.metrics.sibling_message_drop == 0
     message = loadfile("mut_sys1_zone1_status.json")
     message["SenderId"] = "KL21J00002"
