@@ -26,6 +26,8 @@ v0.2.0 - Initial Release
 # pylint: disable=missing-function-docstring
 # pylint: disable=consider-using-dict-items
 
+from __future__ import annotations
+
 from datetime import datetime
 import logging
 import json
@@ -852,10 +854,11 @@ class s30api_async(object):
                 return system
         return None
 
-    def getSystemSibling(self, sysId: str) -> "lennox_system":
+    def getSystemSibling(self, sysId: str) -> lennox_system:
         for system in self.system_list:
-            if system.sibling_identifier == sysId:
-                return system
+            for sibling in system.siblings:
+                if sibling.sibling_identifier == sysId:
+                    return system
         return None
     
     @property
@@ -1029,6 +1032,14 @@ class s30api_async(object):
         data = '"Data":' + json.dumps(command).replace(" ", "")
         await self.publishMessageHelper(sysId, data)
 
+class SiblingInfo:
+    def __init__(self):
+        self.sibling_self_identifier: str = None
+        self.sibling_identifier: str = None
+        self.sibling_systemName: str = None
+        self.sibling_nodePresent: str = None
+        self.sibling_portNumber: str = None
+        self.sibling_ipAddress: str = None
 
 class lennox_system(object):
     """Represents a Lennox Control System"""
@@ -1092,12 +1103,15 @@ class lennox_system(object):
         self.sa_state: str = None
         self.sa_setpointState: str = None
         # Sibling data
+        self.siblings: list[SiblingInfo] = []
+        # TODO remove these fields, use siblings list
         self.sibling_self_identifier: str = None
         self.sibling_identifier: str = None
         self.sibling_systemName: str = None
         self.sibling_nodePresent: str = None
         self.sibling_portNumber: str = None
-        self.sibling_ipAddress: str = None
+        self.sibling_ipAddress: str = None        
+
         # iHarmony Zoning Mode
         self.centralMode: bool = None
         self.zoningMode: str = None
@@ -1324,20 +1338,22 @@ class lennox_system(object):
             self.attr_updater(systemControl["diagControl"], "level", "diagLevel")
 
     def _processSiblings(self, siblings):
-        i = len(siblings)
-        if i == 0:
-            return
-        if i > 1:
-            _LOGGER.error(f"Encountered system with more than one sibling, please open an issue.  Message: {siblings}")
-        # It appears there could be more than one of these, for now lets only process the first one.
-        sibling = siblings[0]
-        self.attr_updater(sibling, "selfIdentifier", "sibling_self_identifier")
-        if "sibling" in sibling:
-            self.attr_updater(sibling["sibling"], "identifier", "sibling_identifier")
-            self.attr_updater(sibling["sibling"], "systemName", "sibling_systemName")
-            self.attr_updater(sibling["sibling"], "portNumber", "sibling_portNumber")
-            self.attr_updater(sibling["sibling"], "nodePresent", "sibling_nodePresent")
-            self.attr_updater(sibling["sibling"], "ipAddress", "sibling_ipAddress")
+        if len(siblings) == 0:
+            self.siblings = []
+            return     
+        for sibling in siblings:
+            sibling_info = SiblingInfo()
+            sibling_info.sibling_self_identifier = sibling.get("selfIdentifier", None)
+            sibling_info.sibling_systemName = sibling["sibling"].get("systemName", None)
+            sibling_info.sibling_identifier = sibling["sibling"].get("identifier", None)
+            sibling_info.sibling_portNumber = sibling["sibling"].get("portNumber", None)
+            sibling_info.sibling_nodePresent = sibling["sibling"].get("nodePresent", None)
+            sibling_info.sibling_ipAddress = sibling["sibling"].get("ipAddress", None)
+            self.siblings.append(sibling_info)
+
+        self._dirty = True
+        if "siblings" not in self._dirtyList:
+            self._dirtyList.append("siblings")            
 
     def _process_rgw(self, rgw):
         if "status" in rgw:
