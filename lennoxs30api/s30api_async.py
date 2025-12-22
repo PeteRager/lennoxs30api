@@ -1836,7 +1836,7 @@ class lennox_system(object):
     async def enable_smart_away(self, mode: bool) -> None:
         await self.api.enable_smart_away(self.sysId, mode)
 
-    def getZone(self, zone_id):
+    def getZone(self, zone_id: int) -> lennox_zone:
         return next((zone for zone in self.zone_list if zone.id == zone_id), None)
 
     async def setHVACMode(self, mode, scheduleId):
