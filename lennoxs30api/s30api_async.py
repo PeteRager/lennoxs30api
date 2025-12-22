@@ -1479,7 +1479,7 @@ class lennox_system(object):
                         zone_id = schedule_id - LENNOX_MANUAL_MODE_SCHEDULE_START_INDEX
                         period = schedule["schedule"]["periods"][0]["period"]
                         zone: lennox_zone = self.getZone(zone_id)
-                        if zone.isZoneManualMode():
+                        if zone is not None and zone.isZoneManualMode():
                             zone._processPeriodMessage(period)
                             zone.executeOnUpdateCallbacks()
 
@@ -1836,11 +1836,8 @@ class lennox_system(object):
     async def enable_smart_away(self, mode: bool) -> None:
         await self.api.enable_smart_away(self.sysId, mode)
 
-    def getZone(self, zone_id):
-        for zone in self.zone_list:
-            if zone.id == zone_id:
-                return zone
-        return None
+    def getZone(self, zone_id: int) -> lennox_zone:
+        return next((zone for zone in self.zone_list if zone.id == zone_id), None)
 
     async def setHVACMode(self, mode, scheduleId):
         return await self.api.setHVACMode(self.sysId, mode, scheduleId)
@@ -2536,19 +2533,14 @@ class lennox_zone(object):
     def getAwayModeScheduleId(self) -> int:
         return 24 + self.id
 
-
     def getOverrideScheduleId(self) -> int:
         return 32 + self.id
 
     def isZoneManualMode(self) -> bool:
-        if self.scheduleId == self.getManualModeScheduleId():
-            return True
-        return False
+        return self.scheduleId == self.getManualModeScheduleId()
 
     def isZoneOveride(self) -> bool:
-        if self.scheduleId == self.getOverrideScheduleId():
-            return True
-        return False
+        return self.scheduleId == self.getOverrideScheduleId()
 
     def validate_setpoints(self, r_hsp=None, r_hspC=None, r_csp=None, r_cspC=None, r_sp=None, r_spC=None):
         if (r_sp is not None or r_spC is not None) and self.system.single_setpoint_mode is False:
