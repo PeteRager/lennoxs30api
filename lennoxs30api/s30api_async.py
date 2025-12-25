@@ -1104,14 +1104,7 @@ class lennox_system(object):
         self.sa_setpointState: str = None
         # Sibling data
         self.siblings: list[SiblingInfo] = []
-        # TODO remove these fields, use siblings list
-        self.sibling_self_identifier: str = None
-        self.sibling_identifier: str = None
-        self.sibling_systemName: str = None
-        self.sibling_nodePresent: str = None
-        self.sibling_portNumber: str = None
-        self.sibling_ipAddress: str = None        
-
+    
         # iHarmony Zoning Mode
         self.centralMode: bool = None
         self.zoningMode: str = None
