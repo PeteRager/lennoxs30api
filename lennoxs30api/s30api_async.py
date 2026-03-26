@@ -152,6 +152,7 @@ LENNOX_BAD_STATUS: Final = {LENNOX_STATUS_NOT_EXIST, LENNOX_STATUS_NOT_AVAILABLE
 LENNOX_ALERT_CRITICAL = "critical"
 LENNOX_ALERT_MODERATE = "moderate"
 LENNOX_ALERT_MINOR = "minor"
+LENNOX_ALERT_INFO = "info"
 LENNOX_ALERT_NONE = "none"
 
 # Percentage
@@ -1104,14 +1105,7 @@ class lennox_system(object):
         self.sa_setpointState: str = None
         # Sibling data
         self.siblings: list[SiblingInfo] = []
-        # TODO remove these fields, use siblings list
-        self.sibling_self_identifier: str = None
-        self.sibling_identifier: str = None
-        self.sibling_systemName: str = None
-        self.sibling_nodePresent: str = None
-        self.sibling_portNumber: str = None
-        self.sibling_ipAddress: str = None        
-
+    
         # iHarmony Zoning Mode
         self.centralMode: bool = None
         self.zoningMode: str = None
