@@ -1,4 +1,5 @@
 """Test Login"""
+
 # pylint: disable=line-too-long
 import json
 import logging
@@ -18,6 +19,7 @@ from tests.conftest import loadfile
 
 class GoodResponse:
     """Mocks a good response"""
+
     def __init__(self, status=200, app_id="app_id", code=1):
         self.status_code = status
         self.app_id = app_id
@@ -25,7 +27,7 @@ class GoodResponse:
 
     @property
     def status(self) -> int:
-        """"Http status"""
+        """ "Http status"""
         return self.status_code
 
     async def json(self):
@@ -34,21 +36,13 @@ class GoodResponse:
 
     async def text(self):
         """Text"""
-        return (
-            '{"code":'
-            + str(self.code)
-            + ',"message":"RequestData: success ['
-            + self.app_id
-            + ']"}'
-        )
+        return '{"code":' + str(self.code) + ',"message":"RequestData: success [' + self.app_id + ']"}'
 
 
 @pytest.mark.asyncio
 async def test_login_local_200():
     """Test login local with http 200 response"""
-    api: s30api_async = s30api_async(
-        username=None, password=None, app_id="myapp_id", ip_address="10.0.0.1"
-    )
+    api: s30api_async = s30api_async(username=None, password=None, app_id="myapp_id", ip_address="10.0.0.1")
     with patch.object(api, "post") as mock_post:
         mock_post.return_value = GoodResponse(app_id="myapp_id")
         await api.login()
@@ -61,9 +55,7 @@ async def test_login_local_200():
 @pytest.mark.asyncio
 async def test_login_local_204():
     """Test http 204 response"""
-    api: s30api_async = s30api_async(
-        username=None, password=None, app_id="myapp_id", ip_address="10.0.0.1"
-    )
+    api: s30api_async = s30api_async(username=None, password=None, app_id="myapp_id", ip_address="10.0.0.1")
     with patch.object(api, "post") as mock_post:
         mock_post.return_value = GoodResponse(status=204, app_id="myapp_id")
         await api.login()
@@ -76,9 +68,7 @@ async def test_login_local_204():
 @pytest.mark.asyncio
 async def test_login_local_400():
     """Tests http 400 response"""
-    api: s30api_async = s30api_async(
-        username=None, password=None, app_id="myapp_id", ip_address="10.0.0.1"
-    )
+    api: s30api_async = s30api_async(username=None, password=None, app_id="myapp_id", ip_address="10.0.0.1")
     with patch.object(api, "post") as mock_post:
         mock_post.return_value = GoodResponse(status=400, app_id="myapp_id")
         with pytest.raises(S30Exception) as exc:
@@ -153,10 +143,7 @@ async def test_login_cloud_200():
         url = mock_post.call_args_list[0][0][0]
         assert url == api.url_login
         data = mock_post.call_args_list[0][1]["data"]
-        assert (
-            data
-            == "username=pete@rager.com&password=password&grant_type=password&applicationid=myapp_id"
-        )
+        assert data == "username=pete@rager.com&password=password&grant_type=password&applicationid=myapp_id"
 
 
 @pytest.mark.asyncio
@@ -181,6 +168,7 @@ async def test_login_cloud_400():
 
 class BadJSONResponse:
     """Mock a bad response"""
+
     def __init__(self, status=200, app_id="app_id", code=1):
         self.status_code = status
         self.app_id = app_id
@@ -198,13 +186,7 @@ class BadJSONResponse:
 
     async def text(self):
         """Text body"""
-        return (
-            '{"code":'
-            + str(self.code)
-            + ',"message":"RequestData: success ['
-            + self.app_id
-            + ']"}'
-        )
+        return '{"code":' + str(self.code) + ',"message":"RequestData: success [' + self.app_id + ']"}'
 
 
 @pytest.mark.asyncio
@@ -228,6 +210,7 @@ async def test_login_bad_json():
 
 class BadJSONKeyResponse:
     """Mock response with bad json"""
+
     def __init__(self, status=200, app_id="app_id", code=1):
         self.status_code = status
         self.app_id = app_id
@@ -246,13 +229,7 @@ class BadJSONKeyResponse:
 
     async def text(self):
         """text body"""
-        return (
-            '{"code":'
-            + str(self.code)
-            + ',"message":"RequestData: success ['
-            + self.app_id
-            + ']"}'
-        )
+        return '{"code":' + str(self.code) + ',"message":"RequestData: success [' + self.app_id + ']"}'
 
 
 @pytest.mark.asyncio

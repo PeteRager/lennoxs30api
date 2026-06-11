@@ -1,4 +1,5 @@
 """Tests the api.logout function"""
+
 # pylint: disable=line-too-long
 # pylint: disable=protected-access
 # pylint: disable=protected-access

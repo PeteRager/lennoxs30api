@@ -1,4 +1,5 @@
 """Tests dehumidification modes"""
+
 # pylint: disable=line-too-long
 import json
 from unittest.mock import patch

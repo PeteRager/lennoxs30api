@@ -24,6 +24,7 @@ from lennoxs30api.s30api_async import (
     lennox_system,
 )
 
+
 def test_process_configuration_message(api: s30api_async):
     """Test processing of configuration data"""
     lsystem: lennox_system = api.system_list[0]
@@ -157,7 +158,6 @@ def test_process_configuration_message(api: s30api_async):
     assert zone_1.getTargetTemperatureF() == zone_1.sp
     assert zone_1.getTargetTemperatureC() == zone_1.spC
     lsystem.single_setpoint_mode = False
-
 
     zone_1.systemMode = LENNOX_HVAC_COOL
     assert zone_1.getTargetTemperatureF() == zone_1.csp

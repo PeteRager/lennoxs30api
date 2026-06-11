@@ -1,4 +1,5 @@
 """Tests humidty mod"""
+
 import json
 from unittest.mock import patch
 
@@ -14,6 +15,7 @@ from lennoxs30api.s30api_async import (
 )
 
 from lennoxs30api.s30exception import EC_BAD_PARAMETERS, S30Exception
+
 
 @pytest.mark.asyncio
 async def test_set_humidity_mode_humidify(api: s30api_async):
@@ -90,6 +92,7 @@ async def test_set_humidity_mode_dehumidify(api):
         t_period = t_schedule["schedule"]["periods"][0]["period"]
         assert t_period["humidityMode"] == LENNOX_HUMIDITY_MODE_DEHUMIDIFY
         assert len(t_period) == 1
+
 
 @pytest.mark.asyncio
 async def test_set_humidity_mode_both(api):

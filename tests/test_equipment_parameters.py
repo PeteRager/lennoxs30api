@@ -1,4 +1,5 @@
 """Test the equipment parameters"""
+
 import json
 from unittest.mock import patch
 
@@ -253,6 +254,7 @@ def test_process_equipment_parameters(api: s30api_async):
 
 class DirtySubscription:
     """Mock for a subscription"""
+
     def __init__(self, system: lennox_system, attr_name: str):
         self.triggered: int = 0
         self.triggered_id = None
@@ -486,10 +488,7 @@ async def test_set_parameter_value(api):
         assert mock_message_helper.await_args[0][0] == system.sysId
         arg1 = mock_message_helper.await_args[0][1]
         jsbody = json.loads("{" + arg1 + "}")
-        assert (
-            mock_message_helper.call_args_list[0][1]["additional_parameters"]
-            == "/systemControl"
-        )
+        assert mock_message_helper.call_args_list[0][1]["additional_parameters"] == "/systemControl"
         par_update = jsbody["Data"]["systemControl"]["parameterUpdate"]
         assert par_update["et"] == 19
         assert par_update["pid"] == 44

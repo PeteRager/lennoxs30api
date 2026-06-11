@@ -170,6 +170,6 @@ def test_process_equipment_bad_parameters():
     assert eq.unit_serial_number == "5822M09999"
     assert eq.equipType == LENNOX_EQUIPMENT_TYPE_AIR_CONDITIONER
     par = eq.get_or_create_parameter(18)
-    assert par.descriptor == 'error'
+    assert par.descriptor == "error"
     assert par.name == "Equipment Name"
     assert par.value is None

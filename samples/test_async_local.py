@@ -16,9 +16,7 @@ IP_ADDRESS = "192.168.1.175"
 APP_ID = "test"
 
 
-logFormatter = logging.Formatter(
-    "%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s"
-)
+logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
 rootLogger = logging.getLogger()
 rootLogger.setLevel(level=logging.DEBUG)
 
@@ -30,6 +28,7 @@ consoleHandler = logging.StreamHandler()
 consoleHandler.setFormatter(logFormatter)
 consoleHandler.setLevel(logging.DEBUG)
 rootLogger.addHandler(consoleHandler)
+
 
 # This task gets messages from Cloud and processes them
 async def cloud_message_pump_task(s30api: s30api_async) -> None:
@@ -63,7 +62,9 @@ async def api_poller_task(s30api):
                 for zone in lsystem.zoneList:
                     if zone.getTemperature() != None:
                         message = f"[{zone.name}] Temp [{zone.getTemperature()}] Humidity [{zone.getHumidity()}]"
-                        message += f" SystemMode [{zone.getSystemMode()}] FanMode [{zone.getFanMode()}] HumidityMode [{zone.getHumidityMode()}] "
+                        message += (
+                            f" SystemMode [{zone.getSystemMode()}] FanMode [{zone.getFanMode()}] HumidityMode [{zone.getHumidityMode()}] "
+                        )
                         message += f"Cool Setpoint [{zone.getCoolSP()}] Heat Setpoint [{zone.getHeatSP()}]"
                         message += f"Outdoor - Temp [{lsystem.outdoorTemperature}]"
                         print(message)
@@ -93,6 +94,7 @@ class Prompt:
 
 prompt = Prompt()
 raw_input = functools.partial(prompt, end="", flush=True)
+
 
 # This task gets input from the command prompt and executes task.
 async def command_reader_task(s30api):

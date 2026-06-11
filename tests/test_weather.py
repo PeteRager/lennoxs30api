@@ -1,4 +1,5 @@
 """Tests for weather devices"""
+
 # pylint: disable=line-too-long
 from lennoxs30api.s30api_async import lennox_system
 

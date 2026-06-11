@@ -1,4 +1,5 @@
 """Tests for setting away mode"""
+
 import json
 import asyncio
 from unittest.mock import patch
@@ -57,6 +58,7 @@ async def test_set_smart_away_cancel(api):
             await lsystem.cancel_smart_away()
         assert exc.value.error_code == EC_BAD_PARAMETERS
         assert mock_message_helper.call_count == 0
+
 
 @pytest.mark.asyncio
 async def test_enable_smart_away(api):

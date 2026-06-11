@@ -1,4 +1,5 @@
 """Test setting the hvac system mode"""
+
 import json
 from unittest.mock import patch
 
@@ -46,7 +47,6 @@ async def test_set_system_mode_emergency_heat(api: s30api_async):
         t_period = t_schedule["schedule"]["periods"][0]["period"]
         assert t_period["systemMode"] == LENNOX_HVAC_EMERGENCY_HEAT
         assert len(t_period) == 1
-
 
     lsystem: lennox_system = api.system_list[2]
     assert lsystem.sysId == "0000000-0000-0000-0000-000000000003"

@@ -34,7 +34,7 @@
                                 "code": 18,								***************Code 18 = low balance point
                                 "notifyDealer": false,
                                 "userMessage": "Low Ambient HP Heat Lockout",
-                                "isStillActive": false,					*************** not active 
+                                "isStillActive": false,					*************** not active
                                 "timestampLast": "1636460248",
                                 "clearableByDealer": false,
                                 "update": false,
@@ -57,7 +57,7 @@
                         "outdoorTemperatureStatus": "good",
                         "outdoorTemperature": 45,
                         "outdoorTemperatureC": 7
- 
+
             "Data": {
                 "alerts": {
                     "active": [
@@ -85,8 +85,8 @@
                         "outdoorTemperatureStatus": "good",
                         "outdoorTemperature": 35,
                         "outdoorTemperatureC": 1.5
-       
-						
+
+
  2021-11-09 21:44:02 DEBUG (MainThread) [lennoxs30api.s30api_async] {
     "messages": [
         {
@@ -111,7 +111,7 @@
                                 "update": false,
                                 "priority": "info",
                                 "action": "set",
-								
+
 2021-11-10 07:34:34 DEBUG (MainThread) [lennoxs30api.s30api_async] {
             "MessageType": "PropertyChange",
             "Data": {
@@ -149,5 +149,3 @@
                                 "update": false,
                                 "priority": "info",
                                 "action": "clear",
-								
-								

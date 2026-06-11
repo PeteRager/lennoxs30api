@@ -1,5 +1,6 @@
 # pylint: disable=invalid-name
 """Bluetooth Sensors"""
+
 from .subscriber_base import SubscriberBase
 
 

@@ -1,5 +1,7 @@
 """Tests the lcc serial numbers"""
+
 from lennoxs30api.s30api_async import s30api_async, lennox_system
+
 
 def test_process_device_serial_number(api_device_lcc: s30api_async):
     """Test processing the device serial number"""

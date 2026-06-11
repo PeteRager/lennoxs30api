@@ -1,4 +1,5 @@
 """Tests login responses"""
+
 from lennoxs30api.s30api_async import s30api_async, lennox_system
 from lennoxs30api.lennox_home import lennox_home
 from tests.conftest import loadfile

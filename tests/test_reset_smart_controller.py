@@ -1,8 +1,10 @@
 """Test reset of smart controller"""
+
 import json
 from unittest.mock import patch
 import pytest
-from lennoxs30api import s30api_async,lennox_system
+from lennoxs30api import s30api_async, lennox_system
+
 
 @pytest.mark.asyncio
 async def test_reset_smart_controller(api: s30api_async):
@@ -17,10 +19,7 @@ async def test_reset_smart_controller(api: s30api_async):
         assert arg0 == lsystem.sysId
         arg1 = mock_message_helper.await_args[0][1]
         jsbody = json.loads("{" + arg1 + "}")
-        assert (
-            mock_message_helper.call_args_list[0][1]["additional_parameters"]
-            == "/resetLcc"
-        )
+        assert mock_message_helper.call_args_list[0][1]["additional_parameters"] == "/resetLcc"
 
         state = jsbody["Data"]["resetLcc"]["state"]
         assert state == "reset"

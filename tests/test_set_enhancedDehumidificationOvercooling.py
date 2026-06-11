@@ -1,4 +1,5 @@
 """Test dehumidification"""
+
 import json
 from unittest.mock import patch
 

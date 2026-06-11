@@ -1,4 +1,5 @@
 """Tests temperature and humidity setpoints"""
+
 import json
 from unittest.mock import patch
 

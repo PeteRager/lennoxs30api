@@ -1,4 +1,5 @@
 """Test data updates"""
+
 from lennoxs30api.s30api_async import (
     LENNOX_HUMID_OPERATION_HUMID,
     LENNOX_HUMIDITY_MODE_DEHUMIDIFY,
@@ -16,6 +17,7 @@ from tests.conftest import loadfile
 
 class CallbackHandler(object):
     """Mock for callbacks"""
+
     def __init__(self):
         self.called = 0
 
@@ -32,13 +34,9 @@ def test_hvac_mode_change_zone_5(api: s30api_async):
     zone_5_callback_all = CallbackHandler()
     zone_5.registerOnUpdateCallback(zone_5_callback_all.update_callback)
     zone_5_callback_system_mode = CallbackHandler()
-    zone_5.registerOnUpdateCallback(
-        zone_5_callback_system_mode.update_callback, match=["systemMode"]
-    )
+    zone_5.registerOnUpdateCallback(zone_5_callback_system_mode.update_callback, match=["systemMode"])
     zone_5_callback_tempoperation = CallbackHandler()
-    zone_5.registerOnUpdateCallback(
-        zone_5_callback_tempoperation.update_callback, match=["tempOperation"]
-    )
+    zone_5.registerOnUpdateCallback(zone_5_callback_tempoperation.update_callback, match=["tempOperation"])
 
     data = loadfile("mut_sys1_zone1_cool_sched.json")
     api.processMessage(data)
@@ -177,9 +175,7 @@ def test_hvac_mode_change_zone_2(api: s30api_async):
     zone_2_callback_all = CallbackHandler()
     zone_2.registerOnUpdateCallback(zone_2_callback_all.update_callback)
     zone_2_callback_system_mode = CallbackHandler()
-    zone_2.registerOnUpdateCallback(
-        zone_2_callback_system_mode.update_callback, match=["systemMode"]
-    )
+    zone_2.registerOnUpdateCallback(zone_2_callback_system_mode.update_callback, match=["systemMode"])
     zone_2_callback_tempoperation_csp = CallbackHandler()
     zone_2.registerOnUpdateCallback(
         zone_2_callback_tempoperation_csp.update_callback,
@@ -346,9 +342,7 @@ def test_ventilation_system_time_remaining(api: s30api_async):
         ["this", "that", "ventilationRemainingTime"],
     )
     system_callback_should_not_fire = CallbackHandler()
-    system.registerOnUpdateCallback(
-        system_callback_should_not_fire.update_callback, ["this", "that", "other"]
-    )
+    system.registerOnUpdateCallback(system_callback_should_not_fire.update_callback, ["this", "that", "other"])
 
     data = loadfile("ventilation_system_remaining_time.json")
     api.processMessage(data)
@@ -371,9 +365,7 @@ def test_ventilation_system_on_and_off(api: s30api_async):
         ["this", "that", "ventilationRemainingTime", "ventilationMode"],
     )
     system_callback_should_not_fire = CallbackHandler()
-    system.registerOnUpdateCallback(
-        system_callback_should_not_fire.update_callback, ["this", "that", "other"]
-    )
+    system.registerOnUpdateCallback(system_callback_should_not_fire.update_callback, ["this", "that", "other"])
 
     data = loadfile("ventilation_system_off.json")
     api.processMessage(data)

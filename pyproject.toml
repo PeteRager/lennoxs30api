@@ -1,2 +1,19 @@
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+	"TCH002",
+	"TCH001",
+	"COM812",
+	"PLR0911",
+	"TRY003",
+	"FBT001",
+	"S101",
+	"D103",
+	"PLR2004",
+]
+
 [tool.ruff]
-line-length = 4000
+line-length = 140
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

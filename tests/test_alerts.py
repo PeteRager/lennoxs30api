@@ -1,22 +1,25 @@
-'''Modules to test the alerts'''
+"""Modules to test the alerts"""
+
 from lennoxs30api import s30api_async
 from lennoxs30api.s30api_async import lennox_system
 from tests.conftest import loadfile
 
+
 class DirtySubscription:
-    '''Class to test callbacks'''
+    """Class to test callbacks"""
+
     def __init__(self, system: lennox_system, attr_name: str):
         self.triggered: int = 0
         self.id = attr_name
         system.registerOnUpdateCallback(self.update_callback, [attr_name])
 
     def update_callback(self):
-        '''Updates the callback'''
+        """Updates the callback"""
         self.triggered = self.triggered + 1
 
 
 def test_alerts(api_system_04_furn_ac_zoning: s30api_async):
-    '''Test alerts'''
+    """Test alerts"""
     api = api_system_04_furn_ac_zoning
     system: lennox_system = api.system_list[0]
     assert system.sysId == "LCC"
@@ -59,7 +62,7 @@ def test_alerts(api_system_04_furn_ac_zoning: s30api_async):
 
 
 def test_alerts_unknown_alert(api_system_04_furn_ac_zoning):
-    '''Verifies that an unknown alert is properly processed'''
+    """Verifies that an unknown alert is properly processed"""
     api = api_system_04_furn_ac_zoning
     system: lennox_system = api.system_list[0]
     assert system.sysId == "LCC"
@@ -88,7 +91,7 @@ def test_alerts_unknown_alert(api_system_04_furn_ac_zoning):
 
 
 def test_alerts_no_active_alerts(api_system_04_furn_ac_zoning):
-    '''Verifies when no alerts are active'''
+    """Verifies when no alerts are active"""
     api = api_system_04_furn_ac_zoning
     system: lennox_system = api.system_list[0]
     assert system.sysId == "LCC"
@@ -109,7 +112,7 @@ def test_alerts_no_active_alerts(api_system_04_furn_ac_zoning):
 
 # An alert code of zero indicates no alert.
 def test_alerts_alert_code_0(api_system_04_furn_ac_zoning):
-    '''Test alert code 0'''
+    """Test alert code 0"""
     api = api_system_04_furn_ac_zoning
     system: lennox_system = api.system_list[0]
     assert system.sysId == "LCC"
@@ -124,7 +127,7 @@ def test_alerts_alert_code_0(api_system_04_furn_ac_zoning):
 
 
 def test_alerts_lockouts(api_system_04_furn_ac_zoning):
-    '''Verify the alerts regarding lockout are processed into properties'''
+    """Verify the alerts regarding lockout are processed into properties"""
     api = api_system_04_furn_ac_zoning
     system: lennox_system = api.system_list[0]
     assert system.sysId == "LCC"

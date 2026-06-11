@@ -1,7 +1,9 @@
 """Tests processing system uptime"""
+
 import logging
 from lennoxs30api.s30api_async import s30api_async, lennox_system
 from tests.conftest import loadfile
+
 
 def test_system_uptime(api: s30api_async, caplog):
     """Test system uptime"""

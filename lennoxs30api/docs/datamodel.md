@@ -115,5 +115,3 @@ When Obtained:
 
 
 Entity Zones
-
-   

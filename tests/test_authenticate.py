@@ -1,4 +1,5 @@
 """Tests authenticate"""
+
 # pylint: disable=line-too-long
 import logging
 from unittest.mock import patch
@@ -7,6 +8,7 @@ import pytest
 
 from lennoxs30api.s30api_async import CERTIFICATE, s30api_async
 from lennoxs30api.s30exception import S30Exception
+
 
 @pytest.mark.asyncio
 async def test_authenticate_local():
@@ -19,6 +21,7 @@ async def test_authenticate_local():
 
 class GoodResponse:
     """Mocks a good response"""
+
     def __init__(self, status=200):
         self.status_code = status
 
@@ -69,6 +72,7 @@ async def test_authenticate_cloud_400(caplog):
 
 class BadResponse:
     """Mock a bad api response"""
+
     def __init__(self, status=200):
         self.status_code = status
 

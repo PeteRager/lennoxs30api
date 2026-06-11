@@ -14,5 +14,5 @@
     "outdoorTempSim" : false,
     "zoneSim" : false,
     "diagSim" : false,
-    "wifiSim" : true         
+    "wifiSim" : true
 }

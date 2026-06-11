@@ -1,4 +1,5 @@
 """Tests zone enabled"""
+
 from lennoxs30api.s30api_async import (
     LENNOX_ZONING_MODE_CENTRAL,
     lennox_system,

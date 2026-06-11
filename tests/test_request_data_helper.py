@@ -1,4 +1,5 @@
 """Tests the API request data helper"""
+
 # pylint: disable=protected-access
 # pylint: disable=line-too-long
 import json
@@ -19,6 +20,7 @@ from lennoxs30api.s30exception import (
 
 class GoodResponse:
     """Mocks a good response"""
+
     def __init__(self, status=200, app_id="app_id", code=1):
         self.status_code = status
         self.app_id = app_id
@@ -35,13 +37,7 @@ class GoodResponse:
 
     async def text(self):
         """Response Text"""
-        return (
-            '{"code":'
-            + str(self.code)
-            + ',"message":"RequestData: success ['
-            + self.app_id
-            + ']"}'
-        )
+        return '{"code":' + str(self.code) + ',"message":"RequestData: success [' + self.app_id + ']"}'
 
 
 @pytest.mark.asyncio
@@ -50,22 +46,21 @@ async def test_request_data_helper_200(api: s30api_async):
     system: lennox_system = api.getSystem("0000000-0000-0000-0000-000000000001")
 
     with patch.object(api, "post") as mock_post:
-        additional_parameters = '"AdditionalParameters":{"JSONPath":"1;/systemControl;/devices;/zones;/equipments;/schedules;/occupancy;/system"}'
+        additional_parameters = (
+            '"AdditionalParameters":{"JSONPath":"1;/systemControl;/devices;/zones;/equipments;/schedules;/occupancy;/system"}'
+        )
         mock_post.return_value = GoodResponse(status=200, app_id=api._applicationid)
         await api.requestDataHelper(system.sysId, additional_parameters)
         assert mock_post.call_count == 1
         url = mock_post.call_args_list[0][0][0]
-        assert url == 'https://icrequestdataapi.myicomfort.com/v1/Messages/RequestData'
+        assert url == "https://icrequestdataapi.myicomfort.com/v1/Messages/RequestData"
         data = mock_post.call_args_list[0][1]["data"]
         message = json.loads(data)
         assert message["MessageType"] == "RequestData"
         assert message["SenderID"] == api.getClientId()
         assert message["MessageID"] is not None
         assert message["TargetID"] == system.sysId
-        assert (
-            message["AdditionalParameters"]["JSONPath"]
-            == "1;/systemControl;/devices;/zones;/equipments;/schedules;/occupancy;/system"
-        )
+        assert message["AdditionalParameters"]["JSONPath"] == "1;/systemControl;/devices;/zones;/equipments;/schedules;/occupancy;/system"
 
 
 @pytest.mark.asyncio
@@ -74,7 +69,9 @@ async def test_request_data_helper_400(api: s30api_async):
     system: lennox_system = api.getSystem("0000000-0000-0000-0000-000000000001")
 
     with patch.object(api, "post") as mock_post:
-        additional_parameters = '"AdditionalParameters":{"JSONPath":"1;/systemControl;/devices;/zones;/equipments;/schedules;/occupancy;/system"}'
+        additional_parameters = (
+            '"AdditionalParameters":{"JSONPath":"1;/systemControl;/devices;/zones;/equipments;/schedules;/occupancy;/system"}'
+        )
         mock_post.return_value = GoodResponse(status=400, app_id=api._applicationid)
         with pytest.raises(S30Exception) as exc:
             await api.requestDataHelper(system.sysId, additional_parameters)
@@ -87,6 +84,7 @@ async def test_request_data_helper_400(api: s30api_async):
 
 class BadJSON:
     """Bad json response"""
+
     def __init__(self, status=200, app_id="app_id", code=1):
         self.status_code = status
         self.app_id = app_id
@@ -104,14 +102,7 @@ class BadJSON:
 
     async def text(self):
         """Response text"""
-        return (
-            '["code1"::::'
-            + str(self.code)
-            + ',"message":"Publish: success ['
-            + self.app_id
-            + ']"}'
-        )
-
+        return '["code1"::::' + str(self.code) + ',"message":"Publish: success [' + self.app_id + ']"}'
 
 
 @pytest.mark.asyncio
@@ -120,7 +111,9 @@ async def test_request_data_helper_200_bad_json(api: s30api_async):
     system: lennox_system = api.getSystem("0000000-0000-0000-0000-000000000001")
 
     with patch.object(api, "post") as mock_post:
-        additional_parameters = '"AdditionalParameters":{"JSONPath":"1;/systemControl;/devices;/zones;/equipments;/schedules;/occupancy;/system"}'
+        additional_parameters = (
+            '"AdditionalParameters":{"JSONPath":"1;/systemControl;/devices;/zones;/equipments;/schedules;/occupancy;/system"}'
+        )
         mock_post.return_value = BadJSON(status=200, app_id=api._applicationid, code=0)
         with pytest.raises(S30Exception) as exc:
             await api.requestDataHelper(system.sysId, additional_parameters)
@@ -136,7 +129,9 @@ async def test_request_data_helper_comms_error(api: s30api_async):
     system: lennox_system = api.getSystem("0000000-0000-0000-0000-000000000001")
 
     with patch.object(api, "post") as mock_post:
-        additional_parameters = '"AdditionalParameters":{"JSONPath":"1;/systemControl;/devices;/zones;/equipments;/schedules;/occupancy;/system"}'
+        additional_parameters = (
+            '"AdditionalParameters":{"JSONPath":"1;/systemControl;/devices;/zones;/equipments;/schedules;/occupancy;/system"}'
+        )
         mock_post.side_effect = aiohttp.ClientResponseError(
             status=400,
             request_info="myurl",

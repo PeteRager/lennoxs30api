@@ -10,6 +10,7 @@ _LOGGER = logging.getLogger(__name__)
 
 class lennox_home(object):
     """Class to model a lennox home"""
+
     def __init__(self, home_id: int):
         self.id: int = home_id
         self.idx: int = None
@@ -22,4 +23,4 @@ class lennox_home(object):
         self.idx = home_idx
         self.name = home_name
         self.json = json_data
-        _LOGGER.info("Updating lennox_home homeIdx [%s} homeId [%s] homeName [%s]",self.idx,self.id,self.name)
+        _LOGGER.info("Updating lennox_home homeIdx [%s} homeId [%s] homeName [%s]", self.idx, self.id, self.name)

@@ -1,4 +1,5 @@
 """Tests the diagnostic response from the controller"""
+
 import os
 
 from lennoxs30api.lennox_equipment import lennox_equipment, lennox_equipment_diagnostic
@@ -13,6 +14,7 @@ script_dir = os.path.dirname(__file__) + "/messages/"
 
 class DirtySubscription:
     """Subscription mock"""
+
     def __init__(self, system: lennox_system, attr_name: str):
         self.triggered = False
         system.registerOnUpdateCallback(self.update_callback, [attr_name])
@@ -20,6 +22,7 @@ class DirtySubscription:
     def update_callback(self):
         """Called when the subscription updates"""
         self.triggered = True
+
 
 def test_process_equipment_energy(api_device_lcc: s30api_async):
     """Tests processing inverter energy"""
@@ -61,12 +64,8 @@ def test_process_equipment_energy_invalid(api_device_lcc: s30api_async):
     assert lsystem.diagInverterInputCurrent is None
 
     data = loadfile("equipments_response_energy.json")
-    data["Data"]["equipments"][1]["equipment"]["diagnostics"][19]["diagnostic"][
-        "value"
-    ] = "Open"
-    data["Data"]["equipments"][1]["equipment"]["diagnostics"][20]["diagnostic"][
-        "value"
-    ] = "Open"
+    data["Data"]["equipments"][1]["equipment"]["diagnostics"][19]["diagnostic"]["value"] = "Open"
+    data["Data"]["equipments"][1]["equipment"]["diagnostics"][20]["diagnostic"]["value"] = "Open"
     api.processMessage(data)
 
     assert lsystem.diagInverterInputVoltage == "Open"
@@ -86,12 +85,8 @@ def test_process_equipment_energy_unnamed(api_device_lcc: s30api_async):
 
     # load up empty diagnostics
     data = loadfile("equipments_response_energy.json")
-    data["Data"]["equipments"][1]["equipment"]["diagnostics"][19]["diagnostic"][
-        "value"
-    ] = "Open"
-    data["Data"]["equipments"][1]["equipment"]["diagnostics"][20]["diagnostic"][
-        "value"
-    ] = "Open"
+    data["Data"]["equipments"][1]["equipment"]["diagnostics"][19]["diagnostic"]["value"] = "Open"
+    data["Data"]["equipments"][1]["equipment"]["diagnostics"][20]["diagnostic"]["value"] = "Open"
     api.processMessage(data)
 
     assert lsystem.diagInverterInputVoltage == "Open"
@@ -103,12 +98,8 @@ def test_process_equipment_energy_unnamed(api_device_lcc: s30api_async):
     dirty_voltage.triggered = False
     dirty_current.triggered = False
     data = loadfile("equipments_response_energy.json")
-    del data["Data"]["equipments"][1]["equipment"]["diagnostics"][19]["diagnostic"][
-        "name"
-    ]
-    del data["Data"]["equipments"][1]["equipment"]["diagnostics"][20]["diagnostic"][
-        "name"
-    ]
+    del data["Data"]["equipments"][1]["equipment"]["diagnostics"][19]["diagnostic"]["name"]
+    del data["Data"]["equipments"][1]["equipment"]["diagnostics"][20]["diagnostic"]["name"]
     del data["Data"]["equipments"][0]
     api.processMessage(data)
 
@@ -180,6 +171,7 @@ def test_process_diagnostics(api_device_lcc: s30api_async):
 
 class DirtyDiagnosticsSubscription:
     """Mock for testing diagnostic subscriptions"""
+
     def __init__(self, system: lennox_system, eid_did: str):
         self.trigger_count: int = 0
         self.eid_did: str = None
@@ -251,9 +243,7 @@ def test_diagnostics_subscription(api_device_lcc: s30api_async):
 
     assert sub3.trigger_count == 0
 
-    message["Data"]["equipments"][0]["equipment"]["diagnostics"][0]["diagnostic"][
-        "value"
-    ] = "No"
+    message["Data"]["equipments"][0]["equipment"]["diagnostics"][0]["diagnostic"]["value"] = "No"
     api.processMessage(message)
     assert sub1.trigger_count == 1
     assert sub1.eid_did == "1_0"
@@ -270,9 +260,7 @@ def test_diagnostics_subscription(api_device_lcc: s30api_async):
     sub1.clear()
     sub3.clear()
     assert sub1.trigger_count == 0
-    message["Data"]["equipments"][0]["equipment"]["diagnostics"][1]["diagnostic"][
-        "value"
-    ] = "11.1"
+    message["Data"]["equipments"][0]["equipment"]["diagnostics"][1]["diagnostic"]["value"] = "11.1"
     api.processMessage(message)
     assert sub1.trigger_count == 0
     assert sub1.eid_did is None

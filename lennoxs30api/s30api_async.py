@@ -245,6 +245,7 @@ APPLICATION_ID = "mapp079372367644467046827099"
 # This appears to be a certificate that is installed as part of the App.  The same cert was presented from both Android and IOS apps.  Fortunately it is being passed; rather than used by the app to encrypt a request.
 CERTIFICATE = "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"
 
+
 def _get_ssl_context() -> ssl.SSLContext:
     context = ssl.create_default_context()
     # Default ciphers needed as of python 3.10
@@ -254,10 +255,11 @@ def _get_ssl_context() -> ssl.SSLContext:
     context.verify_mode = ssl.CERT_NONE
     return context
 
+
 _SSL_CONTEXT = _get_ssl_context()
 
-class s30api_async(object):
 
+class s30api_async(object):
     """Representation of the Lennox S30/E30 thermostat."""
 
     def __init__(
@@ -621,9 +623,7 @@ class s30api_async(object):
             # to use websockets, so we will stash the info for future use.
             self._tryWebsockets = resp_json["TryWebSockets"]
             self._streamURL = resp_json["Url"]
-            _LOGGER.debug(
-                "Negotiate Success tryWebSockets [" + str(self._tryWebsockets) + "] streamUrl [" + self._streamURL + "]"
-            )
+            _LOGGER.debug("Negotiate Success tryWebSockets [" + str(self._tryWebsockets) + "] streamUrl [" + self._streamURL + "]")
         except S30Exception as e:
             raise e
         except KeyError as e:
@@ -773,17 +773,19 @@ class s30api_async(object):
                         _LOGGER.error(
                             f"processMessage dropping message from unknown SenderId/SystemId [{sysId}] - please consult https://github.com/PeteRager/lennoxs30/blob/master/docs/sibling.md for configuration assistance"
                         )
-                        _LOGGER.error(json.dumps(message, indent=4))                    
+                        _LOGGER.error(json.dumps(message, indent=4))
                         self._badSenderDict[sysId] = sysId
                 else:
-                        _LOGGER.debug(f"processMessage ignoring messages from unknown SenderId/SystemId [{sysId}] because systems are not initialized")
+                    _LOGGER.debug(
+                        f"processMessage ignoring messages from unknown SenderId/SystemId [{sysId}] because systems are not initialized"
+                    )
             else:
                 self.metrics.inc_sibling_message_drop()
                 if self.metrics.sibling_message_drop == 1:
                     _LOGGER.warning(
                         f"processMessage dropping message from sibling [{sysId}] for system [{system.sysId}] - please consult https://github.com/PeteRager/lennoxs30/blob/master/docs/sibling.md for configuration assistance"
                     )
-                    _LOGGER.warning(json.dumps(message, indent=4))                    
+                    _LOGGER.warning(json.dumps(message, indent=4))
                 else:
                     _LOGGER.debug(f"processMessage dropping message from sibling [{sysId}] for system [{system.sysId}]")
 
@@ -861,7 +863,7 @@ class s30api_async(object):
                 if sibling.sibling_identifier == sysId:
                     return system
         return None
-    
+
     @property
     def allSystemsInitialized(self) -> bool:
         for system in self.system_list:
@@ -887,18 +889,10 @@ class s30api_async(object):
         _LOGGER.info(f"setMode modeTarget [{modeTarget}] mode [{mode}] scheduleId [{scheduleId}] sysId [{sysId}]")
         try:
             if modeTarget not in HVAC_MODE_TARGETS:
-                err_msg = (
-                    f"setModeHelper - invalide mode target [{modeTarget}] requested, must be in [{HVAC_MODE_TARGETS}]"
-                )
+                err_msg = f"setModeHelper - invalide mode target [{modeTarget}] requested, must be in [{HVAC_MODE_TARGETS}]"
                 _LOGGER.error(err_msg)
                 raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1)
-            data = (
-                '"Data":{"schedules":[{"schedule":{"periods":[{"id":0,"period":{"'
-                + modeTarget
-                + '":"'
-                + str(mode)
-                + '"}'
-            )
+            data = '"Data":{"schedules":[{"schedule":{"periods":[{"id":0,"period":{"' + modeTarget + '":"' + str(mode) + '"}'
             data += '}]},"id":' + str(scheduleId) + "}]}"
             _LOGGER.debug("setmode message [" + data + "]")
             await self.publishMessageHelper(sysId, data)
@@ -1033,6 +1027,7 @@ class s30api_async(object):
         data = '"Data":' + json.dumps(command).replace(" ", "")
         await self.publishMessageHelper(sysId, data)
 
+
 class SiblingInfo:
     def __init__(self):
         self.sibling_self_identifier: str = None
@@ -1041,6 +1036,7 @@ class SiblingInfo:
         self.sibling_nodePresent: str = None
         self.sibling_portNumber: str = None
         self.sibling_ipAddress: str = None
+
 
 class lennox_system(object):
     """Represents a Lennox Control System"""
@@ -1105,7 +1101,7 @@ class lennox_system(object):
         self.sa_setpointState: str = None
         # Sibling data
         self.siblings: list[SiblingInfo] = []
-    
+
         # iHarmony Zoning Mode
         self.centralMode: bool = None
         self.zoningMode: str = None
@@ -1183,7 +1179,7 @@ class lennox_system(object):
         # will be fetched from parameters
         self.changeover_temp_deadband_f: int = LENNOX_HSP_CSP_SEP_DEFAULT
         self.changeover_temp_deadband_c: float = LENNOX_HSPC_CSPC_SEP_DEFAULT
-         
+
         self._dirty = False
         self._dirtyList = []
         self.message_processing_list = {
@@ -1211,9 +1207,7 @@ class lennox_system(object):
     async def update_system_online_cloud(self):
         response = await self.api.requestDataHelper(
             "ic3server",
-            '"AdditionalParameters":{"publisherpresence":"true"},"Data":{"presence":[{"id":0,"endpointId":"'
-            + self.sysId
-            + '"}]}',
+            '"AdditionalParameters":{"publisherpresence":"true"},"Data":{"presence":[{"id":0,"endpointId":"' + self.sysId + '"}]}',
         )
         if response is not None:
             message_txt = response.get("message")
@@ -1267,9 +1261,7 @@ class lennox_system(object):
                                 indent=4,
                             )
                         )
-                _LOGGER.debug(
-                    f"processMessage complete system id [{self.sysId}] dirty [{self._dirty}] dirtyList [{self._dirtyList}]"
-                )
+                _LOGGER.debug(f"processMessage complete system id [{self.sysId}] dirty [{self._dirty}] dirtyList [{self._dirtyList}]")
                 self.executeOnUpdateCallbacks()
         except Exception:
             _LOGGER.exception("processMessage - unexpected exception - Failed Message to Follow")
@@ -1334,7 +1326,7 @@ class lennox_system(object):
     def _processSiblings(self, siblings):
         if len(siblings) == 0:
             self.siblings = []
-            return     
+            return
         for sibling in siblings:
             sibling_info = SiblingInfo()
             sibling_info.sibling_self_identifier = sibling.get("selfIdentifier", None)
@@ -1347,7 +1339,7 @@ class lennox_system(object):
 
         self._dirty = True
         if "siblings" not in self._dirtyList:
-            self._dirtyList.append("siblings")            
+            self._dirtyList.append("siblings")
 
     def _process_rgw(self, rgw):
         if "status" in rgw:
@@ -1434,10 +1426,10 @@ class lennox_system(object):
                 self.attr_updater(env, "Dewpoint", "wt_env_dewpoint")
                 self.attr_updater(env, "DewpointC", "wt_env_dewpointC")
 
-    def _process_interfaces(self, interfaces : dict):
+    def _process_interfaces(self, interfaces: dict):
         """Process the WIFI Interface message"""
         if len(interfaces) > 0:
-            if (status := interfaces[0].get("Info",{}).get("status")):
+            if status := interfaces[0].get("Info", {}).get("status"):
                 self.attr_updater(status, "macAddr", "wifi_macAddr")
                 self.attr_updater(status, "ssid", "wifi_ssid")
                 self.attr_updater(status, "ip", "wifi_ip")
@@ -1640,9 +1632,7 @@ class lennox_system(object):
             self.attr_updater(time, "sysUpTime")
             # When uptime become less than what we recorded, it means the S30 has restarted
             if old is not None and old > self.sysUpTime:
-                _LOGGER.warning(
-                    f"S30 has rebooted sysId [{self.sysId}] old uptime [{old}] new uptime [{self.sysUpTime}]"
-                )
+                _LOGGER.warning(f"S30 has rebooted sysId [{self.sysId}] old uptime [{old}] new uptime [{self.sysUpTime}]")
 
     def _processDevices(self, message):
         for device in message:
@@ -1696,9 +1686,9 @@ class lennox_system(object):
                     self._dirtyList.append("single_setpoint_mode")
                 if parameter.get("parameter", {}).get("pid") == LENNOX_PARAMETER_AUTOCHANGE_OVER_TEMP_DEADBAND:
                     self.changeover_temp_deadband_f = int(parameter["parameter"]["value"])
-                    self.changeover_temp_deadband_c = self.convertFtoC(self.changeover_temp_deadband_f,noOffset=True)
+                    self.changeover_temp_deadband_c = self.convertFtoC(self.changeover_temp_deadband_f, noOffset=True)
                     self._dirty = True
-                    self._dirtyList.append("auto_change_over_temp_deadband")                
+                    self._dirtyList.append("auto_change_over_temp_deadband")
                 if parameter.get("parameter", {}).get("pid") == LENNOX_PARAMETER_EQUIPMENT_NAME:
                     # Lennox isn't consistent with capitilization of Subnet Controller
                     # If equipment name isn't available, use the equipment type name.
@@ -1804,8 +1794,7 @@ class lennox_system(object):
 
     def get_smart_away_mode(self) -> bool:
         if self.sa_enabled is True and (
-            self.sa_setpointState == LENNOX_SA_SETPOINT_STATE_TRANSITION
-            or self.sa_setpointState == LENNOX_SA_SETPOINT_STATE_AWAY
+            self.sa_setpointState == LENNOX_SA_SETPOINT_STATE_TRANSITION or self.sa_setpointState == LENNOX_SA_SETPOINT_STATE_AWAY
         ):
             return True
         return False
@@ -1886,16 +1875,7 @@ class lennox_system(object):
         _LOGGER.debug(
             f"lennox_system:perform_schedule_setpoint  sysid [{self.sysId}] zoneid [{zoneId}] schedule_id [{scheduleId}] hsp [{hsp}] hspC [{hspC}] csp [{csp}] cspC [{cspC}] sp [{sp}] spC [{spC}] single_setpoint_mode [{self.single_setpoint_mode}] husp [{husp}] desp [{desp}]"
         )
-        if (
-            hsp is None
-            and hspC is None
-            and csp is None
-            and cspC is None
-            and sp is None
-            and spC is None
-            and husp is None
-            and desp is None
-        ):
+        if hsp is None and hspC is None and csp is None and cspC is None and sp is None and spC is None and husp is None and desp is None:
             raise S30Exception(
                 f"lennox_system:perform_schedule_setpoint  sysid [{self.sysId}] no setpoints provided - must specify one or more setpoints",
                 EC_BAD_PARAMETERS,
@@ -1966,7 +1946,9 @@ class lennox_system(object):
         try:
             duration_i = int(durationSecs)
         except ValueError as v:
-            err_msg = f"ventilation_timed - invalid duration specified must be a positive integer durationSecs [{durationSecs}] valueError [{v}]"
+            err_msg = (
+                f"ventilation_timed - invalid duration specified must be a positive integer durationSecs [{durationSecs}] valueError [{v}]"
+            )
             raise S30Exception(err_msg, EC_BAD_PARAMETERS, 1) from v
         if self.supports_ventilation() is False:
             err_msg = f"ventilation_timed - attempting to set timed ventilation for non-supported equipment ventilatorUnitType [{self.ventilationUnitType}]"
@@ -2059,10 +2041,7 @@ class lennox_system(object):
                 EC_EQUIPMENT_DNS,
                 1,
             )
-        if (
-            self.enhancedDehumidificationOvercoolingF_enable is not True
-            or self.enhancedDehumidificationOvercoolingC_enable is not True
-        ):
+        if self.enhancedDehumidificationOvercoolingF_enable is not True or self.enhancedDehumidificationOvercoolingC_enable is not True:
             raise S30Exception(
                 f"System does not allow enhancedDehumidificationOvercooling enhancedDehumidificationOvercoolingF_enable [{self.enhancedDehumidificationOvercoolingF_enable}] enhancedDehumidificationOvercoolingC_enable [{self.enhancedDehumidificationOvercoolingC_enable}]",
                 EC_EQUIPMENT_DNS,
@@ -2156,9 +2135,7 @@ class lennox_system(object):
         await self.api.publish_message_helper_dict(self.sysId, command, additional_parameters="/systemControl")
 
     async def set_equipment_parameter_value(self, equipment_id: int, pid: int, value: str):
-        _LOGGER.debug(
-            f"set_equipment_parameter_value sysid [{self.sysId}] equipment_id [{equipment_id}] pid [{pid}] value [{value}]"
-        )
+        _LOGGER.debug(f"set_equipment_parameter_value sysid [{self.sysId}] equipment_id [{equipment_id}] pid [{pid}] value [{value}]")
         equipment = self.equipment.get(equipment_id)
         if equipment is None:
             raise S30Exception(
@@ -2185,9 +2162,7 @@ class lennox_system(object):
         await self.set_parameter_value(equipment.equipType, pid, call_value)
 
     async def _internal_set_zone_test_parameter_value(self, pid: int, value: str, enabled: bool):
-        _LOGGER.debug(
-            f"_internal_set_zone_test_parameter_value sysid [{self.sysId}] enabled [{enabled}] pid [{pid}] value [{value}]"
-        )
+        _LOGGER.debug(f"_internal_set_zone_test_parameter_value sysid [{self.sysId}] enabled [{enabled}] pid [{pid}] value [{value}]")
         command = {
             "systemControl": {
                 "zoneTestControl": {
@@ -2200,9 +2175,7 @@ class lennox_system(object):
         await self.api.publish_message_helper_dict(self.sysId, command, additional_parameters="/systemControl")
 
     async def set_zone_test_parameter_value(self, pid: int, value: str, enabled: bool):
-        _LOGGER.debug(
-            f"set_zone_test_parameter_value sysid [{self.sysId}] pid [{pid}] value [{value}] enabled [{enabled}]"
-        )
+        _LOGGER.debug(f"set_zone_test_parameter_value sysid [{self.sysId}] pid [{pid}] value [{value}] enabled [{enabled}]")
         equipment = self.equipment.get(0)
         if equipment is None:
             raise S30Exception(
@@ -2438,9 +2411,7 @@ class lennox_zone(object):
             if "period" in status:
                 period = status["period"]
                 self._processPeriodMessage(period)
-        _LOGGER.debug(
-            f"processMessage complete lennox_zone id [{self.id}] dirty [{self._dirty}] dirtyList [{self._dirtyList}]"
-        )
+        _LOGGER.debug(f"processMessage complete lennox_zone id [{self.id}] dirty [{self._dirty}] dirtyList [{self._dirtyList}]")
         self.executeOnUpdateCallbacks()
 
     def _processPeriodMessage(self, period):
@@ -2560,13 +2531,7 @@ class lennox_zone(object):
                 2,
             )
 
-        if (
-            r_hsp is None
-            and r_hspC is None
-            and r_csp is None
-            and r_cspC is None
-            and self.system.single_setpoint_mode is False
-        ):
+        if r_hsp is None and r_hspC is None and r_csp is None and r_cspC is None and self.system.single_setpoint_mode is False:
             raise S30Exception(
                 "validate_setpoints: r_hsp, r_hspC, r_csp or r_cspC must be specified when system is in single setpoint mode",
                 EC_BAD_PARAMETERS,
@@ -2636,7 +2601,7 @@ class lennox_zone(object):
                 EC_BAD_PARAMETERS,
                 2,
             )
-        
+
         if r_hsp and r_csp and r_csp < r_hsp + self.system.changeover_temp_deadband_f:
             raise S30Exception(
                 f"validate_setpoints r_hsp [{r_hsp}] and r_csp [{r_csp}] must be seperated by [{self.system.changeover_temp_deadband_f}] degrees",
@@ -2650,7 +2615,6 @@ class lennox_zone(object):
                 EC_BAD_PARAMETERS,
                 3,
             )
-
 
     async def perform_setpoint(self, r_hsp=None, r_hspC=None, r_csp=None, r_cspC=None, r_sp=None, r_spC=None):
         _LOGGER.debug(
@@ -2723,9 +2687,7 @@ class lennox_zone(object):
                     hsp = csp - self.system.changeover_temp_deadband_f
                     modified = True
             if modified:
-                _LOGGER.debug(
-                    f"setpoints modified id [{self.id}] hsp [{hsp}] hspC [{hspC}] csp [{csp}] cspC [{cspC}]"
-                )
+                _LOGGER.debug(f"setpoints modified id [{self.id}] hsp [{hsp}] hspC [{hspC}] csp [{csp}] cspC [{cspC}]")
         else:
             if r_sp is not None:
                 sp = self.system.faren_round(r_sp)
@@ -2885,7 +2847,7 @@ class lennox_zone(object):
                     EC_BAD_PARAMETERS,
                     2,
                 )
-            
+
         # Humidity setpoints always target the manual mode schedule even if the
         # zone is running a schedule.
         await self.system.perform_schedule_setpoint(
@@ -2894,7 +2856,6 @@ class lennox_zone(object):
             husp=husp,
             desp=desp,
         )
-
 
     async def setScheduleHold(self, hold: bool) -> bool:
         if hold is True:
@@ -2931,7 +2892,7 @@ class lennox_zone(object):
 
         await self.system.setSchedule(self.id, scheduleId)
 
-    async def setFanMode(self, fan_mode: str) -> None:       
+    async def setFanMode(self, fan_mode: str) -> None:
         if self.system.get_away_mode():
             _LOGGER.info(f"lennox_zone:setFanMode zone in away mode [{self.id}]")
             await self.system.setFanMode(fan_mode, self.getAwayModeScheduleId())

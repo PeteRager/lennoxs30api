@@ -119,7 +119,6 @@ class Simulator(object):
                 appObject.queue.append(message)
             await asyncio.sleep(1.0)
 
-
     async def diagSimulator(self):
         if self.diagSim == False or self.diagSimRunning == True:
             return
