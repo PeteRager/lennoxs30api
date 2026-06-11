@@ -1,8 +1,7 @@
 """Communication Metrics for communication to lennox controller"""
 # pylint: disable=invalid-name
 
-from datetime import datetime
-import pytz
+from datetime import UTC, datetime
 
 
 class Metrics:
@@ -56,7 +55,7 @@ class Metrics:
 
     def now(self) -> datetime:
         """Returns the localized datetime"""
-        return pytz.utc.localize(datetime.utcnow())
+        return datetime.now(UTC)
 
     def getMetricList(self) -> dict[str, any]:
         """Return metric list as dict"""
