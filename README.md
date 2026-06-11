@@ -60,10 +60,17 @@ Submit enhancement requests as issues or better yet send a pull request.
 
 This repository includes a basic pre-commit setup with file checks and Ruff.
 
-Install and enable hooks:
+Install development dependencies:
 
 ```bash
-pip install pre-commit
+pip install -r requirements-dev.txt
+```
+
+Install and enable hooks:
+
+Run this once per local clone (hooks live in `.git/hooks` and are not committed):
+
+```bash
 pre-commit install
 ```
 
