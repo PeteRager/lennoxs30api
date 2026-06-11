@@ -1,16 +1,12 @@
 [tool.ruff.lint]
-select = ["ALL"]
+select = ["F"]
 ignore = [
-	"TCH002",
-	"TCH001",
-	"COM812",
-	"PLR0911",
-	"TRY003",
-	"FBT001",
-	"S101",
-	"D103",
-	"PLR2004",
+	"F403",
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["F401"]
+"samples/**/*.py" = ["F401"]
 
 [tool.ruff]
 line-length = 140
