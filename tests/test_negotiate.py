@@ -1,4 +1,5 @@
 """Tests the cloud negotiate sequence"""
+
 # pylint: disable=protected-access
 from unittest.mock import patch
 import pytest
@@ -17,6 +18,7 @@ from lennoxs30api.s30exception import (
 
 class GoodResponse:
     """Mocks a good response"""
+
     def __init__(self, status=200):
         self.status_code = status
 
@@ -42,9 +44,7 @@ class GoodResponse:
 @pytest.mark.asyncio
 async def test_negotiate_200():
     """Test negotiate with http 200 response"""
-    api = s30api_async(
-        username="rager", password=None, app_id="myapp_id", ip_address=None
-    )
+    api = s30api_async(username="rager", password=None, app_id="myapp_id", ip_address=None)
     api.loginToken = "ABCDEF"
     with patch.object(api, "get") as mock_get:
         mock_get.return_value = GoodResponse(200)
@@ -80,9 +80,7 @@ async def test_negotiate_400():
 @pytest.mark.asyncio
 async def test_negotiate_comms_error():
     """Test negotiate with a comms error"""
-    api = s30api_async(
-        username="rager", password=None, app_id="myapp_id", ip_address=None
-    )
+    api = s30api_async(username="rager", password=None, app_id="myapp_id", ip_address=None)
     api.loginToken = "ABCDEF"
     with patch.object(api, "get") as mock_get:
         mock_get.side_effect = aiohttp.ClientResponseError(
@@ -102,6 +100,7 @@ async def test_negotiate_comms_error():
 
 class BadResponse:
     """Class to mock a bad response"""
+
     def __init__(self, status=200):
         self.status_code = status
 
@@ -127,9 +126,7 @@ class BadResponse:
 @pytest.mark.asyncio
 async def test_negotiate_200_bad_response():
     """Test negotiate with a bad response"""
-    api = s30api_async(
-        username="rager", password=None, app_id="myapp_id", ip_address=None
-    )
+    api = s30api_async(username="rager", password=None, app_id="myapp_id", ip_address=None)
     api.loginToken = "ABCDEF"
     with patch.object(api, "get") as mock_get:
         mock_get.return_value = BadResponse(200)

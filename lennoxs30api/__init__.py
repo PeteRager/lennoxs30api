@@ -1,4 +1,5 @@
 """Lennoxs30api"""
+
 __version__ = "0.2.23"
 from .lennox_home import *
 from .lennox_period import *

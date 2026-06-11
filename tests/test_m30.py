@@ -1,4 +1,5 @@
 """Test M30 specific functionality"""
+
 import json
 from unittest.mock import patch
 import pytest

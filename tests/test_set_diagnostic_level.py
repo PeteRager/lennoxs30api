@@ -1,4 +1,5 @@
 """Test diagnostic level setting"""
+
 import json
 from unittest.mock import patch
 

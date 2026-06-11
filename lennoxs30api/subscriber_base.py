@@ -1,5 +1,6 @@
 # pylint: disable=line-too-long
 """Base class for subscribable objects"""
+
 from abc import ABC, abstractmethod
 import logging
 
@@ -29,9 +30,7 @@ class SubscriberBase(ABC):
                 self._dirty = True
                 if property_name not in self._dirty_list:
                     self._dirty_list.append(property_name)
-                    _LOGGER.debug(
-                        "update_attr: [%s] attr [%s] value [%s]", self.debug_string(), property_name, attr_val
-                    )
+                    _LOGGER.debug("update_attr: [%s] attr [%s] value [%s]", self.debug_string(), property_name, attr_val)
                 return True
         return False
 

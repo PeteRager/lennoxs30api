@@ -4,7 +4,7 @@ pip install lennoxs30api
 
 ## API Wrapper for www.lennoxicomfort.com
 
-By Pete Rager  
+By Pete Rager
 
 This asyncio module connects to the Lennox Cloud API to retrieve data from S30 / E30 thermostats.  This API does not work for older models that use a different API.  Those models are supported by this project:  https://github.com/thevoltagesource/myicomfort
 
@@ -21,7 +21,7 @@ Sample program Instructions:
 1. Grab the repo
 
 2. Edit the test_async.py program to supply the following
- 
+
     LOG_PATH = '/home/pete/lennoxs30api'    #  Directoy to stash the log file in
 
     EMAIL_ADDRESS = 'myemail@myemail.com'
@@ -56,4 +56,33 @@ Please enabled debug logging when reporting bugs and provide sample code.  Do no
 
 Submit enhancement requests as issues or better yet send a pull request.
 
+## Development
 
+This repository includes a basic pre-commit setup with file checks and Ruff.
+
+Install development dependencies:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+Install and enable hooks:
+
+Run this once per local clone (hooks live in `.git/hooks` and are not committed):
+
+```bash
+pre-commit install
+```
+
+Run hooks manually across all files:
+
+```bash
+pre-commit run --all-files
+```
+
+Run Ruff directly:
+
+```bash
+ruff check .
+ruff format .
+```

@@ -1,5 +1,7 @@
 """Test unit system rounding"""
+
 from lennoxs30api.s30api_async import lennox_system
+
 
 def test_celsius_round(api):
     """Tests rounding celsius to 0.5 degrees"""

@@ -3,9 +3,9 @@
     "deviceFile" : "tests/messages/device_response_lcc.json",
     "equipmentFile" : "tests/messages/equipments_response_energy.json",
     "systemFile" : "tests/messages/systemControl_diag_level_0.json",
-    "substitutions" : [ { "old_value" : "HD21212121", 
+    "substitutions" : [ { "old_value" : "HD21212121",
                        "new_value" : "HD00000000" }  ],
     "outdoorTempSim" : true,
     "zoneSim" : true,
-    "diagSim" : true                   
+    "diagSim" : true
 }

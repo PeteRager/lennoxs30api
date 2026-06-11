@@ -1,4 +1,5 @@
 """Test subscription registration"""
+
 # pylint: disable=line-too-long
 # pylint: disable=assert-on-tuple
 import json
@@ -75,8 +76,7 @@ async def test_subscribe_200(api: s30api_async):
             call_args = mock_request_data_helper.call_args_list[1]
             assert call_args[0][0] == system.sysId
             assert (
-                call_args[0][1]
-                == '"AdditionalParameters":{"JSONPath":"1;/alerts/meta;/dealers;/devices;/equipments;/system;/fwm;/ocst;"}'
+                call_args[0][1] == '"AdditionalParameters":{"JSONPath":"1;/alerts/meta;/dealers;/devices;/equipments;/system;/fwm;/ocst;"}'
             )
 
 

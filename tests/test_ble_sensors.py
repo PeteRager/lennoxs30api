@@ -1,4 +1,5 @@
 """Tests for BLE devices"""
+
 # pylint: disable=line-too-long
 from lennoxs30api.s30api_async import lennox_system
 
@@ -111,9 +112,7 @@ def test_ble_sensor_subscriptions(api_system_04_furn_ac_zoning):
     assert len(system.ble_devices) == 3
     ble_device = system.ble_devices[513]
     message = loadfile("s40_ble_status_update.json", "LCC")
-    message["Data"]["ble"]["devices"][0]["device"]["devStatus"]["inputsStatus"][0]["status"]["values"][0][
-        "value"
-    ] = "58"
+    message["Data"]["ble"]["devices"][0]["device"]["devStatus"]["inputsStatus"][0]["status"]["values"][0]["value"] = "58"
 
     callback_handler = CallbackHandler()
     input_sensor = ble_device.inputs[4052]

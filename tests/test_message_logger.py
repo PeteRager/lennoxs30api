@@ -1,4 +1,5 @@
 """Tests the message logger"""
+
 # pylint: disable=line-too-long
 import logging
 import json
@@ -6,6 +7,7 @@ import timeit
 
 from lennoxs30api.message_logger import REDACTED, MessageLogger
 from tests.conftest import loadfile
+
 
 def test_logging_enable_disable(caplog):
     """Test logging"""
@@ -82,15 +84,11 @@ def test_logging_remove_redacted(caplog):
         assert home_addr["latitude"] != REDACTED
         assert home_addr["longitude"] != REDACTED
 
-        user_token = msg_cleaned["ServerAssignedRoot"]["serverAssigned"]["security"][
-            "userToken"
-        ]
+        user_token = msg_cleaned["ServerAssignedRoot"]["serverAssigned"]["security"]["userToken"]
         assert user_token["encoded"] == REDACTED
         assert user_token["refreshToken"] == REDACTED
 
-        user_token = msg["ServerAssignedRoot"]["serverAssigned"]["security"][
-            "userToken"
-        ]
+        user_token = msg["ServerAssignedRoot"]["serverAssigned"]["security"]["userToken"]
         assert user_token["encoded"] != REDACTED
         assert user_token["refreshToken"] != REDACTED
 
@@ -103,13 +101,9 @@ def test_logging_redacted_performance(caplog):
     msg = loadfile("config_response_system_01.json")
     with caplog.at_level(logging.DEBUG):
         caplog.clear()
-        t = timeit.timeit(
-            lambda: mlog.log_message(pii_in_messages=False, msg=msg), number=1
-        )
+        t = timeit.timeit(lambda: mlog.log_message(pii_in_messages=False, msg=msg), number=1)
         print(t)
-        t1 = timeit.timeit(
-            lambda: mlog.log_message(pii_in_messages=True, msg=msg), number=1
-        )
+        t1 = timeit.timeit(lambda: mlog.log_message(pii_in_messages=True, msg=msg), number=1)
         print(t1)
 
 

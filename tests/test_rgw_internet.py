@@ -1,4 +1,5 @@
 """Test the controllers internet status"""
+
 from lennoxs30api.s30api_async import (
     lennox_system,
     s30api_async,

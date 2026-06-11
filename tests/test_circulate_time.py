@@ -1,4 +1,5 @@
 """Tests setting circulation mode"""
+
 import json
 from unittest.mock import patch
 
@@ -9,6 +10,7 @@ from lennoxs30api.s30api_async import (
     lennox_system,
 )
 from lennoxs30api.s30exception import EC_BAD_PARAMETERS, S30Exception
+
 
 @pytest.mark.asyncio
 async def test_set_circulate_time(api):

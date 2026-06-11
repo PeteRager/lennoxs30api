@@ -1,4 +1,5 @@
 """Test setting the fan mode"""
+
 import json
 from unittest.mock import patch
 
@@ -26,6 +27,7 @@ async def test_set_fan_mode(api: s30api_async):
         t_period = t_schedule["schedule"]["periods"][0]["period"]
         assert t_period["fanMode"] == "circulate"
 
+
 @pytest.mark.asyncio
 async def test_set_fan_mode_away_mode(api: s30api_async):
     """Test setting the fan when in away mode"""
@@ -49,6 +51,7 @@ async def test_set_fan_mode_away_mode(api: s30api_async):
         assert t_schedule["id"] == zone.getAwayModeScheduleId()
         t_period = t_schedule["schedule"]["periods"][0]["period"]
         assert t_period["fanMode"] == "circulate"
+
 
 @pytest.mark.asyncio
 async def test_set_fan_mode_override(api: s30api_async):
@@ -131,6 +134,7 @@ async def test_set_fan_mode_override(api: s30api_async):
         assert t_schedule["id"] == zone.getOverrideScheduleId()
         t_period = t_schedule["schedule"]["periods"][0]["period"]
         assert t_period["fanMode"] == "circulate"
+
 
 @pytest.mark.asyncio
 async def test_set_fan_mode_invalid(api: s30api_async):

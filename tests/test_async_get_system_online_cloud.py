@@ -1,4 +1,5 @@
 """Test processing the online/offline thermostat status from the cloud"""
+
 # pylint: disable=line-too-long
 import json
 import logging
@@ -18,6 +19,7 @@ from tests.conftest import loadfile
 
 class GoodResponse:
     """Mocks a good response"""
+
     def __init__(self, status=200):
         self.status_code = status
 
@@ -41,6 +43,7 @@ class GoodResponse:
 
 class DirtySubscription:
     """Subscription handler"""
+
     def __init__(self, system: lennox_system, attr_name: str):
         self.triggered_count = 0
         system.registerOnUpdateCallback(self.update_callback, [attr_name])
@@ -48,6 +51,7 @@ class DirtySubscription:
     def update_callback(self):
         """Callback for updates"""
         self.triggered_count += 1
+
 
 @pytest.mark.asyncio
 async def test_get_system_online_cloud(api: s30api_async):
@@ -71,6 +75,7 @@ async def test_get_system_online_cloud(api: s30api_async):
         assert message["Data"]["presence"][0]["endpointId"] == system.sysId
         assert system.cloud_status == "online"
         assert ds.triggered_count == 1
+
 
 @pytest.mark.asyncio
 async def test_get_system_online_cloud_400(api: s30api_async, caplog):
@@ -96,6 +101,7 @@ async def test_get_system_online_cloud_400(api: s30api_async, caplog):
 
 class BadResponseDiffSysId:
     """Mocks a bad response for a different system"""
+
     def __init__(self, status=200):
         self.status_code = status
 
@@ -115,6 +121,7 @@ class BadResponseDiffSysId:
     async def text(self):
         """Text message"""
         return "this is the error"
+
 
 @pytest.mark.asyncio
 async def test_get_system_online_cloud_diff_sysid(api: s30api_async, caplog):
@@ -139,6 +146,7 @@ async def test_get_system_online_cloud_diff_sysid(api: s30api_async, caplog):
 
 class BadResponseNoMessage:
     """Mock to returns a bad response"""
+
     def __init__(self, status=200):
         self.status_code = status
 
@@ -178,6 +186,7 @@ async def test_get_system_online_cloud_no_message(api: s30api_async, caplog):
 
 class BadResponseNoPresence:
     """Mocks a bad respone with no presence information"""
+
     def __init__(self, status=200):
         self.status_code = status
 

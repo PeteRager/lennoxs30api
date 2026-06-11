@@ -100,9 +100,7 @@ async def test_server_connect(api: s30api_async):
         api, "_create_session"
     ) as mock_create_session, patch.object(api, "authenticate") as mock_authenticate, patch.object(
         api, "login"
-    ) as mock_login, patch.object(
-        api, "negotiate"
-    ) as mock_negotiate:
+    ) as mock_login, patch.object(api, "negotiate") as mock_negotiate:
         api.metrics.last_reconnect_time = None
         await api.serverConnect()
         mock_close_session.assert_called_once()
@@ -125,6 +123,7 @@ def test_homes(api: s30api_async):
 
 class MockResponse(object):
     """Mock Response"""
+
     def __init__(self, return_value: int):
         self.status: int = return_value
 

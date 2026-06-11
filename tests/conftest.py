@@ -1,4 +1,5 @@
 """Pytest fixtures"""
+
 import json
 import os
 import asyncio
@@ -7,11 +8,12 @@ import pytest
 from lennoxs30api.metrics import Metrics
 from lennoxs30api.s30api_async import s30api_async
 
+
 def loadfile(name, sys_id=None) -> json:
     """Loads a JSON file from the messages directory"""
     script_dir = os.path.dirname(__file__) + "/messages/"
     file_path = os.path.join(script_dir, name)
-    with open(file_path,encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         data = json.load(f)
     if sys_id is not None:
         data["SenderID"] = sys_id
@@ -46,6 +48,7 @@ def api() -> s30api_async:
     data["SenderID"] = "0000000-0000-0000-0000-000000000001"
     api_ret.processMessage(data)
     return api_ret
+
 
 @pytest.fixture
 def api_single_setpoint() -> s30api_async:
@@ -100,6 +103,7 @@ def api_system_04_furn_ac_zoning() -> s30api_async:
     api_ret.processMessage(data)
     return api_ret
 
+
 @pytest.fixture
 def api_device_lcc() -> s30api_async:
     """Fixture for local device response"""
@@ -109,6 +113,7 @@ def api_device_lcc() -> s30api_async:
     data = loadfile("device_response_lcc.json")
     api_ret.processMessage(data)
     return api_ret
+
 
 @pytest.fixture
 def api_m30() -> s30api_async:

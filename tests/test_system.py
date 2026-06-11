@@ -1,4 +1,5 @@
 """Tests lennox system methods"""
+
 from lennoxs30api.s30api_async import lennox_system
 
 

@@ -1,10 +1,12 @@
 """Test central zoning mode"""
+
 import json
 from unittest.mock import patch
 
 import pytest
 from lennoxs30api.s30api_async import lennox_system
 from lennoxs30api.s30exception import EC_BAD_PARAMETERS, S30Exception
+
 
 @pytest.mark.asyncio
 async def test_set_central_mode_multizone(api):

@@ -1,6 +1,8 @@
 """Tests the controller diagnostic level"""
+
 from lennoxs30api.s30api_async import lennox_system, s30api_async
 from tests.conftest import loadfile
+
 
 def test_get_diagnostic_level(api: s30api_async):
     """Tests getting the diagnostic level from message"""

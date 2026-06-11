@@ -1,9 +1,11 @@
 """Tests for WIFI interface status"""
+
 # pylint: disable=line-too-long
 import logging
 from lennoxs30api.s30api_async import lennox_system
 
 from tests.conftest import loadfile
+
 
 def test_wifi_interface_config(api_system_04_furn_ac_zoning):
     """Tests wifi interface loading"""
@@ -30,9 +32,10 @@ def test_wifi_interface_config(api_system_04_furn_ac_zoning):
     message["Data"]["interfaces"] = {}
     system.processMessage(message)
 
+
 def test_wifi_associated(api_system_04_furn_ac_zoning, caplog):
     """Make sure the API can process this associated messages as it occurs alot.
-       There is no data in the message that is needed."""
+    There is no data in the message that is needed."""
     api = api_system_04_furn_ac_zoning
     system: lennox_system = api.system_list[0]
     assert system.sysId == "LCC"

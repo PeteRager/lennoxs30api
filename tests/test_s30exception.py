@@ -1,4 +1,5 @@
 """Tests the S30Exception class"""
+
 import asyncio
 import aiohttp
 from lennoxs30api.metrics import Metrics
@@ -21,9 +22,7 @@ def test_client_response_error(metrics: Metrics):
         message="unexpected content-length header",
         history={},
     )
-    se: S30Exception = s30exception_from_comm_exception(
-        e, operation=operation, url=url, metrics=metrics
-    )
+    se: S30Exception = s30exception_from_comm_exception(e, operation=operation, url=url, metrics=metrics)
     assert se is not None
     assert isinstance(se, S30Exception)
     assert se.error_code == EC_COMMS_ERROR
@@ -45,9 +44,7 @@ def test_client_response_error(metrics: Metrics):
         message="some other error",
         history={},
     )
-    se: S30Exception = s30exception_from_comm_exception(
-        e, operation=operation, url=url, metrics=metrics
-    )
+    se: S30Exception = s30exception_from_comm_exception(e, operation=operation, url=url, metrics=metrics)
 
     assert se is not None
     assert isinstance(se, S30Exception)
@@ -64,9 +61,7 @@ def test_client_response_error(metrics: Metrics):
 
     metrics.reset()
     e = aiohttp.ServerDisconnectedError()
-    se: S30Exception = s30exception_from_comm_exception(
-        e, operation=operation, url=url, metrics=metrics
-    )
+    se: S30Exception = s30exception_from_comm_exception(e, operation=operation, url=url, metrics=metrics)
     assert se is not None
     assert isinstance(se, S30Exception)
     assert se.error_code == EC_COMMS_ERROR
@@ -82,9 +77,7 @@ def test_client_response_error(metrics: Metrics):
 
     metrics.reset()
     e = asyncio.TimeoutError()
-    se: S30Exception = s30exception_from_comm_exception(
-        e, operation=operation, url=url, metrics=metrics
-    )
+    se: S30Exception = s30exception_from_comm_exception(e, operation=operation, url=url, metrics=metrics)
     assert se is not None
     assert isinstance(se, S30Exception)
     assert se.error_code == EC_COMMS_ERROR
