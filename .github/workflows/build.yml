@@ -18,6 +18,5 @@ jobs:
           pip install -e .
           pip install pytest
           pip install pytest-asyncio
-          pip install pytz
       - name: Run pytest
         run: python -m pytest tests/
