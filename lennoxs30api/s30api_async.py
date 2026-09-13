@@ -2107,6 +2107,32 @@ class lennox_system(object):
         command = {"schedules": [{"schedule": {"periods": [t_periods]}, "id": scheduleId}]}
         await self.api.publish_message_helper_dict(self.sysId, command)
 
+    async def set_schedule_name(self, scheduleId, name: str) -> None:
+        _LOGGER.info(f"lennox_system:set_schedule_name sysid [{self.sysId}] schedule_id [{scheduleId}] name [{name}]")
+        schedule = self.getSchedule(scheduleId)
+        if schedule is None:
+            if 5 <= scheduleId <= 15:
+                raise S30Exception(
+                    f"set_schedule_name - schedule [{scheduleId}] is an empty slot, create the schedule on the thermostat first",
+                    EC_BAD_PARAMETERS,
+                    1,
+                )
+            raise S30Exception(
+                f"set_schedule_name - unknown schedule [{scheduleId}] sysid [{self.sysId}]",
+                EC_BAD_PARAMETERS,
+                2,
+            )
+        if name is None or len(name) == 0:
+            raise S30Exception(
+                f"set_schedule_name - a name must be specified for schedule [{scheduleId}]",
+                EC_BAD_PARAMETERS,
+                3,
+            )
+        # Schedule names contain spaces, so this must not use the space stripping that the
+        # setpoint messages do.
+        command = {"schedules": [{"schedule": {"name": name}, "id": scheduleId}]}
+        await self.api.publish_message_helper_dict(self.sysId, command)
+
     def getOrCreateZone(self, zone_id):
         zone = self.getZone(zone_id)
         if zone is not None:

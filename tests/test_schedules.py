@@ -350,3 +350,37 @@ async def test_set_schedule_period_deadband(api: s30api_async):
         assert exc.value.error_code == EC_BAD_PARAMETERS
         assert exc.value.reference == 12
         assert mock_message_helper.call_count == 0
+
+
+@pytest.mark.asyncio
+async def test_set_schedule_name(api: s30api_async):
+    """Test renaming a schedule"""
+    lsystem: lennox_system = api.system_list[0]
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        await lsystem.set_schedule_name(4, "shoulder season")
+        data = published_data(mock_message_helper, lsystem)
+
+        t_schedule = data["schedules"][0]
+        assert t_schedule["id"] == 4
+        # names contain spaces, the message must not have them stripped
+        assert t_schedule["schedule"] == {"name": "shoulder season"}
+
+
+@pytest.mark.asyncio
+async def test_set_schedule_name_errors(api: s30api_async):
+    """Test the schedule name validation"""
+    lsystem: lennox_system = api.system_list[0]
+    with patch.object(api, "publishMessageHelper") as mock_message_helper:
+        with pytest.raises(S30Exception) as exc:
+            await lsystem.set_schedule_name(7, "new schedule")
+        assert exc.value.error_code == EC_BAD_PARAMETERS
+        assert exc.value.reference == 1
+
+        with pytest.raises(S30Exception) as exc:
+            await lsystem.set_schedule_name(99, "new schedule")
+        assert exc.value.reference == 2
+
+        with pytest.raises(S30Exception) as exc:
+            await lsystem.set_schedule_name(4, "")
+        assert exc.value.reference == 3
+        assert mock_message_helper.call_count == 0
