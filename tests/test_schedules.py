@@ -384,3 +384,14 @@ async def test_set_schedule_name_errors(api: s30api_async):
             await lsystem.set_schedule_name(4, "")
         assert exc.value.reference == 3
         assert mock_message_helper.call_count == 0
+
+
+@pytest.mark.asyncio
+async def test_schedule_periods_accessor(api: s30api_async):
+    """Test the periods accessor returns them in id order"""
+    lsystem: lennox_system = api.system_list[0]
+    schedule = lsystem.getSchedule(1)
+    periods = schedule.periods
+    assert len(periods) == 28
+    assert [period.id for period in periods] == list(range(28))
+    assert periods[4].startTime == 108000
