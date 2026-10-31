@@ -44,6 +44,7 @@ from .lennox_ble import LennoxBle
 from .lennox_errors import lennox_error_get_message_from_code, LennoxErrorCodes
 from .lennox_equipment import lennox_equipment, lennox_equipment_diagnostic
 from .lennox_home import lennox_home
+from .lennox_period import lennox_period
 from .lennox_reminder import LennoxReminder
 from .lennox_schedule import lennox_schedule
 from .metrics import Metrics
@@ -125,6 +126,12 @@ FAN_MODES: Final = {"on", "auto", "circulate"}
 HVAC_MODE_TARGETS: Final = {"fanMode", "systemMode", "humidityMode"}
 
 LENNOX_MANUAL_MODE_SCHEDULE_START_INDEX: int = 16
+
+# Schedule period startTimes are seconds since the start of the week, so a 28 period schedule is
+# 4 periods a day for 7 days and period.id is day * 4 + period.
+LENNOX_SCHEDULE_PERIODS_PER_DAY: Final = 4
+LENNOX_SCHEDULE_SECONDS_PER_DAY: Final = 24 * 60 * 60
+LENNOX_SCHEDULE_SECONDS_PER_WEEK: Final = 7 * LENNOX_SCHEDULE_SECONDS_PER_DAY
 
 LENNOX_INDOOR_UNIT_FURNACE: Final = "furnace"
 LENNOX_INDOOR_UNIT_AIR_HANDLER: Final = "air handler"
@@ -1920,6 +1927,272 @@ class lennox_system(object):
 
         data = '"Data":' + json.dumps(command).replace(" ", "")
         await self.api.publishMessageHelper(self.sysId, data)
+
+    async def set_schedule_period(
+        self,
+        scheduleId,
+        periodId,
+        startTime=None,
+        enabled=None,
+        hsp=None,
+        hspC=None,
+        csp=None,
+        cspC=None,
+        sp=None,
+        spC=None,
+        husp=None,
+        desp=None,
+        fanMode=None,
+        systemMode=None,
+        humidityMode=None,
+    ) -> None:
+        """Update one period of a schedule.
+
+        Only the values that are passed are changed; everything else in the period
+        is left as it is. At least one value must be passed. Setpoints are not range
+        checked, so make sure the values are valid for the equipment.
+
+        The thermostat stores Fahrenheit and Celsius setpoints separately. When only
+        one unit is passed, the other is converted from it. When a setpoint is not
+        passed at all, the period's current value is sent with it. Heating and cooling
+        setpoints must be at least the changeover deadband apart.
+
+        Args:
+            scheduleId: The schedule to update, from lennox_system.getSchedules().
+            periodId: The period within the schedule. A 28 period schedule has 4
+                periods per day for 7 days, so the id is day * 4 + period.
+            startTime: When the period starts, in seconds since the start of the
+                week (not since midnight).
+            enabled: False removes the period from the schedule and True adds it
+                back. The thermostat uses this to delete periods.
+            hsp: Heating setpoint in Fahrenheit.
+            hspC: Heating setpoint in Celsius.
+            csp: Cooling setpoint in Fahrenheit.
+            cspC: Cooling setpoint in Celsius.
+            sp: Setpoint in Fahrenheit, only when the system is in single setpoint mode.
+            spC: Setpoint in Celsius, only when the system is in single setpoint mode.
+            husp: Humidify setpoint, in percent relative humidity.
+            desp: Dehumidify setpoint, in percent relative humidity.
+            fanMode: One of FAN_MODES.
+            systemMode: One of HVAC_MODES.
+            humidityMode: One of HUMIDITY_MODES.
+
+        Raises:
+            S30Exception: With EC_BAD_PARAMETERS when the schedule or period does not
+                exist, the schedule is an empty slot (5 - 15), nothing is passed to set,
+                a mode or startTime is invalid, setpoints do not match the system's
+                setpoint mode, or the heating and cooling setpoints are too close.
+        """
+        _LOGGER.debug(
+            f"lennox_system:set_schedule_period sysid [{self.sysId}] schedule_id [{scheduleId}] period_id [{periodId}] startTime [{startTime}] enabled [{enabled}] hsp [{hsp}] hspC [{hspC}] csp [{csp}] cspC [{cspC}] sp [{sp}] spC [{spC}] single_setpoint_mode [{self.single_setpoint_mode}] husp [{husp}] desp [{desp}] fanMode [{fanMode}] systemMode [{systemMode}] humidityMode [{humidityMode}]"
+        )
+        schedule = self.getSchedule(scheduleId)
+        if schedule is None:
+            # Schedule slots 5 - 15 arrive with no schedule object at all, not even a name. The S30 panel
+            # offers no way to create a schedule in them, so this library does not support it either.
+            if 5 <= scheduleId <= 15:
+                raise S30Exception(
+                    f"set_schedule_period - schedule [{scheduleId}] is an empty slot, schedules cannot be created in slots 5 - 15",
+                    EC_BAD_PARAMETERS,
+                    1,
+                )
+            raise S30Exception(
+                f"set_schedule_period - unknown schedule [{scheduleId}] sysid [{self.sysId}]",
+                EC_BAD_PARAMETERS,
+                2,
+            )
+
+        period: lennox_period = schedule.getPeriod(periodId)
+        if period is None:
+            raise S30Exception(
+                f"set_schedule_period - unknown period [{periodId}] schedule [{scheduleId}] name [{schedule.name}] periodCount [{schedule.periodCount}]",
+                EC_BAD_PARAMETERS,
+                3,
+            )
+
+        setpoint_requested = hsp is not None or hspC is not None or csp is not None or cspC is not None or sp is not None or spC is not None
+        if (
+            startTime is None
+            and enabled is None
+            and setpoint_requested is False
+            and husp is None
+            and desp is None
+            and fanMode is None
+            and systemMode is None
+            and humidityMode is None
+        ):
+            raise S30Exception(
+                f"set_schedule_period - nothing to set for schedule [{scheduleId}] period [{periodId}] - must specify one or more values",
+                EC_BAD_PARAMETERS,
+                4,
+            )
+
+        if fanMode is not None and fanMode not in FAN_MODES:
+            raise S30Exception(
+                f"set_schedule_period - invalid fanMode [{fanMode}] requested, must be in [{FAN_MODES}]",
+                EC_BAD_PARAMETERS,
+                5,
+            )
+        if systemMode is not None and systemMode not in HVAC_MODES:
+            raise S30Exception(
+                f"set_schedule_period - invalid systemMode [{systemMode}] requested, must be in [{HVAC_MODES}]",
+                EC_BAD_PARAMETERS,
+                6,
+            )
+        if humidityMode is not None and humidityMode not in HUMIDITY_MODES:
+            raise S30Exception(
+                f"set_schedule_period - invalid humidityMode [{humidityMode}] requested, must be in [{HUMIDITY_MODES}]",
+                EC_BAD_PARAMETERS,
+                7,
+            )
+        # startTime is the number of seconds since the start of the week, not since midnight.
+        if startTime is not None and (startTime < 0 or startTime >= LENNOX_SCHEDULE_SECONDS_PER_WEEK):
+            raise S30Exception(
+                f"set_schedule_period - invalid startTime [{startTime}] must be between 0 and [{LENNOX_SCHEDULE_SECONDS_PER_WEEK - 1}]",
+                EC_BAD_PARAMETERS,
+                8,
+            )
+        if (sp is not None or spC is not None) and self.single_setpoint_mode is False:
+            raise S30Exception(
+                "set_schedule_period - sp or spC can only be specified when system is in single setpoint mode",
+                EC_BAD_PARAMETERS,
+                9,
+            )
+        if (hsp is not None or hspC is not None or csp is not None or cspC is not None) and self.single_setpoint_mode is True:
+            raise S30Exception(
+                "set_schedule_period - hsp, hspC, csp and cspC must not be specified when system is in single setpoint mode",
+                EC_BAD_PARAMETERS,
+                10,
+            )
+
+        ### No range checking of the setpoints in this routine, make sure you know what you are setting.
+        t_period = {}
+        if startTime is not None:
+            t_period["startTime"] = int(startTime)
+        if systemMode is not None:
+            t_period["systemMode"] = systemMode
+
+        if setpoint_requested:
+            # When in this mode, the lennox app always sends hsp, hspC, csp and cspC in the message. The LCC stores
+            # faren and celsius independently - the same hsp can appear with different hspC in different schedules -
+            # so the unit that was not specified is converted from the one that was, or when neither was specified
+            # it is copied from the current period.
+            if self.single_setpoint_mode is False:
+                if hsp is not None:
+                    t_hsp = self.faren_round(hsp)
+                elif hspC is not None:
+                    t_hsp = self.convertCtoF(hspC)
+                else:
+                    t_hsp = period.hsp
+
+                if hspC is not None:
+                    t_hspC = self.celsius_round(hspC)
+                elif hsp is not None:
+                    t_hspC = self.convertFtoC(hsp)
+                else:
+                    t_hspC = period.hspC
+
+                if csp is not None:
+                    t_csp = self.faren_round(csp)
+                elif cspC is not None:
+                    t_csp = self.convertCtoF(cspC)
+                else:
+                    t_csp = period.csp
+
+                if cspC is not None:
+                    t_cspC = self.celsius_round(cspC)
+                elif csp is not None:
+                    t_cspC = self.convertFtoC(csp)
+                else:
+                    t_cspC = period.cspC
+
+                # Lennox requires the heat and cool setpoints be seperated by 1.5C/3F. Unlike the zone setpoints
+                # we do not adjust the other setpoint, because a schedule period is not necessarily the one running.
+                if t_hsp is not None and t_csp is not None and t_csp < t_hsp + self.changeover_temp_deadband_f:
+                    raise S30Exception(
+                        f"set_schedule_period - hsp [{t_hsp}] and csp [{t_csp}] must be seperated by [{self.changeover_temp_deadband_f}] degrees",
+                        EC_BAD_PARAMETERS,
+                        11,
+                    )
+                if t_hspC is not None and t_cspC is not None and t_cspC < t_hspC + self.changeover_temp_deadband_c:
+                    raise S30Exception(
+                        f"set_schedule_period - hspC [{t_hspC}] and cspC [{t_cspC}] must be seperated by [{self.changeover_temp_deadband_c}] degrees",
+                        EC_BAD_PARAMETERS,
+                        12,
+                    )
+
+                if t_hsp is not None:
+                    t_period["hsp"] = t_hsp
+                if t_hspC is not None:
+                    t_period["hspC"] = t_hspC
+                if t_csp is not None:
+                    t_period["csp"] = t_csp
+                if t_cspC is not None:
+                    t_period["cspC"] = t_cspC
+            else:
+                if sp is not None:
+                    t_period["sp"] = self.faren_round(sp)
+                elif spC is not None:
+                    t_period["sp"] = self.convertCtoF(spC)
+
+                if spC is not None:
+                    t_period["spC"] = self.celsius_round(spC)
+                elif sp is not None:
+                    t_period["spC"] = self.convertFtoC(sp)
+
+        if humidityMode is not None:
+            t_period["humidityMode"] = humidityMode
+        if husp is not None:
+            t_period["husp"] = int(husp)
+        if desp is not None:
+            t_period["desp"] = int(desp)
+        if fanMode is not None:
+            t_period["fanMode"] = fanMode
+
+        # enabled sits outside of the period object, it is how the thermostat deletes a period.
+        t_periods = {"id": periodId}
+        if enabled is not None:
+            t_periods["enabled"] = enabled
+        t_periods["period"] = t_period
+
+        command = {"schedules": [{"schedule": {"periods": [t_periods]}, "id": scheduleId}]}
+        await self.api.publish_message_helper_dict(self.sysId, command)
+
+    async def set_schedule_name(self, scheduleId, name: str) -> None:
+        """Rename a schedule.
+
+        Args:
+            scheduleId: The schedule to rename, from lennox_system.getSchedules().
+            name: The new name. Spaces are allowed.
+
+        Raises:
+            S30Exception: With EC_BAD_PARAMETERS when the schedule does not exist, the
+                schedule is an empty slot (5 - 15), or the name is empty.
+        """
+        _LOGGER.info(f"lennox_system:set_schedule_name sysid [{self.sysId}] schedule_id [{scheduleId}] name [{name}]")
+        schedule = self.getSchedule(scheduleId)
+        if schedule is None:
+            if 5 <= scheduleId <= 15:
+                raise S30Exception(
+                    f"set_schedule_name - schedule [{scheduleId}] is an empty slot, schedules cannot be created in slots 5 - 15",
+                    EC_BAD_PARAMETERS,
+                    1,
+                )
+            raise S30Exception(
+                f"set_schedule_name - unknown schedule [{scheduleId}] sysid [{self.sysId}]",
+                EC_BAD_PARAMETERS,
+                2,
+            )
+        if name is None or len(name) == 0:
+            raise S30Exception(
+                f"set_schedule_name - a name must be specified for schedule [{scheduleId}]",
+                EC_BAD_PARAMETERS,
+                3,
+            )
+        # Schedule names contain spaces, so this must not use the space stripping that the
+        # setpoint messages do.
+        command = {"schedules": [{"schedule": {"name": name}, "id": scheduleId}]}
+        await self.api.publish_message_helper_dict(self.sysId, command)
 
     def getOrCreateZone(self, zone_id):
         zone = self.getZone(zone_id)
