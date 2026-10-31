@@ -45,6 +45,7 @@ from .lennox_errors import lennox_error_get_message_from_code, LennoxErrorCodes
 from .lennox_equipment import lennox_equipment, lennox_equipment_diagnostic
 from .lennox_home import lennox_home
 from .lennox_period import lennox_period
+from .lennox_reminder import LennoxReminder
 from .lennox_schedule import lennox_schedule
 from .metrics import Metrics
 from .message_logger import MessageLogger
@@ -1204,11 +1205,13 @@ class lennox_system(object):
             "ble": self._process_ble,
             "indoorAirQuality": self._process_indoor_air_quality,
             "weather": self._process_weather,
+            "reminders": self._process_reminders,
         }
         self.systemMessageProcessed: bool = False
 
         self.equipment: dict[int, lennox_equipment] = {}
         self.ble_devices: dict[int, LennoxBle] = {}
+        self.reminders: dict[int, LennoxReminder] = {}
         _LOGGER.info(f"Creating lennox_system sysId [{self.sysId}]")
 
     async def update_system_online_cloud(self):
@@ -1399,6 +1402,17 @@ class lennox_system(object):
                     ble_device = self.get_or_create_ble_device(device["wdn"])
                     ble_device.update_from_json(device)
                     ble_device.execute_on_update_callbacks()
+
+    def get_or_create_reminder(self, reminder_id: int) -> LennoxReminder:
+        """Returns existing reminder or creates and returns a new one"""
+        if reminder_id not in self.reminders:
+            self.reminders[reminder_id] = LennoxReminder(reminder_id)
+        return self.reminders[reminder_id]
+
+    def _process_reminders(self, reminders):
+        for reminder in reminders:
+            if "id" in reminder:
+                self.get_or_create_reminder(reminder["id"]).update_from_json(reminder)
 
     def _process_indoor_air_quality(self, iaq):
         self.attr_updater(iaq, "mitigation_action", "iaq_mitigation_action")
