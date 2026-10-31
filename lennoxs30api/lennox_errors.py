@@ -202,6 +202,24 @@ class LennoxErrorCodes(Enum):
     lx_alarm_id_Firmware_Updated = 65543
     lx_alarm_id_Too_Many_Siblings = 65544
     lx_alarm_id_Cooling_Prognostics_Alert = 65545
+    lx_alarm_id_OU_Suction_Temperature_Sensor_Incorrect_Reading = 71504
+    lx_alarm_id_OU_Liquid_Temperature_Sensor_Incorrect_Reading = 71505
+    lx_alarm_id_OU_Suction_Pressure_Sensor_Incorrect_Reading = 71506
+    lx_alarm_id_OU_Liquid_Pressure_Sensor_Incorrect_Reading = 71507
+    lx_alarm_id_OU_Outdoor_Temperature_Sensor_Incorrect_Reading = 71508
+    lx_alarm_id_HP_Outdoor_Coil_Temperature_Sensor_Incorrect_Reading = 71509
+    lx_alarm_id_OU_ID_TXV_Failure = 71510
+    lx_alarm_id_IU_Duct_or_Filter_Blockage = 71511
+    lx_alarm_id_OU_High_Pressure_Switch_Fault = 71512
+    lx_alarm_id_OU_Low_Pressure_Switch_Fault = 71513
+    lx_alarm_id_OU_System_Low_on_Refrigerant_Charge = 71514
+    lx_alarm_id_HP_Reversing_Valve_Stuck = 71515
+    lx_alarm_id_OU_Outdoor_Fan_Motor_Failure = 71516
+    lx_alarm_id_IU_Indoor_Fan_Motor_Failure = 71517
+    lx_alarm_id_OU_Compressor_Failed_to_Start = 71518
+    lx_alarm_id_HP_Incorrect_Reversing_Valve_Mode = 71519
+    lx_alarm_id_OU_Blocked_Liquid_Line = 71520
+    lx_alarm_id_HP_Outdoor_TXV_Failure = 71521
 
 
 lennox_error_messages = {
@@ -399,6 +417,24 @@ lennox_error_messages = {
     LennoxErrorCodes.lx_alarm_id_Firmware_Updated: "Firmware Updated",
     LennoxErrorCodes.lx_alarm_id_Too_Many_Siblings: "More Than 8 Tstats In A Group",
     LennoxErrorCodes.lx_alarm_id_Cooling_Prognostics_Alert: "Cooling Capacity Alert",
+    LennoxErrorCodes.lx_alarm_id_OU_Suction_Temperature_Sensor_Incorrect_Reading: "OU: Suction Temperature Sensor: Incorrect Reading",
+    LennoxErrorCodes.lx_alarm_id_OU_Liquid_Temperature_Sensor_Incorrect_Reading: "OU: Liquid Temperature Sensor: Incorrect Reading",
+    LennoxErrorCodes.lx_alarm_id_OU_Suction_Pressure_Sensor_Incorrect_Reading: "OU: Suction Pressure Sensor: Incorrect Reading",
+    LennoxErrorCodes.lx_alarm_id_OU_Liquid_Pressure_Sensor_Incorrect_Reading: "OU: Liquid Pressure Sensor: Incorrect Reading",
+    LennoxErrorCodes.lx_alarm_id_OU_Outdoor_Temperature_Sensor_Incorrect_Reading: "OU: Outdoor Temperature Sensor: Incorrect Reading",
+    LennoxErrorCodes.lx_alarm_id_HP_Outdoor_Coil_Temperature_Sensor_Incorrect_Reading: "HP: Outdoor Coil Temperature Sensor: Incorrect Reading",
+    LennoxErrorCodes.lx_alarm_id_OU_ID_TXV_Failure: "OU: ID TXV Failure",
+    LennoxErrorCodes.lx_alarm_id_IU_Duct_or_Filter_Blockage: "IU: Duct or Filter Blockage",
+    LennoxErrorCodes.lx_alarm_id_OU_High_Pressure_Switch_Fault: "OU: High-Pressure Switch Fault",
+    LennoxErrorCodes.lx_alarm_id_OU_Low_Pressure_Switch_Fault: "OU: Low-Pressure Switch Fault",
+    LennoxErrorCodes.lx_alarm_id_OU_System_Low_on_Refrigerant_Charge: "OU: System Low on Refrigerant Charge",
+    LennoxErrorCodes.lx_alarm_id_HP_Reversing_Valve_Stuck: "HP: Reversing Valve Stuck",
+    LennoxErrorCodes.lx_alarm_id_OU_Outdoor_Fan_Motor_Failure: "OU: Outdoor Fan Motor Failure",
+    LennoxErrorCodes.lx_alarm_id_IU_Indoor_Fan_Motor_Failure: "IU: Indoor Fan Motor Failure",
+    LennoxErrorCodes.lx_alarm_id_OU_Compressor_Failed_to_Start: "OU: Compressor Failed to Start",
+    LennoxErrorCodes.lx_alarm_id_HP_Incorrect_Reversing_Valve_Mode: "HP: Incorrect Reversing Valve Mode",
+    LennoxErrorCodes.lx_alarm_id_OU_Blocked_Liquid_Line: "OU: Blocked Liquid Line",
+    LennoxErrorCodes.lx_alarm_id_HP_Outdoor_TXV_Failure: "HP: Outdoor TXV Failure",
 }
 
 LENNOX_UNKNOWN_ALERT_MESSAGE = "unknown alert code"

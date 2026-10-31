@@ -1,6 +1,9 @@
 """Modules to test the alerts"""
 
+import pytest
+
 from lennoxs30api import s30api_async
+from lennoxs30api.lennox_errors import lennox_error_get_message_from_code
 from lennoxs30api.s30api_async import lennox_system
 from tests.conftest import loadfile
 
@@ -88,6 +91,34 @@ def test_alerts_unknown_alert(api_system_04_furn_ac_zoning):
     assert alert["priority"] == "moderate"
     assert alert["equipmentType"] == 18
     assert alert["message"] == "unknown alert code"
+
+
+@pytest.mark.parametrize(
+    ("code", "message"),
+    [
+        (71504, "OU: Suction Temperature Sensor: Incorrect Reading"),
+        (71505, "OU: Liquid Temperature Sensor: Incorrect Reading"),
+        (71506, "OU: Suction Pressure Sensor: Incorrect Reading"),
+        (71507, "OU: Liquid Pressure Sensor: Incorrect Reading"),
+        (71508, "OU: Outdoor Temperature Sensor: Incorrect Reading"),
+        (71509, "HP: Outdoor Coil Temperature Sensor: Incorrect Reading"),
+        (71510, "OU: ID TXV Failure"),
+        (71511, "IU: Duct or Filter Blockage"),
+        (71512, "OU: High-Pressure Switch Fault"),
+        (71513, "OU: Low-Pressure Switch Fault"),
+        (71514, "OU: System Low on Refrigerant Charge"),
+        (71515, "HP: Reversing Valve Stuck"),
+        (71516, "OU: Outdoor Fan Motor Failure"),
+        (71517, "IU: Indoor Fan Motor Failure"),
+        (71518, "OU: Compressor Failed to Start"),
+        (71519, "HP: Incorrect Reversing Valve Mode"),
+        (71520, "OU: Blocked Liquid Line"),
+        (71521, "HP: Outdoor TXV Failure"),
+    ],
+)
+def test_s40_alert_codes(code, message):
+    """Verify S40 alert codes use the messages from the Lennox guide."""
+    assert lennox_error_get_message_from_code(code) == message
 
 
 def test_alerts_no_active_alerts(api_system_04_furn_ac_zoning):
