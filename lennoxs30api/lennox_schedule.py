@@ -15,7 +15,7 @@ class lennox_schedule(object):
 
     @property
     def periods(self) -> list:
-        """Returns the periods in the schedule, in id order"""
+        """Return the periods in the schedule, sorted by id."""
         return sorted(self._periods, key=lambda period: period.id)
 
     def getOrCreatePeriod(self, period_id: int) -> lennox_period:

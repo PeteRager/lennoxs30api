@@ -1932,6 +1932,43 @@ class lennox_system(object):
         systemMode=None,
         humidityMode=None,
     ) -> None:
+        """Update one period of a schedule.
+
+        Only the values that are passed are changed; everything else in the period
+        is left as it is. At least one value must be passed. Setpoints are not range
+        checked, so make sure the values are valid for the equipment.
+
+        The thermostat stores Fahrenheit and Celsius setpoints separately. When only
+        one unit is passed, the other is converted from it. When a setpoint is not
+        passed at all, the period's current value is sent with it. Heating and cooling
+        setpoints must be at least the changeover deadband apart.
+
+        Args:
+            scheduleId: The schedule to update, from lennox_system.getSchedules().
+            periodId: The period within the schedule. A 28 period schedule has 4
+                periods per day for 7 days, so the id is day * 4 + period.
+            startTime: When the period starts, in seconds since the start of the
+                week (not since midnight).
+            enabled: False removes the period from the schedule and True adds it
+                back. The thermostat uses this to delete periods.
+            hsp: Heating setpoint in Fahrenheit.
+            hspC: Heating setpoint in Celsius.
+            csp: Cooling setpoint in Fahrenheit.
+            cspC: Cooling setpoint in Celsius.
+            sp: Setpoint in Fahrenheit, only when the system is in single setpoint mode.
+            spC: Setpoint in Celsius, only when the system is in single setpoint mode.
+            husp: Humidify setpoint, in percent relative humidity.
+            desp: Dehumidify setpoint, in percent relative humidity.
+            fanMode: One of FAN_MODES.
+            systemMode: One of HVAC_MODES.
+            humidityMode: One of HUMIDITY_MODES.
+
+        Raises:
+            S30Exception: With EC_BAD_PARAMETERS when the schedule or period does not
+                exist, the schedule is an empty slot (5 - 15), nothing is passed to set,
+                a mode or startTime is invalid, setpoints do not match the system's
+                setpoint mode, or the heating and cooling setpoints are too close.
+        """
         _LOGGER.debug(
             f"lennox_system:set_schedule_period sysid [{self.sysId}] schedule_id [{scheduleId}] period_id [{periodId}] startTime [{startTime}] enabled [{enabled}] hsp [{hsp}] hspC [{hspC}] csp [{csp}] cspC [{cspC}] sp [{sp}] spC [{spC}] single_setpoint_mode [{self.single_setpoint_mode}] husp [{husp}] desp [{desp}] fanMode [{fanMode}] systemMode [{systemMode}] humidityMode [{humidityMode}]"
         )
@@ -2108,6 +2145,16 @@ class lennox_system(object):
         await self.api.publish_message_helper_dict(self.sysId, command)
 
     async def set_schedule_name(self, scheduleId, name: str) -> None:
+        """Rename a schedule.
+
+        Args:
+            scheduleId: The schedule to rename, from lennox_system.getSchedules().
+            name: The new name. Spaces are allowed.
+
+        Raises:
+            S30Exception: With EC_BAD_PARAMETERS when the schedule does not exist, the
+                schedule is an empty slot (5 - 15), or the name is empty.
+        """
         _LOGGER.info(f"lennox_system:set_schedule_name sysid [{self.sysId}] schedule_id [{scheduleId}] name [{name}]")
         schedule = self.getSchedule(scheduleId)
         if schedule is None:
