@@ -1974,11 +1974,11 @@ class lennox_system(object):
         )
         schedule = self.getSchedule(scheduleId)
         if schedule is None:
-            # Schedule slots 5 - 15 arrive with no schedule object at all, not even a name, until a
-            # schedule is created on the thermostat. We do not know the message that creates one.
+            # Schedule slots 5 - 15 arrive with no schedule object at all, not even a name. The S30 panel
+            # offers no way to create a schedule in them, so this library does not support it either.
             if 5 <= scheduleId <= 15:
                 raise S30Exception(
-                    f"set_schedule_period - schedule [{scheduleId}] is an empty slot, create the schedule on the thermostat first",
+                    f"set_schedule_period - schedule [{scheduleId}] is an empty slot, schedules cannot be created in slots 5 - 15",
                     EC_BAD_PARAMETERS,
                     1,
                 )
@@ -2160,7 +2160,7 @@ class lennox_system(object):
         if schedule is None:
             if 5 <= scheduleId <= 15:
                 raise S30Exception(
-                    f"set_schedule_name - schedule [{scheduleId}] is an empty slot, create the schedule on the thermostat first",
+                    f"set_schedule_name - schedule [{scheduleId}] is an empty slot, schedules cannot be created in slots 5 - 15",
                     EC_BAD_PARAMETERS,
                     1,
                 )
