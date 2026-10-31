@@ -442,11 +442,12 @@ LENNOX_UNKNOWN_ALERT_MESSAGE = "unknown alert code"
 
 def lennox_error_get_message_from_code(code: int):
     """Returns the errors string from a error code"""
+    unknown_message = f"{LENNOX_UNKNOWN_ALERT_MESSAGE} {code}"
     try:
         x = LennoxErrorCodes(code)
     except ValueError:
         x = None
     if x is not None:
-        return lennox_error_messages.get(x, LENNOX_UNKNOWN_ALERT_MESSAGE)
+        return lennox_error_messages.get(x, unknown_message)
     else:
-        return LENNOX_UNKNOWN_ALERT_MESSAGE
+        return unknown_message

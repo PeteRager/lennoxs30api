@@ -90,7 +90,7 @@ def test_alerts_unknown_alert(api_system_04_furn_ac_zoning):
     assert alert["timestampLast"] == "1665497389"
     assert alert["priority"] == "moderate"
     assert alert["equipmentType"] == 18
-    assert alert["message"] == "unknown alert code"
+    assert alert["message"] == "unknown alert code 998"
 
 
 @pytest.mark.parametrize(
