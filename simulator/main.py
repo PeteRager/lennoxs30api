@@ -31,6 +31,7 @@ class Simulator(object):
         self.productType = None
         self.wifiSim = False
         self.wifiSimRunning = False
+        self.bleDelay: float = 0
         with open(configfile) as f:
             self.config_data = json.load(f)
             if "outdoorTempSim" in self.config_data:
@@ -47,6 +48,8 @@ class Simulator(object):
                 self.productType = self.config_data["productType"]
             if "wifiSim" in self.config_data:
                 self.wifiSim = self.config_data["wifiSim"]
+            if "bleDelay" in self.config_data:
+                self.bleDelay = float(self.config_data["bleDelay"])
 
     async def heatpumpLockoutSimulator(self):
         if self.heatpumpLockoutSim is None:
@@ -327,6 +330,10 @@ class Simulator(object):
         data = await request.json()
         return self.process_request_data(data)
 
+    async def delayed_send(self, app: AppConnection, data: dict, delay: float) -> None:
+        await asyncio.sleep(delay)
+        app.queue.append(data)
+
     def process_request_data(self, data):
         if "SenderID" in data:
             app_id = data["SenderID"]
@@ -352,7 +359,10 @@ class Simulator(object):
                     app.queue.append(data)
                 if "bleFile" in self.config_data:
                     data = self.loadfile(self.config_data["bleFile"])
-                    app.queue.append(data)
+                    if self.bleDelay > 0:
+                        asyncio.create_task(self.delayed_send(app, data, self.bleDelay))
+                    else:
+                        app.queue.append(data)
                 if "iaqFile" in self.config_data:
                     data = self.loadfile(self.config_data["iaqFile"])
                     app.queue.append(data)
