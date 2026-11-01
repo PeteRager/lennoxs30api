@@ -128,3 +128,54 @@ def test_ble_sensor_subscriptions(api_system_04_furn_ac_zoning):
     callback_handler.called = 0
     system.processMessage(message)
     assert callback_handler.called == 0
+
+
+def test_ble_devices_system_subscription(api_system_04_furn_ac_zoning):
+    """Tests system callback fires when BLE devices are discovered"""
+    api = api_system_04_furn_ac_zoning
+    system: lennox_system = api.system_list[0]
+    assert system.sysId == "LCC"
+
+    callback_handler = CallbackHandler()
+    system.registerOnUpdateCallback(callback_handler.update_callback, ["ble_devices"])
+
+    # Test 1 - full BLE message creates devices and invokes callback once
+    message = loadfile("s40_ble.json", "LCC")
+    system.processMessage(message)
+    assert len(system.ble_devices) == 3
+    assert callback_handler.called == 1
+
+    # Test 2 - reprocessing message should not invoke callback
+    callback_handler.called = 0
+    system.processMessage(message)
+    assert callback_handler.called == 0
+
+    # Test 3 - status update for known device should not invoke callback
+    message = loadfile("s40_ble_status_update.json", "LCC")
+    system.processMessage(message)
+    assert callback_handler.called == 0
+
+
+def test_ble_devices_system_subscription_status_before_config(api_system_04_furn_ac_zoning):
+    """Tests system callback when a status update arrives before the full BLE config"""
+    api = api_system_04_furn_ac_zoning
+    system: lennox_system = api.system_list[0]
+    assert system.sysId == "LCC"
+
+    callback_handler = CallbackHandler()
+    system.registerOnUpdateCallback(callback_handler.update_callback, ["ble_devices"])
+
+    # Test 1 - status update creates the device without a model number
+    message = loadfile("s40_ble_status_update.json", "LCC")
+    system.processMessage(message)
+    assert callback_handler.called == 1
+    assert len(system.ble_devices) == 1
+    assert system.ble_devices[513].controlModelNumber is None
+
+    # Test 2 - full BLE message populates the model number and invokes callback
+    callback_handler.called = 0
+    message = loadfile("s40_ble.json", "LCC")
+    system.processMessage(message)
+    assert callback_handler.called == 1
+    assert len(system.ble_devices) == 3
+    assert system.ble_devices[513].controlModelNumber == "22V25"
