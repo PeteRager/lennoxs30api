@@ -1,6 +1,6 @@
 """Lennoxs30api"""
 
-__version__ = "0.2.25"
+__version__ = "0.2.26"
 from .lennox_home import *
 from .lennox_period import *
 from .lennox_schedule import *
