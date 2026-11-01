@@ -1392,9 +1392,17 @@ class lennox_system(object):
             if "device" in devices:
                 device = devices["device"]
                 if "wdn" in device and device["wdn"] != 0:
+                    is_new = device["wdn"] not in self.ble_devices
                     ble_device = self.get_or_create_ble_device(device["wdn"])
+                    old_model = ble_device.controlModelNumber
                     ble_device.update_from_json(device)
                     ble_device.execute_on_update_callbacks()
+                    # Signal system subscribers when a device appears or its model becomes known,
+                    # so consumers can create entities for BLE devices that arrive after startup.
+                    if is_new or ble_device.controlModelNumber != old_model:
+                        self._dirty = True
+                        if "ble_devices" not in self._dirtyList:
+                            self._dirtyList.append("ble_devices")
 
     def get_or_create_reminder(self, reminder_id: int) -> LennoxReminder:
         """Returns existing reminder or creates and returns a new one"""
